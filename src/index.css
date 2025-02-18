@@ -1,0 +1,7 @@
+@import "tailwindcss";
+.textShadow {
+  transition: text-shadow 0.2s;
+}
+.textShadow:hover {
+  text-shadow: 0.5px 0 0 currentColor;
+}
