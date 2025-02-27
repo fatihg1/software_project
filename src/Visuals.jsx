@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import HomePage from './HomePage.jsx';
+import HomePage from './Home.jsx';
 
 function Visuals() {
     const images = [

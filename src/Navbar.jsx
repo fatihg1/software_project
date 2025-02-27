@@ -1,48 +1,83 @@
-import { useState } from 'react';
-import { SignIn, useClerk } from '@clerk/clerk-react';
-import logo from '/TRAIN_LOGO-02.jpg';
-import profile from '/user.png';
+import { useNavigate, useLocation } from "react-router-dom";
+import { UserButton, useUser, useClerk } from "@clerk/clerk-react";
+import logo from "/TRAIN_LOGO-02.jpg";
+import sidebar from "/sidebar-2.png";
 
 function Navbar() {
-  const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { openSignIn } = useClerk();
+  const { user, isSignedIn } = useUser();
 
-  const handleProfileClick = () => {
-    setMenuOpen(!menuOpen);
-  };
+  // Helper function to check if a route is active
+  const isActive = (path) => location.pathname === path;
 
   return (
-    <div className="bg-blue-800 text-white fixed w-full p-3 z-50">
+    <div className="bg-blue-800 text-white fixed w-full p-3 z-50 shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex flex-row w-full justify-between">
+            {/* Left Section (Logo & Home Button) */}
             <div className="flex flex-row items-center space-x-4">
-              <img src={logo} className="h-8 w-8" alt="logo" />
-              <a href="#" className="text-2xl font-bold hover:medium">A-Train</a>
-            </div>
-            <div className="hidden md:flex flex-row space-x-8 text-lg">
-              <a href="#" className="textShadow">Buy Tickets</a>
-              <a href="#" className="textShadow">Station Center</a>
-              <a href="#" className="textShadow">About Us</a>
-              <a href="#" className="textShadow">Contact</a>
-            </div>
-            <div className="relative flex flex-row space-x-8 text-md">
               <img
-                src={profile}
-                className="h-8 w-8 grayscale hover:cursor-pointer"
-                onClick={handleProfileClick}
-                alt="profile"
+                src={logo}
+                className="h-8 w-8 transition-transform duration-300 hover:scale-110"
+                alt="logo"
               />
-              {menuOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-2 z-50">
-                  <button
-                    className="block w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-200"
-                    onClick={() => openSignIn({})}
-                  >
-                    Sign In
-                  </button>
-                  <SignIn path="/sign-in" routing="path" signUpUrl="/sign-up" />
-                </div>
+              <button
+                className={`h-8 px-4 transition-all duration-200 rounded-lg ${
+                  isActive("/")
+                    ? "bg-blue-600 font-medium shadow-inner"
+                    : "hover:bg-blue-700 hover:shadow"
+                }`}
+                onClick={() => navigate("/")}
+              >
+                A-Train
+              </button>
+            </div>
+
+            {/* Middle Section (Navigation Links) */}
+            <div className="hidden md:flex flex-row space-x-8 text-lg">
+              {[
+                { path: "/select-train", label: "Buy Tickets" },
+                { path: "/station-center", label: "Station Center" },
+                { path: "/about-us", label: "About Us" },
+                { path: "/contact", label: "Contact" },
+              ].map(({ path, label }) => (
+                <button
+                  key={path}
+                  className={`h-8 px-4 transition-all duration-200 rounded-lg ${
+                    isActive(path)
+                      ? "bg-blue-600 font-medium shadow-inner"
+                      : "hover:bg-blue-700 hover:shadow"
+                  }`}
+                  onClick={() => navigate(path)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            {/* Right Section (Authentication & Sidebar) */}
+            <div className="flex flex-row space-x-6 text-md items-center">
+              {/* Clerk Authentication Section */}
+              {isSignedIn ? (
+                <UserButton afterSignOutUrl="/" />
+              ) : (
+                <button
+                  className="h-8 px-4 transition-all duration-200 bg-blue-700 hover:bg-blue-600 hover:shadow rounded-lg"
+                  onClick={openSignIn}
+                >
+                  LOGIN
+                </button>
               )}
+
+              {/* Sidebar Icon */}
+              <img
+                src={sidebar}
+                className="h-8 w-8 grayscale hover:grayscale-0 transition-all duration-300 hover:cursor-pointer"
+                alt="menu"
+              />
             </div>
           </div>
         </div>
