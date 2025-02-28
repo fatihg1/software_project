@@ -9,6 +9,9 @@ function Navbar() {
   const { openSignIn } = useClerk();
   const { user, isSignedIn } = useUser();
 
+  // Kullanıcının Admin olup olmadığını kontrol et
+  const isAdmin = isSignedIn && user.publicMetadata?.role === "admin";
+
   // Helper function to check if a route is active
   const isActive = (path) => location.pathname === path;
 
@@ -60,6 +63,17 @@ function Navbar() {
 
             {/* Right Section (Authentication & Sidebar) */}
             <div className="flex flex-row space-x-6 text-md items-center">
+              
+              {/* Admin Panel Butonu - Sadece Admin Kullanıcılar İçin */}
+              {isAdmin && (
+                <button
+                  className="h-8 px-4 bg-red-500 text-white rounded-lg shadow-md hover:bg-red-600 transition"
+                  onClick={() => navigate("/admin")}
+                >
+                  Admin Panel
+                </button>
+              )}
+
               {/* Clerk Authentication Section */}
               {isSignedIn ? (
                 <UserButton afterSignOutUrl="/" />
