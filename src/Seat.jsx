@@ -19,71 +19,77 @@ const TrainSeatSelection = () => {
         name: "Wagon 1",
         seats: [
           // Top side seats (window)
-          ...Array(16).fill().map((_, index) => ({
-            id: `1-${index + 1}`,
-            number: index + 1,
-            position: 'top-window',
-            taken: [3, 7].includes(index + 1)
-          })),
-          // Top side seats (aisle)
-          ...Array(16).fill().map((_, index) => ({
-            id: `1-${index + 17}`,
-            number: index + 17,
-            position: 'top-aisle',
-            taken: [18, 24].includes(index + 17)
-          })),
-          // Bottom side seats (aisle)
-          ...Array(16).fill().map((_, index) => ({
-            id: `1-${index + 33}`,
-            number: index + 33,
-            position: 'bottom-aisle',
-            taken: [35, 39].includes(index + 33)
-          })),
-          // Bottom side seats (window)
-          ...Array(16).fill().map((_, index) => ({
-            id: `1-${index + 49}`,
-            number: index + 49,
-            position: 'bottom-window',
-            taken: [52, 56].includes(index + 49)
-          }))
+          ...Array(16).fill().map((_, columnIndex) => [
+            // Top window (first row of each column)
+            {
+              id: `1-${columnIndex * 4 + 1}`,
+              number: columnIndex * 4 + 1,
+              position: 'top-window',
+              taken: [3, 7].includes(columnIndex * 4 + 1)
+            },
+            // Top aisle (second row of each column)
+            {
+              id: `1-${columnIndex * 4 + 2}`,
+              number: columnIndex * 4 + 2,
+              position: 'top-aisle',
+              taken: [18, 24].includes(columnIndex * 4 + 2)
+            },
+            // Bottom aisle (third row of each column)
+            {
+              id: `1-${columnIndex * 4 + 3}`,
+              number: columnIndex * 4 + 3,
+              position: 'bottom-aisle',
+              taken: [35, 39].includes(columnIndex * 4 + 3)
+            },
+            // Bottom window (fourth row of each column)
+            {
+              id: `1-${columnIndex * 4 + 4}`,
+              number: columnIndex * 4 + 4,
+              position: 'bottom-window',
+              taken: [52, 56].includes(columnIndex * 4 + 4)
+            }
+          ]).flat() // Flatten the array of arrays
         ]
       },
       {
         id: 2,
         name: "Wagon 2",
         seats: [
-          // Top side seats (window)
-          ...Array(16).fill().map((_, index) => ({
-            id: `2-${index + 1}`,
-            number: index + 1,
-            position: 'top-window',
-            taken: [2, 8].includes(index + 1)
-          })),
-          // Top side seats (aisle)
-          ...Array(16).fill().map((_, index) => ({
-            id: `2-${index + 17}`,
-            number: index + 17,
-            position: 'top-aisle',
-            taken: [18, 24].includes(index + 17)
-          })),
-          // Bottom side seats (aisle)
-          ...Array(16).fill().map((_, index) => ({
-            id: `2-${index + 33}`,
-            number: index + 33,
-            position: 'bottom-aisle',
-            taken: [35, 39].includes(index + 33)
-          })),
-          // Bottom side seats (window)
-          ...Array(16).fill().map((_, index) => ({
-            id: `2-${index + 49}`,
-            number: index + 49,
-            position: 'bottom-window',
-            taken: [52, 56].includes(index + 49)
-          }))
+          ...Array(16).fill().map((_, columnIndex) => [
+            // Top window (first row of each column)
+            {
+              id: `2-${columnIndex * 4 + 1}`,
+              number: columnIndex * 4 + 1,
+              position: 'top-window',
+              taken: [2, 8].includes(columnIndex * 4 + 1)
+            },
+            // Top aisle (second row of each column)
+            {
+              id: `2-${columnIndex * 4 + 2}`,
+              number: columnIndex * 4 + 2,
+              position: 'top-aisle',
+              taken: [18, 24].includes(columnIndex * 4 + 2)
+            },
+            // Bottom aisle (third row of each column)
+            {
+              id: `2-${columnIndex * 4 + 3}`,
+              number: columnIndex * 4 + 3,
+              position: 'bottom-aisle',
+              taken: [35, 39].includes(columnIndex * 4 + 3)
+            },
+            // Bottom window (fourth row of each column)
+            {
+              id: `2-${columnIndex * 4 + 4}`,
+              number: columnIndex * 4 + 4,
+              position: 'bottom-window',
+              taken: [52, 56].includes(columnIndex * 4 + 4)
+            }
+          ]).flat() // Flatten the array of arrays
         ]
       }
     ]
   };
+
 
   // Handle seat selection
   const toggleSeatSelection = (wagonId, seatNumber, isTaken) => {
