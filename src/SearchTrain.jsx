@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Calendar, Search, MapPin, Clock, ArrowRight, RefreshCw, Filter, Info, ChevronDown, Sun, Sunrise, Sunset } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 // Sample data - in a real app this would come from an API
 const trains = [
@@ -15,7 +16,9 @@ const trains = [
 
 const cities = ["Istanbul", "Ankara", "Izmir", "Antalya", "Konya", "Eskişehir"];
 
+
 export default function TrainTicketSearch() {
+  const navigate = useNavigate();
   const [departure, setDeparture] = useState("");
   const [arrival, setArrival] = useState("");
   const [date, setDate] = useState("");
@@ -87,12 +90,11 @@ export default function TrainTicketSearch() {
   // Proceed to next page
   const proceedToNextPage = () => {
     const selectedTrainDetails = trains.find(train => train.id === selectedTrain);
-    alert(`Selected Train: ${selectedTrainDetails.departure} to ${selectedTrainDetails.arrival} at ${selectedTrainDetails.time} on ${formatDate(selectedTrainDetails.date)}`);
-    // Here you would navigate to the next page with the selected train details
+    navigate("/select-seats", { state: { train: selectedTrainDetails } });
   };
 
   return (
-    <div className="p-4 sm:p-6 max-w-6xl mx-auto bg-gradient-to-r from-blue-50 to-white rounded-xl shadow-xl relative">
+    <div className="p-4 pt-8 sm:p-6 sm:pt-30 max-w-6xl mx-auto bg-gradient-to-r from-blue-50 to-white rounded-xl shadow-xl relative">
       {/* Header Section */}
       <div className="mb-6 sm:mb-8">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Find Your Train</h1>
@@ -306,88 +308,90 @@ export default function TrainTicketSearch() {
         
         {/* Results list */}
         {results.length > 0 ? (
-          <div className="space-y-4">
-            {results.map((train) => (
-              <div
-                key={train.id}
-                className={`bg-white p-4 sm:p-5 rounded-xl shadow-lg border-2 transition cursor-pointer ${
-                  selectedTrain === train.id ? "border-blue-500 bg-blue-50" : "border-transparent hover:border-blue-300"
-                }`}
-                onClick={() => setSelectedTrain(train.id)}
-              >
-                <div className="flex flex-col md:flex-row md:justify-between gap-4">
-                  {/* Train info */}
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-1 mb-1">
-                      <div className="h-3 w-3 bg-blue-500 rounded-full"></div>
-                      <div className="h-px w-16 bg-gray-300"></div>
-                      <div className="h-3 w-3 bg-blue-500 rounded-full"></div>
+            <div className="space-y-4">
+                {results.map((train) => (
+                <div
+                    key={train.id}
+                    className={`bg-white p-4 sm:p-5 rounded-xl shadow-lg border-2 transition cursor-pointer ${
+                    selectedTrain === train.id ? "border-blue-500 bg-blue-50" : "border-transparent hover:border-blue-300"
+                    }`}
+                    onClick={() => setSelectedTrain(train.id)}
+                >
+                    <div className="flex flex-col md:flex-row md:justify-between gap-4">
+                    {/* Train info */}
+                    <div className="flex-1">
+                        <div className="flex items-center space-x-1 mb-1">
+                        <div className="h-3 w-3 bg-blue-500 rounded-full"></div>
+                        <div className="h-px w-full bg-gray-300"></div>
+                        <div className="h-3 w-3 bg-blue-500 rounded-full"></div>
+                        </div>
+                        
+                        <div className="flex justify-between mb-3">
+                        <div>
+                            <p className="text-xl font-semibold">{train.time}</p>
+                            <p className="text-sm text-gray-600">{train.departure}</p>
+                            <p className="text-xs text-gray-500">{formatDate(train.date)}</p>
+                        </div>
+                        
+                        <div className="flex flex-col items-center">
+                            <div className="text-sm font-medium text-gray-500">{train.duration}</div>
+                            <div className="border-t border-gray-300 w-16 my-1"></div>
+                            <div className="text-xs text-gray-500">Direct</div>
+                        </div>
+                        
+                        <div className="text-right">
+                            <p className="text-xl font-semibold">
+                            {train.time.split(':')
+                                .map((part, i) => parseInt(part) + (i === 0 ? parseInt(train.duration) : 0))
+                                .join(':')}
+                            </p>
+                            <p className="text-sm text-gray-600">{train.arrival}</p>
+                            <p className="text-xs text-gray-500">{formatDate(train.date)}</p>
+                        </div>
+                        </div>
                     </div>
                     
-                    <div className="flex justify-between mb-3">
-                      <div>
-                        <p className="text-xl font-semibold">{train.time}</p>
-                        <p className="text-sm text-gray-600">{train.departure}</p>
-                      </div>
-                      
-                      <div className="flex flex-col items-center">
-                        <div className="text-sm font-medium text-gray-500">{train.duration}</div>
-                        <div className="border-t border-gray-300 w-16 my-1"></div>
-                        <div className="text-xs text-gray-500">Direct</div>
-                      </div>
-                      
-                      <div className="text-right">
-                        <p className="text-xl font-semibold">
-                          {train.time.split(':')
-                            .map((part, i) => parseInt(part) + (i === 0 ? parseInt(train.duration) : 0))
-                            .join(':')}
-                        </p>
-                        <p className="text-sm text-gray-600">{train.arrival}</p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Price and details */}
-                  <div className="md:w-48 flex flex-row md:flex-col justify-between items-center md:items-end md:text-right">
-                    <div className="md:mb-3">
-                      <p className="text-2xl font-bold text-blue-700">{train.price} ₺</p>
-                      <div className="flex items-center text-sm">
-                        <Clock className="h-4 w-4 text-gray-500 mr-1" />
-                        <span className="text-gray-600">{train.duration}</span>
-                      </div>
-                    </div>
-                    
-                    <div>
-                      {isLowSeats(train.seats) ? (
-                        <div className="text-sm text-red-600 flex items-center">
-                          <Info className="h-4 w-4 mr-1" />
-                          Only {train.seats} seats left!
+                    {/* Price and details */}
+                    <div className="md:w-48 flex flex-row md:flex-col justify-between items-center md:items-end md:text-right">
+                        <div className="md:mb-3">
+                        <p className="text-2xl font-bold text-blue-700">{train.price} ₺</p>
+                        <div className="flex items-center text-sm">
+                            <Clock className="h-4 w-4 text-gray-500 mr-1" />
+                            <span className="text-gray-600">{train.duration}</span>
                         </div>
-                      ) : (
-                        <div className="text-sm text-green-600">
-                          {train.seats} seats available
                         </div>
-                      )}
+                        
+                        <div>
+                        {isLowSeats(train.seats) ? (
+                            <div className="text-sm text-red-600 flex items-center">
+                            <Info className="h-4 w-4 mr-1" />
+                            Only {train.seats} seats left!
+                            </div>
+                        ) : (
+                            <div className="text-sm text-green-600">
+                            {train.seats} seats available
+                            </div>
+                        )}
+                        </div>
                     </div>
-                  </div>
+                    </div>
                 </div>
-              </div>
             ))}
-          </div>
+        </div>
         ) : (
-          <div className="text-center py-10">
+        <div className="text-center py-10">
             {isSearching ? (
-              <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center">
                 <RefreshCw className="animate-spin h-10 w-10 text-blue-500 mb-4" />
                 <p className="text-xl text-gray-600">Searching for trains...</p>
-              </div>
+            </div>
             ) : (
-              <div className="bg-white p-6 sm:p-8 rounded-xl shadow-md">
+            <div className="bg-white p-6 sm:p-8 rounded-xl shadow-md">
                 <p className="text-xl text-gray-700 font-medium">No trains found</p>
                 <p className="text-gray-500 mt-2">Try adjusting your search criteria</p>
-              </div>
+            </div>
             )}
-          </div>
+        </div>
         )}
       </div>
 

@@ -11,11 +11,15 @@ import TrainSearch from './stationcenter.jsx'
 import Navbar from './Navbar.jsx'
 import ManagerDashboard from "./ManagerDashboard"; 
 import TrainManagement from "./TrainManagement"; 
-import UserManagement from "./UserManagement";
+import UserManagement from "./userManagement";
 import BookingManagement from "./BookingManagement";
 import FinanceManagement from "./FinanceManagement";
 import AnnouncementManagement from "./AnnouncementManagement"; 
-
+import TrainSeatSelection from './Seat.jsx'
+import PaymentPage from './Payment.jsx'
+import SearchTrainPage from './SearchTrainPage.jsx'
+import SeatPage from './SeatPage.jsx'
+import PaymentPageShow from './PaymentPage.jsx'
 
 
 
@@ -35,7 +39,15 @@ const router=createBrowserRouter([
     },
     {
       path:'/select-train',
-      element:<TrainTicketSearch/>
+      element:<SearchTrainPage/>
+    },
+    {
+      path:'/select-seats',
+      element:<SeatPage/>
+    },
+    {
+      path:'/payment',
+      element:<PaymentPageShow/>
     },
     { 
       path:'/station-center',

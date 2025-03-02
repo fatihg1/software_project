@@ -10,7 +10,7 @@ const FeedbackForm = () => {
   };
 
   return (
-    <div className="bg-gray-100 py-12">
+    <div className=" py-12">
       <div className="max-w-4xl mx-auto bg-white p-6 rounded-2xl shadow-lg">
         <h2 className="text-2xl font-semibold text-gray-800 mb-4">We Value Your Feedback</h2>
         <p className="text-gray-600 mb-4">

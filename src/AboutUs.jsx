@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from "react-router-dom";
 import { 
   FaTrain, 
   FaUsers, 
@@ -119,6 +120,7 @@ const slideFromRight = {
 export default function AboutUs() {
   const [openFAQ, setOpenFAQ] = useState(null);
   const [isPageLoaded, setIsPageLoaded] = useState(false);
+  const navigate = useNavigate();
   
   useEffect(() => {
     // Set page as loaded after a short delay to trigger animations
@@ -434,65 +436,14 @@ export default function AboutUs() {
       </div>
 
       
-      {/* Customer Testimonials */}
-      <motion.div 
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.3 }}
-        variants={fadeIn}
-        className="py-16 px-4 bg-blue-600 text-white"
-      >
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">What Our Customers Say</h2>
-            <div className="w-24 h-1 bg-white mx-auto mb-6"></div>
-          </div>
-          
-          <motion.div 
-            variants={scaleIn}
-            className="max-w-3xl mx-auto"
-          >
-            <Slider {...testimonialSettings}>
-              <div className="px-4">
-                <div className="bg-white text-gray-800 p-8 rounded-2xl shadow-lg">
-                  <p className="text-lg italic mb-6">
-                    "The best train ticket booking platform I've ever used. Simple, fast, and reliable. I saved both time and money!"
-                  </p>
-                  <div className="flex items-center">
-                    <div className="w-12 h-12 bg-gray-200 rounded-full flex-shrink-0"></div>
-                    <div className="ml-4">
-                      <p className="font-semibold">Robert Johnson</p>
-                      <p className="text-gray-500 text-sm">Frequent Traveler</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="px-4">
-                <div className="bg-white text-gray-800 p-8 rounded-2xl shadow-lg">
-                  <p className="text-lg italic mb-6">
-                    "Their customer service is outstanding. When my train was delayed, they immediately notified me and helped rebook my ticket."
-                  </p>
-                  <div className="flex items-center">
-                    <div className="w-12 h-12 bg-gray-200 rounded-full flex-shrink-0"></div>
-                    <div className="ml-4">
-                      <p className="font-semibold">Maria Garcia</p>
-                      <p className="text-gray-500 text-sm">Business Traveler</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </Slider>
-          </motion.div>
-        </div>
-      </motion.div>
-
+      
       {/* Train Stations Showcase */}
       <motion.div 
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.3 }}
         variants={fadeIn}
-        className="py-16 px-4 bg-white"
+        className="py-16 px-4 bg-gray-50"
       >
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
@@ -532,61 +483,7 @@ export default function AboutUs() {
         </div>
       </motion.div>
       
-      {/* FAQ Section */}
-      <motion.div 
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.3 }}
-        variants={fadeIn}
-        className="py-16 px-4 bg-gray-50"
-      >
-        <div className="max-w-3xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Frequently Asked Questions</h2>
-            <div className="w-24 h-1 bg-blue-500 mx-auto mb-6"></div>
-          </div>
-          
-          <motion.div 
-            variants={staggerContainer}
-            className="space-y-4"
-          >
-            {FAQs.map((faq, index) => (
-              <motion.div 
-                key={index} 
-                variants={itemFadeIn}
-                className="bg-white rounded-xl shadow-md overflow-hidden"
-              >
-                <button
-                  className="w-full p-6 text-left flex justify-between items-center focus:outline-none"
-                  onClick={() => toggleFAQ(index)}
-                >
-                  <h3 className="text-lg font-semibold text-gray-800">{faq.question}</h3>
-                  <motion.div
-                    animate={{ rotate: openFAQ === index ? 180 : 0 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <FaChevronDown className={openFAQ === index ? "text-blue-500" : "text-gray-500"} />
-                  </motion.div>
-                </button>
-                <motion.div 
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ 
-                    height: openFAQ === index ? "auto" : 0,
-                    opacity: openFAQ === index ? 1 : 0
-                  }}
-                  transition={{ duration: 0.3 }}
-                  className="overflow-hidden"
-                >
-                  <div className="px-6 pb-6">
-                    <div className="w-full h-px bg-gray-200 mb-4"></div>
-                    <p className="text-gray-600">{faq.answer}</p>
-                  </div>
-                </motion.div>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </motion.div>
+      
       
       {/* Contact CTA */}
       <motion.div 
@@ -605,6 +502,7 @@ export default function AboutUs() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="bg-white text-blue-600 font-bold py-3 px-8 rounded-full text-lg hover:bg-blue-50 transition-colors duration-300"
+            onClick={()=>navigate('/contact')}
           >
             Contact Us
           </motion.button>

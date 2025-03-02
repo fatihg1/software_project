@@ -135,7 +135,7 @@ export default function ContactUs() {
 
         {/* Feedback Form */}
         <motion.div 
-          className="bg-white p-6 sm:p-8 rounded-xl shadow-md mb-16"
+          className=" p-6 sm:p-8 rounded-xl  mb-16"
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6, duration: 0.5 }}
