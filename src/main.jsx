@@ -11,7 +11,7 @@ import TrainSearch from './stationcenter.jsx'
 import Navbar from './Navbar.jsx'
 import ManagerDashboard from "./ManagerDashboard"; 
 import TrainManagement from "./TrainManagement"; 
-import UserManagement from "./userManagement";
+import UserManagement from "./UserManagement";
 import BookingManagement from "./BookingManagement";
 import FinanceManagement from "./FinanceManagement";
 import AnnouncementManagement from "./AnnouncementManagement"; 
@@ -20,6 +20,7 @@ import PaymentPage from './Payment.jsx'
 import SearchTrainPage from './SearchTrainPage.jsx'
 import SeatPage from './SeatPage.jsx'
 import PaymentPageShow from './PaymentPage.jsx'
+import AdminDashboard from "./AdminDashboard";
 
 
 
@@ -54,7 +55,7 @@ const router=createBrowserRouter([
       element:<TrainSearch/>
     },
     {
-      path:'/admin', // Admin Paneli
+      path:'/manager', // manager Paneli
       element:<ManagerDashboard/>
     },
     { 
@@ -62,7 +63,7 @@ const router=createBrowserRouter([
       element: <TrainManagement /> 
     }, 
     { 
-      path:'/admin/users', 
+      path:'/manager/users', 
       element:<UserManagement/> 
     },
     {
@@ -70,12 +71,16 @@ const router=createBrowserRouter([
       element:<BookingManagement/>
     },
     {
-      path:"/admin/finance",
+      path:"/manager/finance",
       element:<FinanceManagement/>
     },
     { 
       path:'/admin/announcements',
       element:<AnnouncementManagement/> 
+    },
+    {
+      path: '/admin', // Admin Paneli
+      element: <AdminDashboard/>
     },
   ])
   

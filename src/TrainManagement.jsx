@@ -19,19 +19,13 @@ const TrainManagement = () => {
             <FaBars /> <span>Dashboard</span>
           </button>
           <button className="flex items-center space-x-2 p-3 rounded-md bg-purple-700 transition" onClick={() => navigate("/admin/trains")}>
-            <FaTrain /> <span>Tren Yönetimi</span>
-          </button>
-          <button className="flex items-center space-x-2 p-3 rounded-md hover:bg-purple-700 transition" onClick={() => navigate("/admin/users")}>
-            <FaUsers /> <span>Kullanıcı Yönetimi</span>
+            <FaTrain /> <span>Train Management</span>
           </button>
           <button className="flex items-center space-x-2 p-3 rounded-md hover:bg-purple-700 transition" onClick={() => navigate("/admin/bookings")}>
-            <FaClipboardList /> <span>Rezervasyon Yönetimi</span>
-          </button>
-          <button className="flex items-center space-x-2 p-3 rounded-md hover:bg-purple-700 transition" onClick={() => navigate("/admin/finance")}>
-            <FaMoneyBillWave /> <span>Finans Yönetimi</span>
+            <FaClipboardList /> <span>Booking Management</span>
           </button>
           <button className="flex items-center space-x-2 p-3 rounded-md hover:bg-purple-700 transition" onClick={() => navigate("/admin/announcements")}>
-            <FaBullhorn /> <span>Duyurular</span>
+            <FaBullhorn /> <span>Announcements</span>
           </button>
         </nav>
       </div>
@@ -47,7 +41,7 @@ const TrainManagement = () => {
           </div>
 
           {/* Sayfa Başlığı */}
-          <h1 className="text-3xl font-bold text-gray-800 flex-1 text-center">🚆 Tren Yönetimi</h1>
+          <h1 className="text-3xl font-bold text-gray-800 flex-1 text-center">🚆 Train Management</h1>
 
           {/* Çıkış Butonu */}
           <button
@@ -64,8 +58,8 @@ const TrainManagement = () => {
           <table className="w-full border-collapse">
             <thead>
               <tr className="bg-gray-200">
-                <th className="p-3 text-left">Tren Adı</th>
-                <th className="p-3 text-left">Kapasite</th>
+                <th className="p-3 text-left">Train Name</th>
+                <th className="p-3 text-left">Capacity</th>
               </tr>
             </thead>
             <tbody>
