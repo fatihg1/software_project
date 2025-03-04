@@ -71,7 +71,7 @@ const SalaryManagement = () => {
             <FaUsers /> <span>User Management</span>
           </button>
           <button className="flex items-center space-x-2 p-3 rounded-md hover:bg-purple-700 transition" onClick={() => navigate("/manager/finance")}>
-            <FaMoneyBillWave /> <span>Financial Management</span>
+            <FaMoneyBillWave /> <span>Sales & Refunds</span>
           </button>
           <button className="flex items-center space-x-2 p-3 rounded-md bg-purple-700 transition">
             <FaMoneyBillWave /> <span>Salary Management</span>

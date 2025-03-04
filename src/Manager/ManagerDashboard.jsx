@@ -12,7 +12,7 @@ const ManagerDashboard = () => {
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
       <div className="w-64 bg-blue-900 text-white p-6 flex flex-col">
-        <h2 className="text-2xl font-bold mb-6">Admin Panel</h2>
+        <h2 className="text-2xl font-bold mb-6">Manager Panel</h2>
         <nav className="flex flex-col space-y-4">
           <button 
             className={`flex items-center space-x-2 p-3 rounded-md ${
@@ -26,7 +26,7 @@ const ManagerDashboard = () => {
             <FaUsers /> <span>User Management</span>
           </button>
           <button className="flex items-center space-x-2 p-3 rounded-md hover:bg-purple-700 transition" onClick={() => navigate("/manager/finance")}>
-            <FaMoneyBillWave /> <span>Financial Management</span>
+            <FaMoneyBillWave /> <span>Sales & Refunds</span>
           </button>
           <button className="flex items-center space-x-2 p-3 rounded-md hover:bg-purple-700 transition" onClick={() => navigate("/manager/salary")}>
             <FaMoneyBillWave /> <span>Salary Management</span>
@@ -41,11 +41,7 @@ const ManagerDashboard = () => {
       <div className="flex-1 p-6 relative">
         {/* Header Section */}
         <div className="flex justify-between items-center mb-6">
-          {/* Search Box */}
-          <div className="flex items-center bg-white p-2 rounded-lg shadow-md w-96">
-            <FaSearch className="text-gray-400 mx-2" />
-            <input type="text" placeholder="Search..." className="outline-none p-1 w-full" />
-          </div>
+
 
           {/* Page Title */}
           <h1 className="text-3xl font-bold text-gray-800 flex-1 text-center">📊 Manager Dashboard</h1>
