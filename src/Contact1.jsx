@@ -131,19 +131,6 @@ export default function ContactUs() {
           </motion.div>
         </motion.div>
 
-        
-
-        {/* Feedback Form */}
-        <motion.div 
-          className=" p-6 sm:p-8 rounded-xl  mb-16"
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6, duration: 0.5 }}
-        >
-          <h2 className="text-2xl sm:text-3xl font-bold text-blue-600 mb-6 text-center">Send Us a Message</h2>
-          <FeedbackForm />
-        </motion.div>
-        
       </div>
     </motion.div>
   );
