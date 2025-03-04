@@ -9,18 +9,20 @@ import Aboutus from './AboutUsPage.jsx'
 import TrainTicketSearch from './SearchTrain.jsx'
 import TrainSearch from './stationcenter.jsx'
 import Navbar from './Navbar.jsx'
-import ManagerDashboard from "./ManagerDashboard"; 
-import TrainManagement from "./TrainManagement"; 
-import UserManagement from "./UserManagement";
-import BookingManagement from "./BookingManagement";
-import FinanceManagement from "./FinanceManagement";
-import AnnouncementManagement from "./AnnouncementManagement"; 
+import ManagerDashboard from "./Manager/ManagerDashboard.jsx"; 
+import TrainManagement from "./Admin/TrainManagement.jsx"; 
+import UserManagement from "./Manager/UserManagement.jsx";
+import BookingManagement from "./Admin/BookingManagement.jsx";
+import FinanceManagement from "./Manager/FinanceManagement.jsx";
+import AnnouncementManagement from "./Admin/AnnouncementManagement.jsx"; 
 import TrainSeatSelection from './Seat.jsx'
 import PaymentPage from './Payment.jsx'
 import SearchTrainPage from './SearchTrainPage.jsx'
 import SeatPage from './SeatPage.jsx'
 import PaymentPageShow from './PaymentPage.jsx'
-import AdminDashboard from "./AdminDashboard";
+import AdminDashboard from "./Admin/AdminDashboard.jsx";
+import SalaryManagement from './Manager/SalaryManagement.jsx'
+import RevenueAnalysis from './Manager/RevenueAnalysis.jsx'
 
 
 
@@ -81,6 +83,14 @@ const router=createBrowserRouter([
     {
       path: '/admin', // Admin Paneli
       element: <AdminDashboard/>
+    },
+    {
+      path: '/manager/salary',
+      element: <SalaryManagement/>
+    },
+    {
+      path: '/manager/revenue',
+      element: <RevenueAnalysis/>
     },
   ])
   

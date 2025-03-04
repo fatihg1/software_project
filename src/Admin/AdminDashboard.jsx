@@ -8,10 +8,10 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("dashboard");
 
-//   // Kullanıcı giriş yapmamışsa veya admin değilse yönlendir
-//   if (!isSignedIn || user.publicMetadata?.role !== "admin") {
-//     return <Navigate to="/" />;
-//   }
+  // // Kullanıcı giriş yapmamışsa veya admin değilse yönlendir
+  // if (!isSignedIn || user.publicMetadata?.role !== "admin") {
+  //   return <Navigate to="/" />;
+  // }
 
   return (
     <div className="flex h-screen bg-gray-100">
