@@ -171,7 +171,7 @@ export default function TrainTicketSearch() {
         {/* Price and details */}
         <div className="md:w-48 flex flex-row md:flex-col justify-between items-center md:items-end md:text-right">
           <div className="md:mb-3">
-            <p className="text-2xl font-bold text-blue-700">{train.price} ₺</p>
+            <p className="text-2xl font-bold text-blue-700">{train.price} $</p>
             <div className="flex items-center text-sm">
               <Clock className="h-4 w-4 text-gray-500 mr-1" />
               <span className="text-gray-600">{train.duration}</span>

@@ -182,7 +182,7 @@ const PaymentModal = ({
               type="submit"
               className="px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700"
             >
-              Pay Now ₺{priceDetails.grandTotal.toFixed(2)}
+              Pay Now ${priceDetails.grandTotal.toFixed(2)}
             </button>
           </div>
         </form>
@@ -512,7 +512,7 @@ if (cleanedBirthDate.length !== 8) {
             <div className="flex justify-between mb-4">
               <span className="text-lg font-medium">Total Ticket Price:</span>
               <span className="text-xl font-bold">
-                ₺{priceDetails.grandTotal.toFixed(2)}
+                ${priceDetails.grandTotal.toFixed(2)}
               </span>
             </div>
             
