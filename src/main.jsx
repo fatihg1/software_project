@@ -20,9 +20,11 @@ import PaymentPage from './Payment.jsx'
 import SearchTrainPage from './SearchTrainPage.jsx'
 import SeatPage from './SeatPage.jsx'
 import PaymentPageShow from './PaymentPage.jsx'
-import HelpCenter from './HelpCenter.jsx'
-import TrainRules from './TrainRulesPage.jsx'
-import MyTickets from './MyTicketsPage.jsx'
+import NotFound from './ErrorPage.jsx'
+
+
+
+
 
 const router=createBrowserRouter([
     {
@@ -53,10 +55,6 @@ const router=createBrowserRouter([
       path:'/station-center',
       element:<TrainSearch/>
     },
-    { 
-      path:'/help',
-      element:<HelpCenter/>
-    },
     {
       path:'/admin', // Admin Paneli
       element:<ManagerDashboard/>
@@ -77,18 +75,14 @@ const router=createBrowserRouter([
       path:"/admin/finance",
       element:<FinanceManagement/>
     },
-    {
-      path:"/rules",
-      element:<TrainRules/>
-    },
-    {
-      path:"/my-tickets",
-      element:<MyTickets/>
-    },
     { 
       path:'/admin/announcements',
       element:<AnnouncementManagement/> 
     },
+    {
+      path:'/*',
+      element:<NotFound/>
+    }
   ])
   
   // Import your Publishable Key
