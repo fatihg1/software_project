@@ -21,8 +21,9 @@ import SearchTrainPage from './SearchTrainPage.jsx'
 import SeatPage from './SeatPage.jsx'
 import PaymentPageShow from './PaymentPage.jsx'
 import NotFound from './ErrorPage.jsx'
-
-
+import HelpCenter from './HelpCenter.jsx'
+import TrainRules from './TrainRulesPage.jsx'
+import MyTickets from './MyTicketsPage.jsx'
 
 
 
@@ -70,6 +71,18 @@ const router=createBrowserRouter([
     {
       path:"/admin/bookings",
       element:<BookingManagement/>
+    },
+    {
+      path:"/rules",
+      element:<TrainRules/>
+    },
+    {
+      path:"/my-tickets",
+      element:<MyTickets/>
+    },
+    { 
+      path:'/help',
+      element:<HelpCenter/>
     },
     {
       path:"/admin/finance",
