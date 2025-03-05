@@ -8,10 +8,10 @@ import img6 from '/img6.png';
 
 const routes = [
   { img: img1, info: 'Ankara to Istanbul' },
-  { img: img2, info: 'Izmir to Istanbul' },
+  { img: img2, info: 'Istanbul to Izmir' },
   { img: img3, info: 'Izmir to Bursa' },
   { img: img4, info: 'Antalya to Konya' },
-  { img: img5, info: 'Konya to Alanya' },
+  { img: img5, info: 'Konya to Antalya' },
   { img: img6, info: 'Sivas to Ankara' },
 ];
 

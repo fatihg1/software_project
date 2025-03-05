@@ -1,110 +1,160 @@
-import { useState } from 'react'
-import logo from "/TRAIN_LOGO-02.jpg"
-import sidebar from "/sidebar-2.png"
-import { useNavigate, useLocation } from "react-router-dom";
-import { UserButton, useUser, useClerk } from '@clerk/clerk-react';
+import { useState } from 'react';
+import { SignIn, useClerk, UserButton } from '@clerk/clerk-react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useUser } from '@clerk/clerk-react';
+import logo from '/TRAIN_LOGO-02.png';
+import profile from '/user.png';
 
 function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const { openSignIn } = useClerk();
   const { user, isSignedIn } = useUser();
-  
-  // Helper function to check if a route is active
-  const isActive = (path) => location.pathname === path;
-  
-  // Helper to check if we're in any part of the ticket purchase flow
-  const isInTicketFlow = () => {
-    return ['/select-train', '/select-seats', '/payment'].includes(location.pathname);
-  };
-  
-  // Handle Buy Tickets button click
-  const handleBuyTicketsClick = () => {
-    if (!isInTicketFlow()) {
-      navigate("/select-train");
-    }
-    // Do nothing if already in the ticket flow
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // Scroll to top and navigate
+  const handleNavigation = (path) => {
+    navigate(path);
+    window.scrollTo(0, 0);
+    setIsMenuOpen(false);
   };
 
+  const isActive = (path) => location.pathname === path;
+
   return (
-    <div className="bg-blue-800 text-white fixed w-full p-3 z-50 shadow-lg">
+    <div className="bg-gradient-to-r from-blue-900 to-blue-800 text-white fixed w-full p-3 z-50 shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <div className="flex flex-row w-full justify-between">
+          <div className="flex flex-row w-full justify-between h-full">
+            {/* Logo and Brand */}
             <div className="flex flex-row items-center space-x-4">
-              <img
-                src={logo}
-                className="h-8 w-8 transition-transform duration-300 hover:scale-110 hover:rotate-3"
-                alt="logo"
-              />
+              <div className="bg-white p-1 rounded-full">
+                <svg
+                  width="40"
+                  height="40"
+                  className="hover:cursor-pointer"
+                  viewBox="0 0 200 200"
+                  xmlns="http://www.w3.org/2000/svg"
+                  onClick={() => handleNavigation("/")}
+                >
+                  <circle cx="100" cy="100" r="90" fill="#193CB8" />
+                  <text
+                    x="50%"
+                    y="50%"
+                    fontFamily="Arial, sans-serif"
+                    fontSize="80"
+                    fontWeight="bold"
+                    fill="white"
+                    textAnchor="middle"
+                    alignmentBaseline="middle"
+                  >
+                    RL
+                  </text>
+                </svg>
+              </div>
               <button
-                className={`h-8 px-4 transition-all duration-200 rounded-lg relative overflow-hidden ${
-                  isActive("/")
-                    ? "bg-blue-600 font-medium shadow-inner"
-                    : "hover:bg-blue-700 before:absolute before:inset-0 before:bg-white before:opacity-0 before:hover:opacity-10 before:transition-opacity"
+                className={`text-2xl font-bold transition duration-300 hover:cursor-pointer ${
+                  isActive("/") ? "text-blue-300" : "hover:text-blue-300"
                 }`}
-                onClick={() => navigate("/")}
+                onClick={() => handleNavigation("/")}
               >
-                A-Train
+                Rail Link
               </button>
             </div>
-            <div className="hidden md:flex flex-row space-x-8 text-lg">
+
+            {/* Navigation Links */}
+            <div className="hidden md:flex flex-row space-x-4 text-md items-center">
               <button
-                className={`h-8 px-4 transition-all duration-300 rounded-lg relative overflow-hidden ${
-                  isInTicketFlow()
-                    ? "bg-blue-600 font-medium shadow-inner"
-                    : "hover:bg-blue-700 before:absolute before:inset-0 before:bg-white before:opacity-0 before:hover:opacity-10 before:transition-opacity hover:translate-y-[-2px]"
+                className={`px-4 py-2 rounded-md transition duration-200 ${
+                  isActive("/select-train")
+                    ? "bg-blue-700 ring-2 ring-blue-300"
+                    : "hover:bg-blue-700 hover:translate-y-[-2px]"
                 }`}
-                onClick={handleBuyTicketsClick}
+                onClick={() => handleNavigation("/select-train")}
               >
-                Buy Tickets
+                <span className="text-white textShadow">Buy Tickets</span>
               </button>
+
               <button
-                className={`h-8 px-4 transition-all duration-300 rounded-lg relative overflow-hidden ${
+                className={`px-4 py-2 rounded-md transition duration-200 ${
                   isActive("/station-center")
-                    ? "bg-blue-600 font-medium shadow-inner"
-                    : "hover:bg-blue-700 before:absolute before:inset-0 before:bg-white before:opacity-0 before:hover:opacity-10 before:transition-opacity hover:translate-y-[-2px]"
+                    ? "bg-blue-700 ring-2 ring-blue-300"
+                    : "hover:bg-blue-700 hover:translate-y-[-2px]"
                 }`}
-                onClick={() => navigate("/station-center")}
+                onClick={() => handleNavigation("/station-center")}
               >
-                Station Center
+                <span className="text-white textShadow">Station Center</span>
               </button>
+
               <button
-                className={`h-8 px-4 transition-all duration-300 rounded-lg relative overflow-hidden ${
+                className={`px-4 py-2 rounded-md transition duration-200 ${
+                  isActive("/help-center")
+                    ? "bg-blue-700 ring-2 ring-blue-300"
+                    : "hover:bg-blue-700 hover:translate-y-[-2px]"
+                }`}
+                onClick={() => handleNavigation("/help")}
+              >
+                <span className="text-white textShadow">Help Center</span>
+              </button>
+
+              <button
+                className={`px-4 py-2 rounded-md transition duration-200 ${
                   isActive("/about-us")
-                    ? "bg-blue-600 font-medium shadow-inner"
-                    : "hover:bg-blue-700 before:absolute before:inset-0 before:bg-white before:opacity-0 before:hover:opacity-10 before:transition-opacity hover:translate-y-[-2px]"
+                    ? "bg-blue-700 ring-2 ring-blue-300"
+                    : "hover:bg-blue-700 hover:translate-y-[-2px]"
                 }`}
-                onClick={() => navigate("/about-us")}
+                onClick={() => handleNavigation("/about-us")}
               >
-                About Us
+                <span className="text-white textShadow">About Us</span>
               </button>
+
               <button
-                className={`h-8 px-4 transition-all duration-300 rounded-lg relative overflow-hidden ${
+                className={`px-4 py-2 rounded-md transition duration-200 ${
                   isActive("/contact")
-                    ? "bg-blue-600 font-medium shadow-inner"
-                    : "hover:bg-blue-700 before:absolute before:inset-0 before:bg-white before:opacity-0 before:hover:opacity-10 before:transition-opacity hover:translate-y-[-2px]"
+                    ? "bg-blue-700 ring-2 ring-blue-300"
+                    : "hover:bg-blue-700 hover:translate-y-[-2px]"
                 }`}
-                onClick={() => navigate("/contact")}
+                onClick={() => handleNavigation("/contact")}
               >
-                Contact
+                <span className="text-white textShadow">Contact</span>
               </button>
             </div>
-            <div className="flex flex-row space-x-8 text-md items-center">
-              <button
-                className="h-8 px-4 transition-all duration-300 bg-blue-700 rounded-lg relative overflow-hidden hover:bg-blue-600 hover:shadow-md hover:translate-y-[-2px] before:absolute before:inset-0 before:bg-white before:opacity-0 before:hover:opacity-10 before:transition-opacity"
-                onClick={() => {
-                  openSignIn();
-                }}
-              >
-                LOGIN
-              </button>
-              <img
-                src={sidebar}
-                className="h-8 w-8 grayscale hover:grayscale-0 transition-all duration-300 hover:cursor-pointer hover:scale-110"
-                alt="menu"
-              />
+
+            {/* Profile Menu */}
+            <div className="relative flex flex-row items-center space-x-4">
+              {/* Conditional Rendering for Authentication */}
+              {!isSignedIn ? (
+                <div 
+                  className="p-2 rounded-full hover:bg-blue-700 transition duration-200"
+                  onClick={() => openSignIn()}
+                >
+                  <img
+                    src={profile}
+                    className="h-8 w-8 hover:cursor-pointer transition-transform duration-200 hover:scale-110"
+                    alt="Sign In"
+                  />
+                </div>
+              ) : (
+                <UserButton 
+                  appearance={{
+                    elements: {
+                      userButtonPopoverCard: 'bg-blue-900 text-white',
+                      userButtonTrigger: 'hover:scale-110 transition-transform'
+                    }
+                  }} 
+                />
+              )}
             </div>
+          </div>
+
+          {/* Mobile Menu Toggle (Optional - you can expand this) */}
+          <div className="md:hidden">
+            <button 
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="text-white focus:outline-none"
+            >
+              {isMenuOpen ? '✕' : '☰'}
+            </button>
           </div>
         </div>
       </div>

@@ -9,23 +9,20 @@ import Aboutus from './AboutUsPage.jsx'
 import TrainTicketSearch from './SearchTrain.jsx'
 import TrainSearch from './stationcenter.jsx'
 import Navbar from './Navbar.jsx'
-import ManagerDashboard from "./Manager/ManagerDashboard.jsx"; 
-import TrainManagement from "./Admin/TrainManagement.jsx"; 
-import UserManagement from "./Manager/UserManagement.jsx";
-import BookingManagement from "./Admin/BookingManagement.jsx";
-import FinanceManagement from "./Manager/FinanceManagement.jsx";
-import AnnouncementManagement from "./Admin/AnnouncementManagement.jsx"; 
+import ManagerDashboard from "./ManagerDashboard"; 
+import TrainManagement from "./TrainManagement"; 
+import UserManagement from "./userManagement";
+import BookingManagement from "./BookingManagement";
+import FinanceManagement from "./FinanceManagement";
+import AnnouncementManagement from "./AnnouncementManagement"; 
 import TrainSeatSelection from './Seat.jsx'
 import PaymentPage from './Payment.jsx'
 import SearchTrainPage from './SearchTrainPage.jsx'
 import SeatPage from './SeatPage.jsx'
 import PaymentPageShow from './PaymentPage.jsx'
-import AdminDashboard from "./Admin/AdminDashboard.jsx";
-import SalaryManagement from './Manager/SalaryManagement.jsx'
-import RevenueAnalysis from './Manager/RevenueAnalysis.jsx'
-
-
-
+import HelpCenter from './HelpCenter.jsx'
+import TrainRules from './TrainRulesPage.jsx'
+import MyTickets from './MyTicketsPage.jsx'
 
 const router=createBrowserRouter([
     {
@@ -56,8 +53,12 @@ const router=createBrowserRouter([
       path:'/station-center',
       element:<TrainSearch/>
     },
+    { 
+      path:'/help',
+      element:<HelpCenter/>
+    },
     {
-      path:'/manager', // manager Paneli
+      path:'/admin', // Admin Paneli
       element:<ManagerDashboard/>
     },
     { 
@@ -65,7 +66,7 @@ const router=createBrowserRouter([
       element: <TrainManagement /> 
     }, 
     { 
-      path:'/manager/users', 
+      path:'/admin/users', 
       element:<UserManagement/> 
     },
     {
@@ -73,24 +74,20 @@ const router=createBrowserRouter([
       element:<BookingManagement/>
     },
     {
-      path:"/manager/finance",
+      path:"/admin/finance",
       element:<FinanceManagement/>
+    },
+    {
+      path:"/rules",
+      element:<TrainRules/>
+    },
+    {
+      path:"/my-tickets",
+      element:<MyTickets/>
     },
     { 
       path:'/admin/announcements',
       element:<AnnouncementManagement/> 
-    },
-    {
-      path: '/admin', // Admin Paneli
-      element: <AdminDashboard/>
-    },
-    {
-      path: '/manager/salary',
-      element: <SalaryManagement/>
-    },
-    {
-      path: '/manager/revenue',
-      element: <RevenueAnalysis/>
     },
   ])
   
