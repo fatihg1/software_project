@@ -1,0 +1,40 @@
+import React from 'react';
+
+const WagonSelector = ({ 
+  trains, 
+  trainType, 
+  currentWagonIndex, 
+  onWagonSelect 
+}) => {
+  const train = trains.find(t => t.type === trainType);
+
+  return (
+    <div className="w-full overflow-x-auto mb-4">
+      <div className="flex space-x-4 pb-2">
+        {train.wagons.map((wagon, index) => (
+          <button
+            key={wagon.id}
+            onClick={() => onWagonSelect(trainType, index)}
+            className={`
+              flex-shrink-0 p-4 rounded-lg shadow-md transition-all duration-300
+              ${currentWagonIndex === index 
+                ? 'bg-blue-600 text-white' 
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}
+              w-48 flex flex-col items-start space-y-2
+            `}
+          >
+            <div className="font-bold text-lg">{wagon.name}</div>
+            <div className="text-sm">
+              Wagon {index+1}
+            </div>
+            <div className="text-sm">
+              {wagon.seats.filter(seat => !seat.taken).length} seats left
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default WagonSelector;
