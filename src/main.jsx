@@ -7,7 +7,7 @@ import Home from "./HomePage.jsx"
 import Contact from './ContactPage.jsx'
 import Aboutus from './AboutUsPage.jsx'
 import TrainTicketSearch from './SearchTrain.jsx'
-import TrainSearch from './stationcenter.jsx'
+import TrainSearch from './StationCenterPage.jsx'
 import Navbar from './Navbar.jsx'
 import ManagerDashboard from "./Manager/ManagerDashboard.jsx"; 
 import TrainManagement from "./Admin/TrainManagement.jsx"; 
@@ -28,7 +28,6 @@ import HelpCenter from './HelpCenter.jsx'
 import TrainRules from './TrainRulesPage.jsx'
 import MyTickets from './MyTicketsPage.jsx'
 import FAQsPage from './FAQsPage.jsx'
-
 
 
 const router=createBrowserRouter([
@@ -116,7 +115,6 @@ const router=createBrowserRouter([
       path: '/faqs',  
       element: <FAQsPage />
     },
-
   ])
   
   // Import your Publishable Key

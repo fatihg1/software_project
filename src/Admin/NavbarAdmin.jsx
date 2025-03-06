@@ -5,12 +5,15 @@ import { useUser } from '@clerk/clerk-react';
 import logo from '/TRAIN_LOGO-02.png';
 import profile from '/user.png';
 
-function Navbar() {
+function NavbarAdmin() {
   const navigate = useNavigate();
   const location = useLocation();
   const { openSignIn } = useClerk();
   const { user, isSignedIn } = useUser();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  
+  // Check if user has admin role
+  const isAdmin = isSignedIn && user?.publicMetadata?.role === 'admin';
 
   // Scroll to top and navigate
   const handleNavigation = (path) => {
@@ -20,17 +23,6 @@ function Navbar() {
   };
 
   const isActive = (path) => location.pathname === path;
-  
-  // Function to get user role from metadata
-  const getUserRole = () => {
-    if (!isSignedIn || !user) return null;
-    
-    // Assuming role is stored in publicMetadata
-    // Modify this according to where you store role information in Clerk
-    return user.publicMetadata.role;
-  };
-  
-  const userRole = getUserRole();
 
   return (
     <div className="bg-gradient-to-r from-blue-900 to-blue-800 text-white fixed w-full p-3 z-50 shadow-lg">
@@ -129,31 +121,18 @@ function Navbar() {
               >
                 <span className="text-white textShadow">Contact</span>
               </button>
-              
-              {/* Role-specific buttons */}
-              {isSignedIn && userRole === 'manager' && (
-                <button
-                  className={`px-4 py-2 rounded-md transition duration-200 ${
-                    isActive("/manager")
-                      ? "bg-blue-700 ring-2 ring-blue-300"
-                      : "hover:bg-blue-700 hover:translate-y-[-2px]"
-                  }`}
-                  onClick={() => handleNavigation("/manager")}
-                >
-                  <span className="text-white textShadow">Manager</span>
-                </button>
-              )}
-              
-              {isSignedIn && userRole === 'admin' && (
+
+              {/* Admin Panel Button - Only visible to admin users */}
+              {isAdmin && (
                 <button
                   className={`px-4 py-2 rounded-md transition duration-200 ${
                     isActive("/admin")
-                      ? "bg-blue-700 ring-2 ring-blue-300"
-                      : "hover:bg-blue-700 hover:translate-y-[-2px]"
+                      ? "bg-indigo-700 ring-2 ring-indigo-300"
+                      : "bg-indigo-600 hover:bg-indigo-700 hover:translate-y-[-2px]"
                   }`}
                   onClick={() => handleNavigation("/admin")}
                 >
-                  <span className="text-white textShadow">Admin</span>
+                  <span className="text-white textShadow">Panel</span>
                 </button>
               )}
             </div>
@@ -200,4 +179,4 @@ function Navbar() {
   );
 }
 
-export default Navbar;
+export default NavbarAdmin;

@@ -89,7 +89,7 @@ const SalaryManagement = () => {
           <h1 className="text-3xl font-bold text-gray-800 flex-1 text-center">💰 Salary Management</h1>
           <button className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition flex items-center space-x-2" onClick={() => navigate("/")}>
             <FaSignOutAlt />
-            <span>Logout</span>
+            <span>Back</span>
           </button>
         </div>
 

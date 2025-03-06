@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import Navbar from './Navbar';
 
 const HelpCenter = () => {
   // State for Look Up an Appeal section
@@ -83,7 +82,6 @@ const HelpCenter = () => {
 
   return (
     <div>
-      <Navbar/>
       <div className="h-20"></div>
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 p-8">
         <div className="max-w-4xl mx-auto bg-white shadow-2xl rounded-xl overflow-hidden">
