@@ -27,6 +27,7 @@ import NotFound from './ErrorPage.jsx'
 import HelpCenter from './HelpCenter.jsx'
 import TrainRules from './TrainRulesPage.jsx'
 import MyTickets from './MyTicketsPage.jsx'
+import FAQsPage from './FAQsPage.jsx'
 
 
 
@@ -110,6 +111,10 @@ const router=createBrowserRouter([
     {
       path:"/manager/salary",
       element:<SalaryManagement/>
+    },
+    {
+      path: '/faqs',  
+      element: <FAQsPage />
     },
 
   ])

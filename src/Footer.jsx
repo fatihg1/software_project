@@ -26,6 +26,7 @@ const Footer = () => {
             <li><Link to="/about-us" className="hover:text-white" onClick={handleScrollToTop}>About Us</Link></li>
             <li><Link to="/contact" className="hover:text-white" onClick={handleScrollToTop}>Contact</Link></li>
             <li><Link to="/rules" className="hover:text-white" onClick={handleScrollToTop}>Train Rules</Link></li>
+            <li><Link to="/faqs" className="hover:text-white" onClick={handleScrollToTop}>FAQs</Link></li>
           </ul>
         </div>
 
@@ -37,6 +38,8 @@ const Footer = () => {
           <p className="mt-1 text-gray-400">Phone: +1 234 567 890</p>
         </div>
       </div>
+
+      
 
       {/* Bottom Section */}
       <div className="text-center text-gray-500 text-sm border-t border-gray-700 mt-6 pt-4">
