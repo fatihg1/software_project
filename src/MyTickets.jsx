@@ -6,38 +6,38 @@ const TicketDisplayPage = () => {
   const [tickets, setTickets] = useState([
     {
       id: "TKT-1234123123",
-      lastName: "İlktan Ar",
+      lastName: "Murat Alkaptan",
       route: {
-        from: "New York",
-        to: "Boston"
+        from: "İstanbul",
+        to: "Ankara"
       },
       date: "2025-03-15",
       time: "14:30",
-      seat: "C12",
+      seat: "Wagon 2, seat 12",
       refundRequested: false
     },
     {
       id: "TKT-5678123123",
-      lastName: "Smith",
+      lastName: "Yağız Karhan Kökgül",
       route: {
-        from: "Boston",
-        to: "Washington DC"
+        from: "İzmir",
+        to: "İstanbul"
       },
       date: "2025-03-20",
       time: "09:15",
-      seat: "A04",
+      seat: "Wagon 1, Seat 2",
       refundRequested: false
     },
     {
       id: "TKT-9012444888",
-      lastName: "Smith",
+      lastName: "Umut Kutlu",
       route: {
-        from: "Washington DC",
-        to: "New York"
+        from: "Ankara",
+        to: "İstanbul"
       },
       date: "2025-03-25",
       time: "16:45",
-      seat: "B22",
+      seat: "Wagon 3, Seat 40",
       refundRequested: false
     }
   ]);
