@@ -70,25 +70,32 @@ export default function HomePage() {
     setFilteredArrivalStations(filtered);
   };
 
+  const handleDepartureDateChange = (e) => {
+    const newDepartureDate = e.target.value;
+    setDepartureDate(newDepartureDate);
+    
+    // If return date is earlier than the new departure date, update it
+    if (isRoundTrip && returnDate < newDepartureDate) {
+      setReturnDate(newDepartureDate);
+    }
+  };
+
   const handleReturnDateChange = (e) => {
     setReturnDate(e.target.value);
-    if (e.target.value) {
-      setIsRoundTrip(true);
-    }
   };
 
   const handleRoundTripChange = (e) => {
     setIsRoundTrip(e.target.checked);
     if (e.target.checked) {
-      setReturnDate(departureDate);
-    } else {
-      setReturnDate('');
+      // When switching to round trip, set return date to departure date if it's not already set
+      if (!returnDate || returnDate < departureDate) {
+        setReturnDate(departureDate);
+      }
     }
   };
 
   const handleOneWayChange = () => {
     setIsRoundTrip(false);
-    setReturnDate('');
   };
   
   // Filter stations based on input
@@ -145,7 +152,6 @@ export default function HomePage() {
   };
 
   // Handle ticket lookup form submission
-  // Handle ticket lookup form submission
   const handleTicketLookup = (e) => {
     e.preventDefault();
     const ticketId = e.target.elements.ticketId.value;
@@ -201,25 +207,25 @@ export default function HomePage() {
         {selectedSection === 'selectTicket' && (
           <form className="grid grid-cols-1 md:grid-cols-2 gap-4" onSubmit={handleSearchSubmit}>
             <div className="md:col-span-2 flex justify-between bg-blue-50 p-2 rounded">
-              <div className="flex items-center space-x-1">
+              <div className="flex items-center space-x-1 cursor-pointer">
                 <input 
                   type="radio" 
                   id="oneWay" 
                   name="tripType" 
                   checked={!isRoundTrip} 
                   onChange={handleOneWayChange} 
-                  className="h-4 w-4 text-blue-600"
+                  className="h-5 w-5 text-blue-600"
                 />
                 <label htmlFor="oneWay" className="text-blue-700 text-sm">One Way</label>
               </div>
-              <div className="flex items-center space-x-1">
+              <div className="flex items-center space-x-1 cursor-pointer">
                 <input 
                   type="radio" 
                   id="roundTrip" 
                   name="tripType" 
                   checked={isRoundTrip} 
                   onChange={handleRoundTripChange} 
-                  className="h-4 w-4 text-blue-600"
+                  className="h-5 w-5 text-blue-600"
                 />
                 <label htmlFor="roundTrip" className="text-blue-700 text-sm">Round Trip</label>
               </div>
@@ -304,36 +310,28 @@ export default function HomePage() {
               <input 
                 type="date" 
                 value={departureDate}
-                onChange={(e) => setDepartureDate(e.target.value)}
+                onChange={handleDepartureDateChange}
                 className="p-2 text-sm rounded border border-gray-300 w-full"
                 required
               />
             </div>
-            <div>
-              <label className="block text-xs font-medium text-blue-700 mb-1">Return Date</label>
-              <input 
-                type="date" 
-                value={returnDate}
-                onChange={handleReturnDateChange}
-                disabled={!isRoundTrip}
-                className={`p-2 text-sm rounded border w-full ${
-                  !isRoundTrip ? 'bg-gray-100 border-gray-200' : 'border-gray-300'
-                }`} 
-                required={isRoundTrip}
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-blue-700 mb-1">Passengers</label>
-              <input 
-                type="number" 
-                min="1"
-                value={numPassengers}
-                onChange={(e) => setNumPassengers(parseInt(e.target.value))}
-                className="p-2 text-sm rounded border border-gray-300 w-full" 
-                required
-              />
-            </div>
-            <div className="md:col-span-2 pt-2">
+            
+            
+              <div>
+                <label className="block text-xs font-medium text-blue-700 mb-1">Return Date</label>
+                <input 
+                  type="date" 
+                  value={returnDate}
+                  onChange={handleReturnDateChange}
+                  min={departureDate} // This prevents selecting dates before departure date
+                  className="p-2 text-sm rounded border border-gray-300 w-full"
+                  required
+                  disabled={!isRoundTrip}
+                />
+              </div>
+            
+            
+            <div className={`md:col-span-2 pt-2`}>
               <button 
                 type="submit" 
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium py-2 px-4 rounded transition duration-200"
