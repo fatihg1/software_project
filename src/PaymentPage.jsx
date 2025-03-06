@@ -1,15 +1,15 @@
 import { div } from "framer-motion/client"
-import Navbar from "./Navbar"
 import Footer from "./Footer"
 import PaymentPage from "./Payment"
 import ScrollToTop from "./Scroll"
+import PopUp from './TrainRules.jsx';
 
 function PaymentPageShow(){
     return(
         <div>
             <ScrollToTop/>
-            <Navbar/>
             <PaymentPage/>
+            <PopUp/>
             <Footer/>
         </div>
     )

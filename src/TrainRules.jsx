@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { ChevronDown, ChevronUp, Info } from "lucide-react";
+import React, { useState } from "react";
+import { ChevronDown, ChevronUp, Info, X } from "lucide-react";
 
 const rules = {
   "Sales Rules": `• Tickets must be purchased at least 30 minutes before departure. Purchased tickets are non-transferable and subject to cancellation/refund policies.
@@ -149,50 +149,93 @@ const rules = {
   - Oversized strollers (exceeding 100x70x40 cm when folded): May be refused`
 };
 
-export default function TicketRules() {
+const TrainRulesPopUp = () => {
+  const [isOpen, setIsOpen] = useState(false);
   const [openRule, setOpenRule] = useState(null);
+  const [position, setPosition] = useState({ x: "right-4", y: "bottom-4" });
+
+  const togglePopup = () => {
+    setIsOpen(!isOpen);
+  };
+
+  const toggleRule = (title) => {
+    setOpenRule(openRule === title ? null : title);
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-100 via-indigo-100 to-indigo-200 flex items-center justify-center p-4">
-      <div className="w-full max-w-4xl bg-white shadow-2xl rounded-2xl overflow-hidden">
-        <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-6 flex items-center space-x-4">
-          <Info className="text-white w-10 h-10" />
-          <h1 className="text-2xl font-bold text-white">Train Ticketing Rules</h1>
-        </div>
-        
-        <div className="p-6 space-y-4">
-          {Object.entries(rules).map(([title, content]) => (
-            <div 
-              key={title} 
-              className="border border-blue-100 rounded-xl overflow-hidden transition-all duration-300 ease-in-out"
-            >
-              <button 
-                onClick={() => setOpenRule(openRule === title ? null : title)}
-                className={`
-                  w-full text-left p-4 flex justify-between items-center 
-                  ${openRule === title 
-                    ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white' 
-                    : 'bg-gradient-to-r from-white to-blue-100 text-blue-800 hover:bg-blue-100'}
-                  focus:outline-none transition-colors duration-200
-                `}
-              >
-                <span className="font-semibold">{title}</span>
-                {openRule === title ? (
-                  <ChevronUp className="w-6 h-6" />
-                ) : (
-                  <ChevronDown className="w-6 h-6" />
-                )}
-              </button>
-              
-              {openRule === title && (
-                <div className="p-4 bg-white text-gray-700 leading-relaxed text-sm">
-                  {content}
+    <>
+      {/* Trigger Button */}
+      <button
+        onClick={togglePopup}
+        className="fixed bottom-4 right-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 focus:outline-none"
+        aria-label="Train Rules"
+      >
+        <Info className="w-6 h-6" />
+      </button>
+
+      {/* Popup Modal */}
+      {isOpen && (
+        <div>
+          <div className="fixed inset-0 h-screen w-screen bg-opacity-30 backdrop-blur-sm z-50">
+          </div>
+          <div className="fixed inset-0 z-50 flex items-center justify-center transition-opacity duration-300">
+            <div className="relative w-full max-w-3xl max-h-[90vh] bg-white rounded-2xl shadow-2xl overflow-hidden">
+              {/* Header */}
+              <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-4 flex justify-between items-center">
+                <div className="flex items-center space-x-3">
+                  <Info className="text-white w-6 h-6" />
+                  <h2 className="text-xl font-bold text-white">Train Ticketing Rules</h2>
                 </div>
-              )}
+                <button
+                  onClick={togglePopup}
+                  className="text-white hover:text-gray-200 focus:outline-none"
+                  aria-label="Close"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              {/* Content */}
+              <div className="p-4 overflow-y-auto max-h-[calc(90vh-4rem)]">
+                <div className="space-y-3">
+                  {Object.entries(rules).map(([title, content]) => (
+                    <div
+                      key={title}
+                      className="border border-blue-100 rounded-lg overflow-hidden transition-all duration-300 ease-in-out"
+                    >
+                      <button
+                        onClick={() => toggleRule(title)}
+                        className={`
+                          w-full text-left p-3 flex justify-between items-center 
+                          ${openRule === title 
+                            ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white' 
+                            : 'bg-gradient-to-r from-white to-blue-50 text-blue-800 hover:bg-blue-50'}
+                          focus:outline-none transition-colors duration-200
+                        `}
+                      >
+                        <span className="font-medium">{title}</span>
+                        {openRule === title ? (
+                          <ChevronUp className="w-5 h-5" />
+                        ) : (
+                          <ChevronDown className="w-5 h-5" />
+                        )}
+                      </button>
+                      
+                      {openRule === title && (
+                        <div className="p-3 bg-white text-gray-700 text-sm leading-relaxed">
+                          <div className="whitespace-pre-wrap">{content}</div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
-          ))}
+          </div>
         </div>
-      </div>
-    </div>
+      )}
+    </>
   );
-}
+};
+
+export default TrainRulesPopUp;

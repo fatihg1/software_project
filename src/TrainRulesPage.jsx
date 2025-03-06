@@ -1,6 +1,7 @@
 import React from 'react';
 import Rules from './Rules.jsx';
 import Navbar from './Navbar.jsx';
+
 function TrainRules(){
 
     return(
