@@ -9,12 +9,15 @@ import Aboutus from './AboutUsPage.jsx'
 import TrainTicketSearch from './SearchTrain.jsx'
 import TrainSearch from './stationcenter.jsx'
 import Navbar from './Navbar.jsx'
-import ManagerDashboard from "./ManagerDashboard"; 
-import TrainManagement from "./TrainManagement"; 
-import UserManagement from "./userManagement";
-import BookingManagement from "./BookingManagement";
-import FinanceManagement from "./FinanceManagement";
-import AnnouncementManagement from "./AnnouncementManagement"; 
+import ManagerDashboard from "./Manager/ManagerDashboard.jsx"; 
+import TrainManagement from "./Admin/TrainManagement.jsx"; 
+import UserManagement from "./Manager/UserManagement.jsx";
+import BookingManagement from "./Admin/BookingManagement.jsx";
+import FinanceManagement from "./Manager/FinanceManagement.jsx";
+import AnnouncementManagement from "./Admin/AnnouncementManagement.jsx"; 
+import AdminDashboard from "./Admin/AdminDashboard.jsx";
+import RevenueAnalysis from "./Manager/RevenueAnalysis.jsx";
+import SalaryManagement from "./Manager/SalaryManagement.jsx";
 import TrainSeatSelection from './Seat.jsx'
 import PaymentPage from './Payment.jsx'
 import SearchTrainPage from './SearchTrainPage.jsx'
@@ -58,14 +61,14 @@ const router=createBrowserRouter([
     },
     {
       path:'/admin', // Admin Paneli
-      element:<ManagerDashboard/>
+      element:<AdminDashboard/>
     },
     { 
       path: "/admin/trains",
       element: <TrainManagement /> 
     }, 
     { 
-      path:'/admin/users', 
+      path:'/manager/users', 
       element:<UserManagement/> 
     },
     {
@@ -85,7 +88,7 @@ const router=createBrowserRouter([
       element:<HelpCenter/>
     },
     {
-      path:"/admin/finance",
+      path:"/manager/finance",
       element:<FinanceManagement/>
     },
     { 
@@ -95,7 +98,20 @@ const router=createBrowserRouter([
     {
       path:'/*',
       element:<NotFound/>
-    }
+    },
+    {
+      path:"/manager",
+      element:<ManagerDashboard/>
+    },
+    {
+      path:"/manager/revenue",
+      element:<RevenueAnalysis/>
+    },
+    {
+      path:"/manager/salary",
+      element:<SalaryManagement/>
+    },
+
   ])
   
   // Import your Publishable Key

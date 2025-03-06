@@ -68,13 +68,13 @@ const RevenueAnalysis = () => {
           <button className="flex items-center space-x-2 p-3 rounded-md hover:bg-purple-700 transition" onClick={() => navigate("/manager/users")}>
             <FaUsers /> <span>User Management</span>
           </button>
-          <button className="flex items-center space-x-2 p-3 rounded-md bg-purple-700 transition">
-            <FaMoneyBillWave /> <span>Sales & Refunds</span>
+          <button className="flex items-center space-x-2 p-3 rounded-md hover:bg-purple-700 transition" onClick={() => navigate("/manager/financial")}> 
+            <FaMoneyBillWave /> <span>Financial Management</span>
           </button>
           <button className="flex items-center space-x-2 p-3 rounded-md hover:bg-purple-700 transition" onClick={() => navigate("/manager/salary")}>
             <FaMoneyBillWave /> <span>Salary Management</span>
           </button>
-          <button className="flex items-center space-x-2 p-3 rounded-md hover:bg-purple-700 transition" onClick={() => navigate("/manager/revenue")}>
+          <button className="flex items-center space-x-2 p-3 rounded-md bg-purple-700 transition" >
             <FaMoneyBillWave /> <span>Revenue Analysis</span>
           </button>
         </nav>
