@@ -1,3 +1,4 @@
+import { h6 } from 'framer-motion/client';
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -392,8 +393,19 @@ if (cleanedBirthDate.length !== 8) {
               <h4 className="text-lg font-semibold mb-4">
                 Passenger {index % selectedSeats.outbound.length + 1}
               </h4>
+              <h5 className="text-lg font-semibold mb-4">
+                {tripType==='round-trip' ? "Outbound Train: " : "" }
+                Wagon {selectedSeats.outbound[index % selectedSeats.outbound.length].wagon}, Seat {selectedSeats.outbound[index % selectedSeats.outbound.length].number}
+              </h5>
+              {tripType==='round-trip' && 
+              <h6 className='text-lg font-semibold mb-4'>
+                Return Train: Wagon {selectedSeats.return[index % selectedSeats.return.length].wagon}, Seat {selectedSeats.return[index % selectedSeats.return.length].number}
+              </h6>}
+              
               
               <div className="grid grid-cols-2 gap-4">
+                
+              
                 <div>
                   <label className="block text-gray-700 mb-1">First Name</label>
                   <input
