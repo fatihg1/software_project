@@ -18,17 +18,23 @@ const routes = [
 function Routes() {
   return (
     <div className="flex flex-col justify-center items-center">
-        <h2 className="font-bold text-4xl mt-15">Popular Routes</h2>
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 h-auto my-15">
-      {routes.map((route, index) => (
-        <div key={index} className="flex flex-col items-center justify-center p-2 bg-white rounded-lg shadow-md">
-          <img src={route.img} alt={route.info} className="h-80 w-80 mb-4 rounded-sm" />
-          <span className="text-lg font-semibold text-gray-800">{route.info}</span>
-        </div>
-      ))}
-    </div>
+      <h2 className="font-bold text-4xl mt-15">Popular Routes</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 h-auto my-15">
+        {routes.map((route, index) => (
+          <div key={index} className="flex flex-col items-center justify-center p-2 bg-white rounded-lg shadow-md transition duration-300 hover:shadow-xl">
+            <div className="overflow-hidden rounded-sm">
+              <img 
+                src={route.img} 
+                alt={route.info} 
+                className="h-80 w-80 mb-4 rounded-sm transition duration-500 ease-in-out transform hover:scale-110 hover:brightness-110"
+              />
+            </div>
+            <span className="text-lg font-semibold text-gray-800 transition duration-300 ease-in-out group-hover:text-blue-600">{route.info}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
 
-export default Routes
+export default Routes;
