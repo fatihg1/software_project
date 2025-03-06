@@ -194,7 +194,7 @@ export default function AboutUs() {
               variants={itemFadeIn}
               className="text-white text-xl md:text-2xl max-w-3xl mx-auto leading-relaxed"
             >
-              Making train travel simple, affordable, and enjoyable for everyone
+              At Rail Link, we are committed to redefining train travel by making it more accessible, convenient, and enjoyable for everyone. With a strong emphasis on safety, efficiency, and innovation, we provide seamless rail services that connect cities, communities, and people. Our mission is to offer affordable, eco-friendly, and time-efficient transportation solutions, ensuring that every journey is comfortable and stress-free.
             </motion.p>
           </div>
         </motion.div>
@@ -224,8 +224,9 @@ export default function AboutUs() {
               variants={itemFadeIn}
               className="text-gray-600 text-lg max-w-3xl mx-auto"
             >
-              To revolutionize train travel by making it accessible, convenient, and stress-free through 
-              innovative technology and exceptional customer service.
+At Rail Link, our mission is to transform train travel by making it smarter, greener, and more connected. We strive to offer a seamless travel experience through cutting-edge technology, sustainable practices, and unparalleled customer service.
+
+Our goal is to create a safe, efficient, and eco-friendly transportation network that enhances mobility for everyone. By continuously innovating and improving, we ensure that every journey is not just a trip, but a comfortable, enjoyable, and stress-free experience.
             </motion.p>
           </div>
         </div>

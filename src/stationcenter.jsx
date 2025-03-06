@@ -3,6 +3,8 @@ import { Train, Search, MapPin, X } from "lucide-react";
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import Navbar from "./Navbar";
+import Footer from "./Footer";
 
 // Station coordinates (not complete just random in city borders)
 const stationCoordinates = {
@@ -79,6 +81,7 @@ export default function StationCenter() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-100 via-indigo-100 to-indigo-200 flex items-center justify-center p-4">
       <div className="w-full max-w-5xl bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-200">
+        
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-6 flex items-center justify-between">
           <div className="flex items-center space-x-4">
@@ -94,7 +97,6 @@ export default function StationCenter() {
             </button>
           )}
         </div>
-
         {/* Content Area */}
         <div className="p-8">
           {/* Search Bar */}
