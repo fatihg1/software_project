@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaTrain, FaClipboardList, FaBullhorn, FaSearch, FaBars, FaSignOutAlt, FaTrash, FaPlus, FaEdit, FaSave, FaTimes, FaFilter, FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
@@ -20,6 +20,32 @@ const TrainManagement = () => {
   const [maxPrice, setMaxPrice] = useState(200);
   const [currentPage, setCurrentPage] = useState(1);
   const trainsPerPage = 7; // ✅ Shows 7 trains per page
+
+  // Sidebar state
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+  
+  // Detect mobile screen and handle sidebar accordingly
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (mobile) {
+        setSidebarOpen(false);
+      } else {
+        setSidebarOpen(true);
+      }
+    };
+    
+    // Set initial state
+    handleResize();
+    
+    // Add event listener
+    window.addEventListener('resize', handleResize);
+    
+    // Cleanup
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const filteredTrains = trains.filter((train) =>
     (train.from.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -50,35 +76,76 @@ const TrainManagement = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="bg-gray-100 min-h-screen relative">
+      {/* Mobile Sidebar Toggle Button */}
+      <button 
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        className={`md:hidden fixed top-4 ${sidebarOpen ? 'left-52' : 'left-4'} z-30 bg-blue-900 text-white p-3 rounded-md shadow-lg transition-all duration-300 ease-in-out`}
+        aria-label={sidebarOpen ? "Close sidebar" : "Open sidebar"}
+      >
+        {sidebarOpen ? <FaTimes /> : <FaBars />}
+      </button>
+
+      {/* Sidebar Overlay (mobile only) */}
+      {sidebarOpen && isMobile && (
+        <div 
+          className="fixed inset-0 backdrop-blur-sm bg-black/20 z-20 md:hidden" 
+          onClick={() => setSidebarOpen(false)}
+        ></div>
+      )}
       
       {/* 🚆 Sidebar */}
-      <div className="w-64 bg-blue-900 text-white p-6 flex flex-col fixed h-screen">
+      <div 
+        className={`w-64 bg-blue-900 text-white p-6 flex flex-col fixed h-screen z-20 transition-transform duration-300 ease-in-out ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        } md:translate-x-0`}
+      >
         <h2 className="text-2xl font-bold mb-6">Admin Panel</h2>
         <nav className="flex flex-col space-y-4">
-          <button className="flex items-center space-x-2 p-3 rounded-md hover:bg-purple-700 transition" onClick={() => navigate("/admin")}>
+          <button 
+            className="flex items-center space-x-2 p-3 rounded-md hover:bg-purple-700 transition" 
+            onClick={() => {
+              navigate("/admin");
+              if (isMobile) setSidebarOpen(false);
+            }}
+          >
             <FaBars /> <span>Dashboard</span>
           </button>
           <button className="flex items-center space-x-2 p-3 rounded-md bg-purple-700 transition">
             <FaTrain /> <span>Train Management</span>
           </button>
-          <button className="flex items-center space-x-2 p-3 rounded-md hover:bg-purple-700 transition" onClick={() => navigate("/admin/bookings")}>
+          <button 
+            className="flex items-center space-x-2 p-3 rounded-md hover:bg-purple-700 transition" 
+            onClick={() => {
+              navigate("/admin/bookings");
+              if (isMobile) setSidebarOpen(false);
+            }}
+          >
             <FaClipboardList /> <span>Booking Management</span>
           </button>
-          <button className="flex items-center space-x-2 p-3 rounded-md hover:bg-purple-700 transition" onClick={() => navigate("/admin/announcements")}>
+          <button 
+            className="flex items-center space-x-2 p-3 rounded-md hover:bg-purple-700 transition" 
+            onClick={() => {
+              navigate("/admin/announcements");
+              if (isMobile) setSidebarOpen(false);
+            }}
+          >
             <FaBullhorn /> <span>Announcements</span>
           </button>
         </nav>
       </div>
 
-      <div className="flex-1 p-6 ml-64 overflow-auto">
-        
+      <div 
+        className={`flex-1 p-4 md:p-6 transition-all duration-300 ease-in-out ${
+          sidebarOpen ? "md:ml-64" : "ml-0"
+        }`}
+      >
         {/* 🚆 Header */}
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-around items-center flex-col mb-6 pt-12 md:pt-0">
           <h1 className="text-3xl font-bold text-gray-800 flex-1 text-center">🚆 Train Management</h1>
-          <button className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition flex items-center space-x-2" onClick={() => navigate("/")}>
+          <button className="bg-red-600 text-white mt-5 px-4 py-2 rounded-md hover:bg-red-700 transition flex items-center space-x-2" onClick={() => navigate("/")}>
             <FaSignOutAlt />
-            <span>Logout</span>
+            <span>Back</span>
           </button>
         </div>
 
@@ -90,7 +157,7 @@ const TrainManagement = () => {
             <input type="text" placeholder="To (Destination)" className="p-2 border rounded-md w-full" />
             <input type="number" placeholder="Capacity" className="p-2 border rounded-md w-full" />
             <input type="number" placeholder="Ticket Price ($)" className="p-2 border rounded-md w-full" />
-            <button className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition flex items-center space-x-2">
+            <button className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition flex items-center justify-center space-x-2">
               <FaPlus /> <span>Add Train</span>
             </button>
           </div>
@@ -101,39 +168,89 @@ const TrainManagement = () => {
           <h2 className="text-xl font-semibold mb-3">Train List</h2>
 
           {/* 🔍 Search & Filter */}
-          <div className="bg-gray-100 p-4 rounded-lg shadow-inner flex items-center space-x-4 mb-4">
-            <FaSearch className="text-gray-500" />
-            <input type="text" placeholder="Search by departure or destination..." className="p-2 border rounded-md w-full" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+          <div className="bg-gray-100 p-4 rounded-lg shadow-inner flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4 mb-4">
+            <div className="flex items-center w-full">
+              <FaSearch className="text-gray-500 mx-2" />
+              <input 
+                type="text" 
+                placeholder="Search by departure or destination..." 
+                className="p-2 border rounded-md w-full" 
+                value={searchQuery} 
+                onChange={(e) => setSearchQuery(e.target.value)} 
+              />
+            </div>
+            <div className="flex items-center space-x-2">
+              <FaFilter className="text-gray-500" />
+              <span>Max Price:</span>
+              <input
+                type="range"
+                min="50"
+                max="200"
+                value={maxPrice}
+                onChange={(e) => setMaxPrice(e.target.value)}
+                className="w-24"
+              />
+              <span>${maxPrice}</span>
+            </div>
           </div>
 
           {/* 📋 Train List Table */}
-          <table className="w-full border-collapse">
-            <tbody>
-              {currentTrains.map((train) => (
-                <tr key={train.id} className="border-t">
-                  <td className="p-3">{train.from}</td>
-                  <td className="p-3">{train.to}</td>
-                  <td className="p-3">{train.capacity}</td>
-                  <td className="p-3">${train.price.toFixed(2)}</td>
-                  <td className="p-3 flex space-x-2">
-                    <button title="Edit Train" className="bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-700 transition">
-                      <FaEdit />
-                    </button>
-                    <button title="Delete Train" className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-700 transition" onClick={() => deleteTrain(train.id)}>
-                      <FaTrash />
-                    </button>
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-gray-200">
+                  <th className="p-3 text-left">From</th>
+                  <th className="p-3 text-left">To</th>
+                  <th className="p-3 text-left">Capacity</th>
+                  <th className="p-3 text-left">Price</th>
+                  <th className="p-3 text-left">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {currentTrains.map((train) => (
+                  <tr key={train.id} className="border-t">
+                    <td className="p-3">{train.from}</td>
+                    <td className="p-3">{train.to}</td>
+                    <td className="p-3">{train.capacity}</td>
+                    <td className="p-3">${train.price.toFixed(2)}</td>
+                    <td className="p-3 flex space-x-2">
+                      <button title="Edit Train" className="bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-700 transition">
+                        <FaEdit />
+                      </button>
+                      <button title="Delete Train" className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-700 transition" onClick={() => deleteTrain(train.id)}>
+                        <FaTrash />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
           {/* Pagination */}
-          <div className="flex justify-between mt-4">
-            <button disabled={currentPage === 1} onClick={prevPage}><FaArrowLeft /> Prev</button>
-            <span>Page {currentPage} of {totalPages}</span>
-            <button disabled={currentPage === totalPages} onClick={nextPage}>Next <FaArrowRight /></button>
-          </div>
+          {totalPages > 1 && (
+            <div className="flex justify-between items-center mt-4">
+              <button 
+                disabled={currentPage === 1} 
+                onClick={prevPage}
+                className={`flex items-center space-x-1 p-2 rounded-md ${
+                  currentPage === 1 ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'
+                }`}
+              >
+                <FaArrowLeft /> <span>Prev</span>
+              </button>
+              <span className="text-gray-700">Page {currentPage} of {totalPages}</span>
+              <button 
+                disabled={currentPage === totalPages} 
+                onClick={nextPage}
+                className={`flex items-center space-x-1 p-2 rounded-md ${
+                  currentPage === totalPages ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'
+                }`}
+              >
+                <span>Next</span> <FaArrowRight />
+              </button>
+            </div>
+          )}
 
         </div>
       </div>

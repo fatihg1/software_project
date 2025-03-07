@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { FaUsers, FaMoneyBillWave, FaSearch, FaBars, FaSignOutAlt, FaTrash, FaEdit, FaCheckCircle, FaTimesCircle, FaArrowLeft, FaArrowRight } from "react-icons/fa";
+import React, { useState, useEffect } from "react";
+import { FaUsers, FaMoneyBillWave, FaSearch, FaBars, FaSignOutAlt, FaTrash, FaEdit, FaCheckCircle, FaTimesCircle, FaArrowLeft, FaArrowRight, FaTimes } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
 const SalaryManagement = () => {
@@ -15,7 +15,31 @@ const SalaryManagement = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [salaryFilter, setSalaryFilter] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
   const employeesPerPage = 7;
+
+  // Handle responsive behavior
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (mobile) {
+        setSidebarOpen(false);
+      } else {
+        setSidebarOpen(true);
+      }
+    };
+    
+    // Set initial state
+    handleResize();
+    
+    // Add event listener
+    window.addEventListener('resize', handleResize);
+    
+    // Cleanup
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const filteredEmployees = employees.filter((employee) =>
     (employee.name.toLowerCase().includes(searchQuery.toLowerCase())) &&
@@ -58,54 +82,112 @@ const SalaryManagement = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="bg-gray-100 min-h-screen relative">
+      {/* Mobile Sidebar Toggle Button */}
+      <button 
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        className={`md:hidden fixed top-4 ${sidebarOpen ? 'left-52' : 'left-4'} z-30 bg-blue-900 text-white p-3 rounded-md shadow-lg transition-all duration-300 ease-in-out`}
+        aria-label={sidebarOpen ? "Close sidebar" : "Open sidebar"}
+      >
+        {sidebarOpen ? <FaTimes /> : <FaBars />}
+      </button>
+
+      {/* Sidebar Overlay (mobile only) */}
+      {sidebarOpen && isMobile && (
+        <div 
+          className="fixed inset-0 backdrop-blur-xs z-20 md:hidden" 
+          onClick={() => setSidebarOpen(false)}
+        ></div>
+      )}
       
-      {/* 💰 Sidebar */}
-      <div className="w-64 bg-blue-900 text-white p-6 flex flex-col fixed h-screen">
+      {/* Sidebar */}
+      <div 
+        className={`bg-blue-900 text-white p-6 flex flex-col fixed h-screen z-20 transition-transform duration-300 ease-in-out ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        } w-64 md:translate-x-0`}
+      >
         <h2 className="text-2xl font-bold mb-6">Manager Panel</h2>
         <nav className="flex flex-col space-y-4">
-          <button className="flex items-center space-x-2 p-3 rounded-md hover:bg-purple-700 transition" onClick={() => navigate("/manager")}>
+          <button className="flex items-center space-x-2 p-3 rounded-md hover:bg-purple-700 transition" 
+            onClick={() => {
+              navigate("/manager");
+              if (isMobile) setSidebarOpen(false);
+            }}>
             <FaBars /> <span>Dashboard</span>
           </button>
-          <button className="flex items-center space-x-2 p-3 rounded-md hover:bg-purple-700 transition" onClick={() => navigate("/manager/users")}>
+          <button className="flex items-center space-x-2 p-3 rounded-md hover:bg-purple-700 transition" 
+            onClick={() => {
+              navigate("/manager/users");
+              if (isMobile) setSidebarOpen(false);
+            }}>
             <FaUsers /> <span>User Management</span>
           </button>
-          <button className="flex items-center space-x-2 p-3 rounded-md hover:bg-purple-700 transition" onClick={() => navigate("/manager/finance")}>
+          <button className="flex items-center space-x-2 p-3 rounded-md hover:bg-purple-700 transition" 
+            onClick={() => {
+              navigate("/manager/finance");
+              if (isMobile) setSidebarOpen(false);
+            }}>
             <FaMoneyBillWave /> <span>Financial Management</span>
           </button>
           <button className="flex items-center space-x-2 p-3 rounded-md bg-purple-700 transition">
             <FaMoneyBillWave /> <span>Salary Management</span>
           </button>
-          <button className="flex items-center space-x-2 p-3 rounded-md hover:bg-purple-700 transition" onClick={() => navigate("/manager/revenue")}>
+          <button className="flex items-center space-x-2 p-3 rounded-md hover:bg-purple-700 transition" 
+            onClick={() => {
+              navigate("/manager/revenue");
+              if (isMobile) setSidebarOpen(false);
+            }}>
             <FaMoneyBillWave /> <span>Revenue Analysis</span>
           </button>
         </nav>
       </div>
 
-      <div className="flex-1 p-6 ml-64 overflow-auto">
-        
-        {/* 💰 Header */}
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-800 flex-1 text-center">💰 Salary Management</h1>
-          <button className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition flex items-center space-x-2" onClick={() => navigate("/")}>
+      {/* Main Content */}
+      <div 
+        className={`flex-1 p-4 md:p-6 transition-all duration-300 ease-in-out ${
+          sidebarOpen ? "md:ml-64" : "ml-0"
+        }`}
+      >
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row justify-between items-center mb-6 pt-12 md:pt-0">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-800 flex-1 text-center md:text-center my-4 md:my-0">
+            💰 Salary Management
+          </h1>
+          
+          <button
+            className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition flex items-center space-x-2"
+            onClick={() => navigate("/")}
+          >
             <FaSignOutAlt />
             <span>Back</span>
           </button>
         </div>
 
-        {/* 💰 Search & Filter */}
-        <div className="bg-gray-100 p-4 rounded-lg shadow-inner flex items-center space-x-4 mb-6">
-          <FaSearch className="text-gray-500" />
-          <input type="text" placeholder="Search employees..." className="p-2 border rounded-md w-full" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
-          <select className="p-2 border rounded-md" value={salaryFilter} onChange={(e) => setSalaryFilter(e.target.value)}>
+        {/* Search & Filter */}
+        <div className="bg-gray-100 p-4 rounded-lg shadow-inner flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-4 mb-6">
+          <div className="flex items-center w-full md:w-auto">
+            <FaSearch className="text-gray-500 mr-2" />
+            <input 
+              type="text" 
+              placeholder="Search employees..." 
+              className="p-2 border rounded-md w-full" 
+              value={searchQuery} 
+              onChange={(e) => setSearchQuery(e.target.value)} 
+            />
+          </div>
+          <select 
+            className="p-2 border rounded-md w-full md:w-auto" 
+            value={salaryFilter} 
+            onChange={(e) => setSalaryFilter(e.target.value)}
+          >
             <option value="All">All</option>
             <option value="Paid">Paid</option>
             <option value="Unpaid">Unpaid</option>
           </select>
         </div>
 
-        {/* 💰 Employee Salary Table */}
-        <div className="bg-white p-6 rounded-lg shadow-md">
+        {/* Employee Salary Table */}
+        <div className="bg-white p-4 md:p-6 rounded-lg shadow-md overflow-x-auto">
           <h2 className="text-xl font-semibold mb-3">Employee Salaries</h2>
           <table className="w-full border-collapse">
             <thead>
@@ -145,8 +227,30 @@ const SalaryManagement = () => {
               ))}
             </tbody>
           </table>
+          
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="flex justify-center mt-4 space-x-4">
+              <button 
+                onClick={prevPage} 
+                disabled={currentPage === 1}
+                className={`flex items-center px-3 py-1 rounded ${currentPage === 1 ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+              >
+                <FaArrowLeft className="mr-1" /> Previous
+              </button>
+              <span className="self-center">
+                Page {currentPage} of {totalPages}
+              </span>
+              <button 
+                onClick={nextPage} 
+                disabled={currentPage === totalPages}
+                className={`flex items-center px-3 py-1 rounded ${currentPage === totalPages ? 'bg-gray-300 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+              >
+                Next <FaArrowRight className="ml-1" />
+              </button>
+            </div>
+          )}
         </div>
-
       </div>
     </div>
   );

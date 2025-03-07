@@ -89,7 +89,7 @@ function SideNavigation() {
       {/* Side Menu */}
       <div 
         id="side-menu"
-        className={`fixed top-0 right-0 h-full w-80 bg-blue-800 text-white z-50 shadow-2xl transform transition-transform duration-300 ease-in-out ${
+        className={`fixed top-0 right-0 h-full lg:w-80 sm:w-1/2 bg-blue-800 text-white z-50 shadow-2xl transform transition-transform duration-300 ease-in-out ${
           isMenuOpen ? 'translate-x-0' : 'translate-x-full'
         } overflow-y-auto`}
       >

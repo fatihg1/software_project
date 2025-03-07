@@ -167,7 +167,7 @@ export default function AboutUs() {
   return (
     <div className="bg-gray-50 min-h-screen">
       {/* Hero Section with Parallax Effect */}
-      <div className="relative h-96 md:h-128 overflow-hidden">
+      <div className="relative min-h-[40vh] md:h-128 overflow-hidden">
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{ 
@@ -181,9 +181,9 @@ export default function AboutUs() {
           initial="hidden"
           animate={isPageLoaded ? "visible" : "hidden"}
           variants={fadeIn}
-          className="relative flex items-center justify-center h-full text-center px-4"
+          className="relative flex items-center justify-center h-full text-center px-4 py-30 md:py-0"
         >
-          <div className="max-w-4xl">
+          <div className="max-w-4xl px-4">
             <motion.h1 
               variants={itemFadeIn}
               className="text-4xl md:text-6xl font-bold text-white mb-6"

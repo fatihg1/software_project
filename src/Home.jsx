@@ -167,7 +167,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden">
+    <div className="bg-white rounded-lg shadow-md lg:w-1/2 md:w-3/4 w-screen overflow-hidden lg:mx-20 lg:mt-10">
       {/* Tab navigation - exactly 50/50 split */}
       <div className="flex w-full border-b border-gray-200">
         <div 
@@ -313,7 +313,6 @@ export default function HomePage() {
                 value={departureDate}
                 onChange={handleDepartureDateChange}
                 className="p-2 text-sm rounded border border-gray-300 w-full"
-                required
                 onKeyDown={(e) => e.preventDefault()}
                 onPaste={(e) => e.preventDefault()}
               />
@@ -328,7 +327,6 @@ export default function HomePage() {
                   onChange={handleReturnDateChange}
                   min={departureDate} // This prevents selecting dates before departure date
                   className="p-2 text-sm rounded border border-gray-300 w-full"
-                  required
                   disabled={!isRoundTrip}
                   onKeyDown={(e) => e.preventDefault()}
                   onPaste={(e) => e.preventDefault()}

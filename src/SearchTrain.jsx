@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Calendar, Search, MapPin, Clock, ArrowRight, RefreshCw, Filter, Info, ChevronDown, Sun, Sunrise, Sunset, Repeat } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -32,10 +32,31 @@ export default function TrainTicketSearch() {
   const [priceRange, setPriceRange] = useState([0, 500]);
   const [timeOfDay, setTimeOfDay] = useState("all");
   const [minPrice, maxPrice] = [0, 500]; // Range limits
+  const [validationError, setValidationError] = useState(null);
   const today = new Date().toISOString().split('T')[0];
+  
+  // Initialize dates
+  useEffect(() => {
+    setDate(today);
+    setReturnDate(today);
+  }, []); // Empty dependency array runs only on mount
+
+  // Handle return date when trip type or outbound date changes
+  useEffect(() => {
+    if (tripType === "round-trip") {
+      setReturnDate(prevReturn => prevReturn || date);
+    }
+  }, [tripType, date]);
 
   // Search functionality
   const search = () => {
+    // Validate station selection
+    if (!departure && !arrival) {
+      setValidationError("Please select at least a departure or arrival station");
+      return;
+    }
+    
+    setValidationError(null);
     setIsSearching(true);
     
     // Simulate API call with a slight delay
@@ -197,7 +218,7 @@ export default function TrainTicketSearch() {
   );
 
   return (
-    <div className="p-4 pt-8 sm:p-6 sm:pt-30 max-w-6xl mx-auto bg-gradient-to-r from-blue-50 to-white rounded-xl shadow-xl relative">
+    <div className="p-4 pt-25 sm:p-6 sm:pt-30 max-w-6xl mx-auto bg-gradient-to-r from-blue-50 to-white rounded-xl shadow-xl relative">
       {/* Header Section */}
       <div className="mb-6 sm:mb-8">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Find Your Train</h1>
@@ -279,9 +300,10 @@ export default function TrainTicketSearch() {
                 Outbound Date
               </label>
               <input
+                default = {today}
                 type="date"
                 className="w-full h-8.5 p-3 bg-gray-100 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                onChange={(e) => setDate(e.target.value)}
+                onChange={(e) => { setDate(e.target.value); setReturnDate(e.target.value); }}
                 value={date}
                 min={new Date().toISOString().split('T')[0]}
                 onKeyDown={(e) => e.preventDefault()}
@@ -297,6 +319,7 @@ export default function TrainTicketSearch() {
                   Return Date
                 </label>
                 <input
+                  default={today}
                   type="date"
                   className="w-full h-8.5 p-3 bg-gray-100 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                   onChange={(e) => setReturnDate(e.target.value)}
@@ -308,7 +331,11 @@ export default function TrainTicketSearch() {
               </div>
             )}
           </div>
-          
+          {validationError && (
+            <div className="text-red-600 text-center p-2 bg-red-50 rounded-lg">
+              {validationError}
+            </div>
+          )}
           <button className="w-full bg-blue-600 text-white py-3 rounded-xl shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-center transition"
             onClick={search}
             disabled={isSearching}

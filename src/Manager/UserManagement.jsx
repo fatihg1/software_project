@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { FaTrain, FaUsers, FaClipboardList, FaMoneyBillWave, FaBullhorn, FaSearch, FaBars, FaSignOutAlt, FaTrash, FaPlus, FaUserEdit, FaArrowLeft, FaArrowRight } from "react-icons/fa";
+import React, { useState, useEffect } from "react";
+import { FaTrain, FaUsers, FaClipboardList, FaMoneyBillWave, FaBullhorn, FaSearch, FaBars, FaSignOutAlt, FaTrash, FaPlus, FaUserEdit, FaArrowLeft, FaArrowRight, FaTimes } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
 const UserManagement = () => {
@@ -21,7 +21,31 @@ const UserManagement = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
   const usersPerPage = 7;
+
+  // Mobile responsiveness
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (mobile) {
+        setSidebarOpen(false);
+      } else {
+        setSidebarOpen(true);
+      }
+    };
+    
+    // Set initial state
+    handleResize();
+    
+    // Add event listener
+    window.addEventListener('resize', handleResize);
+    
+    // Cleanup
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const filteredUsers = users.filter((user) =>
     (user.name.toLowerCase().includes(searchQuery.toLowerCase())) &&
@@ -39,6 +63,10 @@ const UserManagement = () => {
 
   const prevPage = () => {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
+
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
   };
 
   // Function to delete a user (With Confirmation)
@@ -71,12 +99,35 @@ const UserManagement = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-gray-100 relative">
       
-      {/* 👥 Sidebar */}
-      <div className="w-64 bg-blue-900 text-white p-6 flex flex-col fixed h-screen">
+      {/* Mobile Sidebar Toggle Button */}
+      <button 
+        onClick={toggleSidebar}
+        className={`md:hidden fixed top-4 z-30 bg-blue-900 text-white p-3 rounded-md shadow-lg transition-all duration-300 ease-in-out ${
+          sidebarOpen ? 'left-52' : 'left-4'
+        }`}
+        aria-label={sidebarOpen ? "Close sidebar" : "Open sidebar"}
+      >
+        {sidebarOpen ? <FaTimes /> : <FaBars />}
+      </button>
 
+      {/* Sidebar Overlay (mobile only) */}
+      {sidebarOpen && isMobile && (
+        <div 
+          className="fixed inset-0 backdrop-blur-xs z-20 md:hidden" 
+          onClick={() => setSidebarOpen(false)}
+        ></div>
+      )}
+      
+      {/* Sidebar */}
+      <div 
+        className={`bg-blue-900 text-white p-6 flex flex-col fixed h-screen z-20 transition-transform duration-300 ease-in-out ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        } w-64 md:translate-x-0`}
+      >
         <h2 className="text-2xl font-bold mb-6">Manager Panel</h2>
+        
         <nav className="flex flex-col space-y-4">
           <button className="flex items-center space-x-2 p-3 rounded-md hover:bg-purple-700 transition" onClick={() => navigate("/manager")}>
             <FaBars /> <span>Dashboard</span>
@@ -96,12 +147,15 @@ const UserManagement = () => {
         </nav>
       </div>
 
-      <div className="flex-1 p-6 ml-64 overflow-auto">
+      {/* Main Content */}
+      <div className={`flex-1 p-4 md:p-6 transition-all duration-300 ease-in-out ${
+        sidebarOpen ? "md:ml-64" : "ml-0"
+      }`}>
         
-        {/* 👥 Header */}
-        <div className="flex justify-between items-center mb-6">
+        {/* Header Section */}
+        <div className="flex justify-between flex-col items-center mb-6 pt-12 md:pt-0">
           <h1 className="text-3xl font-bold text-gray-800 flex-1 text-center">👥 User Management</h1>
-          <button className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition flex items-center space-x-2" onClick={() => navigate("/")}>
+          <button className="bg-red-600 text-white px-4 py-2 mt-5 rounded-md hover:bg-red-700 transition flex items-center space-x-2" onClick={() => navigate("/")}>
             <FaSignOutAlt />
             <span>Back</span>
           </button>
@@ -154,8 +208,28 @@ const UserManagement = () => {
               ))}
             </tbody>
           </table>
+          
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex justify-center mt-4 space-x-2">
+              <button 
+                onClick={prevPage} 
+                disabled={currentPage === 1}
+                className={`px-3 py-1 rounded-md ${currentPage === 1 ? 'bg-gray-300' : 'bg-blue-500 text-white'}`}
+              >
+                <FaArrowLeft />
+              </button>
+              <span className="px-3 py-1">Page {currentPage} of {totalPages}</span>
+              <button 
+                onClick={nextPage} 
+                disabled={currentPage === totalPages}
+                className={`px-3 py-1 rounded-md ${currentPage === totalPages ? 'bg-gray-300' : 'bg-blue-500 text-white'}`}
+              >
+                <FaArrowRight />
+              </button>
+            </div>
+          )}
         </div>
-
       </div>
     </div>
   );

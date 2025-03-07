@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import HomePage from './Home.jsx';
 import { Link } from 'react-router-dom';
+
 function Visuals() {
     const images = [
         '/train_slide1.png',
@@ -48,29 +49,17 @@ function Visuals() {
         }
     }, [currentImageIndex]);
 
-    const handlePrevClick = () => {
-        if (currentImageIndex <= 1) return;
-        setIsTransitioning(true);
-        setCurrentImageIndex(prev => prev - 1);
-        resetInterval();
-    };
-
-    const handleNextClick = () => {
-        if (currentImageIndex >= sliderImages.length - 2) return;
-        setIsTransitioning(true);
-        setCurrentImageIndex(prev => prev + 1);
-        resetInterval();
-    };
-
     return (
-        <div className="relative w-full h-screen overflow-hidden">
-            <div
-                className={`relative w-full h-full flex transition-transform duration-1000 ease-in-out ${
-                    isTransitioning ? '' : '!transition-none'
-                }`}
-                style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}
-            >
-                {sliderImages.map((image, index) => (
+        <div className="relative w-full flex flex-col md:h-screen overflow-hidden">
+            {/* Image slider - full height on large screens, fixed height on small screens */}
+            <div className="md:relative w-full h-64 md:h-full flex-shrink-0">
+                <div
+                    className={`relative w-full h-full flex transition-transform duration-1000 ease-in-out ${
+                        isTransitioning ? '' : '!transition-none'
+                    }`}
+                    style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}
+                >
+                    {sliderImages.map((image, index) => (
                         <img
                             key={index}
                             src={image}
@@ -78,9 +67,14 @@ function Visuals() {
                             className="w-full h-full object-cover flex-shrink-0"
                             loading="eager"
                         />
-                ))}
+                    ))}
+                </div>
+                
+                
             </div>
-            <div className="absolute top-0 left-0 w-1/2 h-full flex items-center justify-center">
+            
+            {/* HomePage component - on large screens it overlays the slider, on small screens it's below */}
+            <div className="md:absolute md:top-0 md:left-0 md:h-full w-full flex items-center justify-center">
                 <HomePage />
             </div>
         </div>

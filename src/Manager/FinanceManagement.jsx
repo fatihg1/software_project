@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { FaTrain, FaUsers, FaClipboardList, FaMoneyBillWave, FaBullhorn, FaSearch, FaBars, FaSignOutAlt, FaTrash, FaPlus, FaArrowLeft, FaArrowRight } from "react-icons/fa";
+import React, { useState, useEffect } from "react";
+import { FaTrain, FaUsers, FaClipboardList, FaMoneyBillWave, FaBullhorn, FaSearch, FaBars, FaSignOutAlt, FaTrash, FaPlus, FaArrowLeft, FaArrowRight, FaTimes } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
 const FinanceManagement = () => {
@@ -16,7 +16,34 @@ const FinanceManagement = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [paymentFilter, setPaymentFilter] = useState("All");
   const [currentPage, setCurrentPage] = useState(1);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
   const recordsPerPage = 7;
+
+  // Check if the screen is mobile size
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+      if (window.innerWidth < 768) {
+        setSidebarOpen(false);
+      } else {
+        setSidebarOpen(true);
+      }
+    };
+    
+    // Initial check
+    checkIsMobile();
+    
+    // Add event listener
+    window.addEventListener('resize', checkIsMobile);
+    
+    // Clean up
+    return () => window.removeEventListener('resize', checkIsMobile);
+  }, []);
+
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
 
   const filteredRecords = salesRefunds.filter((record) =>
     (record.user.toLowerCase().includes(searchQuery.toLowerCase())) &&
@@ -50,10 +77,18 @@ const FinanceManagement = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-gray-100 relative">
       
-      {/* 💰 Sidebar */}
-      <div className="w-64 bg-blue-900 text-white p-6 flex flex-col fixed h-screen">
+      {/* Mobile menu toggle button */}
+      <button 
+        className={`md:hidden fixed top-4 ${sidebarOpen ? 'left-52' : 'left-4'} z-50 bg-blue-900 text-white p-3 rounded-md shadow-lg transition-all duration-300 ease-in-out`}
+        onClick={toggleSidebar}
+      >
+        {sidebarOpen ? <FaTimes /> : <FaBars />}
+      </button>
+      
+      {/* Sidebar */}
+      <div className={`${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 w-64 bg-blue-900 text-white p-6 flex flex-col fixed h-screen z-30 transition-transform duration-300 ease-in-out`}>
         <h2 className="text-2xl font-bold mb-6">Manager Panel</h2>
         <nav className="flex flex-col space-y-4">
           <button className="flex items-center space-x-2 p-3 rounded-md hover:bg-purple-700 transition" onClick={() => navigate("/manager")}>
@@ -74,37 +109,40 @@ const FinanceManagement = () => {
         </nav>
       </div>
 
-      <div className="flex-1 p-6 ml-64 overflow-auto">
+      {/* Main content - adjust margin based on sidebar state */}
+      <div className={`flex-1 p-6 ${sidebarOpen ? 'md:ml-64' : 'ml-0'} transition-all duration-300 ease-in-out w-full`}>
         
-        {/* 💰 Header */}
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-800 flex-1 text-center">💳 Sales & Refunds</h1>
-          <button className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition flex items-center space-x-2" onClick={() => navigate("/")}>
+        {/* Header */}
+        <div className="flex justify-between items-center flex-col mb-6 mt-8 md:mt-0">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-800 flex-1 text-center">💳 Sales & Refunds</h1>
+          <button className="bg-red-600 text-white mt-5 px-4 py-2 rounded-md hover:bg-red-700 transition flex items-center space-x-2" onClick={() => navigate("/")}>
             <FaSignOutAlt />
             <span>Back</span>
           </button>
         </div>
 
-        {/* 💰 Total Revenue */}
+        {/* Total Revenue */}
         <div className="bg-white p-6 rounded-lg shadow-md mb-6">
           <h2 className="text-xl font-semibold mb-3">
             Total Revenue from Sales: <span className="text-green-600">{totalRevenue}₺</span>
           </h2>
         </div>
 
-        {/* 💰 Search & Filter */}
-        <div className="bg-gray-100 p-4 rounded-lg shadow-inner flex items-center space-x-4 mb-6">
-          <FaSearch className="text-gray-500" />
-          <input type="text" placeholder="Search sales & refunds..." className="p-2 border rounded-md w-full" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
-          <select className="p-2 border rounded-md" value={paymentFilter} onChange={(e) => setPaymentFilter(e.target.value)}>
+        {/* Search & Filter */}
+        <div className="bg-gray-100 p-4 rounded-lg shadow-inner flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-4 mb-6">
+          <div className="flex items-center space-x-2 w-full">
+            <FaSearch className="text-gray-500" />
+            <input type="text" placeholder="Search sales & refunds..." className="p-2 border rounded-md w-full" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+          </div>
+          <select className="p-2 border rounded-md w-full md:w-auto" value={paymentFilter} onChange={(e) => setPaymentFilter(e.target.value)}>
             <option value="All">All</option>
             <option value="Sale">Sale</option>
             <option value="Refund">Refund</option>
           </select>
         </div>
 
-        {/* 💰 Sales & Refunds Table */}
-        <div className="bg-white p-6 rounded-lg shadow-md">
+        {/* Sales & Refunds Table */}
+        <div className="bg-white p-6 rounded-lg shadow-md overflow-x-auto">
           <h2 className="text-xl font-semibold mb-3">Sales & Refunds Records</h2>
           <table className="w-full border-collapse">
             <thead>
@@ -136,18 +174,26 @@ const FinanceManagement = () => {
           </table>
 
           {/* Pagination Controls */}
-          <div className="flex justify-between mt-4">
-            <button disabled={currentPage === 1} className="bg-gray-300 px-4 py-2 rounded-md" onClick={prevPage}>
-              <FaArrowLeft /> Prev
+          <div className="flex flex-col md:flex-row justify-between items-center mt-4 space-y-2 md:space-y-0">
+            <button disabled={currentPage === 1} className="bg-gray-300 px-4 py-2 rounded-md w-full md:w-auto" onClick={prevPage}>
+              <FaArrowLeft className="inline mr-1" /> Prev
             </button>
             <span className="text-gray-700">Page {currentPage} of {totalPages}</span>
-            <button disabled={currentPage === totalPages} className="bg-gray-300 px-4 py-2 rounded-md" onClick={nextPage}>
-              Next <FaArrowRight />
+            <button disabled={currentPage === totalPages} className="bg-gray-300 px-4 py-2 rounded-md w-full md:w-auto" onClick={nextPage}>
+              Next <FaArrowRight className="inline ml-1" />
             </button>
           </div>
         </div>
 
       </div>
+      
+      {/* Overlay for mobile when sidebar is open */}
+      {sidebarOpen && isMobile && (
+        <div 
+          className="fixed inset-0 backdrop-blur-xs z-20 md:hidden"
+          onClick={toggleSidebar}
+        />
+      )}
     </div>
   );
 };
