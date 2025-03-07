@@ -21,6 +21,9 @@ const TrainSeatSelection = () => {
     const checkNumber = (num) => {
         return num > 3 ? 1 : 0;
       };
+    const numberforbeds = (num,num2) => {
+      return num > num2 ? 0 : 0 ;
+    };
     return [
       // Business Class Wagon
       {
@@ -66,6 +69,7 @@ const TrainSeatSelection = () => {
       {
         id: 2,
         name: "Economy",
+        type: "economy",
         seats: [
           // Top side seats (window)
           ...Array(16).fill().map((_, columnIndex) => [
@@ -103,6 +107,7 @@ const TrainSeatSelection = () => {
       {
         id: 3,
         name: "Economy",
+        type: "economy",
         seats: [
           ...Array(16).fill().map((_, columnIndex) => [
             {
@@ -134,6 +139,54 @@ const TrainSeatSelection = () => {
               price: 100
             }
           ]).flat()
+        ]
+      },
+      {
+        id: 4,
+        name: "Sleeper",
+        type: 'sleeper',
+        seats: [
+          // Top berths - keep the same IDs and internal numbers, display numbers will be changed in the UI
+          ...Array(7).fill().map((_, index) => ({
+            id: `3-${index * 2 + 1 - numberforbeds(index*2+1,10)}`,
+            number: index * 2 + 1 - numberforbeds(index*2+1,10),
+            position: 'top-berth',
+            taken: [3, 7].includes(index * 2 + 1 - numberforbeds(index*2+1,10)),
+            price: 180
+          })),
+          // Bottom berths - keep the same IDs and internal numbers, display numbers will be changed in the UI
+          ...Array(7).fill().map((_, index) => ({
+            id: `3-${index * 2 + 1 - numberforbeds(index*2+1,10)+1}`,
+            number: index * 2 + 1 - numberforbeds(index*2+1,10)+1,
+            position: 'bottom-berth',
+            taken: [2, 8].includes(index * 2 + 1 - numberforbeds(index*2+1,10)+1),
+            price: 200 // Bottom berths usually cost more
+          })),
+          
+        ]
+      },
+      // Lodge Wagon - using seats array instead of compartments
+      {
+        id: 5,
+        name: "Lodge",
+        type: 'lodge',
+        seats: [
+          ...Array(7).fill().map((_, index) => {
+            const lodgeLetter = String.fromCharCode(65 + index); // A, B, C, D, E, F
+            const lodgeNumber = index; // 0 for A, 1 for B, etc.
+            
+            return {
+              id: lodgeLetter,
+              number: lodgeLetter, // A, B, C, D, E, F
+              position: 'compartment',
+              capacity: 4,
+              // Instead of marking the whole compartment as taken
+              // takenSeats: which individual seats are taken (1, 2, 3, or 4)
+              takenSeats: [2, 5].includes(index + 1) ? [1, 3] : [], // Example: compartments B and E have seats 1 and 3 taken
+              price: 350, // Price per compartment
+              seatNumbers: [1, 2, 3, 4].map(seatIndex => lodgeNumber * 4 + seatIndex)
+            };
+          })
         ]
       }
     ];
@@ -169,10 +222,12 @@ const TrainSeatSelection = () => {
   );
 
   // Handle seat selection
-  const toggleSeatSelection = (trainType, wagonId, seatNumber, isTaken) => {
+  const toggleSeatSelection = (trainType, wagonId, compartmentNumber, isTaken, seatNum) => {
+    // Return early if the seat is already taken
     if (isTaken) return;
     
-    const seatId = `${wagonId}-${seatNumber}`;
+    // Create a unique ID for the specific seat within the compartment
+    const seatId = `${wagonId}-${compartmentNumber}-${seatNum}`;
     
     // Create a copy of the current selected seats
     const updatedSelectedSeats = {...selectedSeats};
@@ -190,7 +245,8 @@ const TrainSeatSelection = () => {
       updatedSelectedSeats[trainType].push({
         id: seatId,
         wagon: wagonId,
-        number: seatNumber
+        compartment: compartmentNumber,
+        number: seatNum || compartmentNumber
       });
     }
     
@@ -198,10 +254,9 @@ const TrainSeatSelection = () => {
   };
 
   // Check if seat is selected
-  const isSeatSelected = (trainType, wagonId, seatNumber) => {
-    return selectedSeats[trainType].some(
-      seat => seat.id === `${wagonId}-${seatNumber}`
-    );
+  const isSeatSelected = (trainType, wagonId, compartmentNumber, seatNum) => {
+    const seatId = `${wagonId}-${compartmentNumber}-${seatNum}`;
+    return selectedSeats[trainType]?.some(seat => seat.id === seatId) || false;
   };
 
   // Navigation functions for wagons
@@ -230,7 +285,22 @@ const TrainSeatSelection = () => {
       };
     }
     
-    // Existing logic for economy wagons
+    // If it's a sleeper wagon, group by berth position
+    if (currentWagon.type === 'sleeper') {
+      return {
+        topBerth: currentWagon.seats.filter(seat => seat.position === 'top-berth'),
+        bottomBerth: currentWagon.seats.filter(seat => seat.position === 'bottom-berth')
+      };
+    }
+    
+    // If it's a lodge wagon, no grouping needed
+    if (currentWagon.type === 'lodge') {
+      return {
+        compartments: currentWagon.seats
+      };
+    }
+    
+    // Default economy wagon grouping
     const currentWagonSeats = currentWagon.seats;
     return {
       topWindow: currentWagonSeats.filter(seat => seat.position === 'top-window'),
@@ -275,9 +345,8 @@ const TrainSeatSelection = () => {
     const currentWagonIndex = currentWagons[trainType];
     const currentWagon = train.wagons[currentWagonIndex];
     const groupedSeats = getSeatsGroupedByPosition(trainType, currentWagonIndex);
-
+  
     return (
-        
       <div className="mb-8">
         <h2 className="text-xl font-bold mb-4">
           {trainType === 'outbound' ? 'Outbound Train' : 'Return Train'}
@@ -288,132 +357,262 @@ const TrainSeatSelection = () => {
           currentWagonIndex={currentWagonIndex}
           onWagonSelect={selectWagon}
         />
-
+  
         <div className="border-2 border-gray-400 rounded-lg bg-gray-100 p-2 pl-5">
-        {currentWagon.type === 'business' ? (
-          <div>
-          {/* First Row */}
-          <div className="grid grid-cols-8 gap-1 mb-2 pl-8">
-            {groupedSeats.business.slice(0, 16).map((seat) => (
-              <div 
-                key={seat.id}
-                onClick={() => toggleSeatSelection(trainType, currentWagon.id, seat.number, seat.taken)}
-                className={`
-                  flex items-center justify-center w-8 h-8 rounded-sm cursor-pointer text-xs
-                  ${seat.taken ? 'bg-red-500 text-white cursor-not-allowed' : 
-                  isSeatSelected(trainType, currentWagon.id, seat.number) ? 'bg-green-500 text-white' : 'bg-white hover:bg-gray-200 border border-gray-300'}
-                `}
-              >
-                {seat.number}
+          {/* Business Class Wagon */}
+          {currentWagon.type === 'business' && (
+            <div>
+              {/* First Row */}
+              <div className="grid grid-cols-8 gap-1 mb-2 pl-8">
+                {groupedSeats.business.slice(0, 16).map((seat) => (
+                  <div 
+                    key={seat.id}
+                    onClick={() => toggleSeatSelection(trainType, currentWagon.id, seat.number, seat.taken)}
+                    className={`
+                      flex items-center justify-center w-8 h-8 rounded-sm cursor-pointer text-xs
+                      ${seat.taken ? 'bg-red-500 text-white cursor-not-allowed' : 
+                      isSeatSelected(trainType, currentWagon.id, seat.number) ? 'bg-green-500 text-white' : 'bg-white hover:bg-gray-200 border border-gray-300'}
+                    `}
+                  >
+                    {seat.number}
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-
-          {/* Aisle space */}
-          <div className="w-full h-17 flex items-center justify-center my-2">
-            <div className="h-full w-full flex items-center justify-center text-sm font-medium rounded">
-              
-            </div>
-          </div>
-          
-
-          {/* Second Row */}
-          <div className="grid grid-cols-8 gap-1 pl-8">
-            {groupedSeats.business.slice(16).map((seat) => (
-              <div 
-                key={seat.id}
-                onClick={() => toggleSeatSelection(trainType, currentWagon.id, seat.number, seat.taken)}
-                className={`
-                  flex items-center justify-center w-8 h-8 rounded-sm cursor-pointer text-xs
-                  ${seat.taken ? 'bg-red-500 text-white cursor-not-allowed' : 
-                  isSeatSelected(trainType, currentWagon.id, seat.number) ? 'bg-green-500 text-white' : 'bg-white hover:bg-gray-200 border border-gray-300'}
-                `}
-              >
-                {seat.number}
+  
+              {/* Aisle space */}
+              <div className="w-full h-17 flex items-center justify-center my-2">
+                <div className="h-full w-full flex items-center justify-center text-sm font-medium rounded">
+                </div>
               </div>
-            ))}
-          </div>
-        </div>
-      ) : (
-          <div className="space-y-2">
-            {/* Top Window Seats */}
-            {/* Top side seats (window row) */}
-            <div className="grid grid-cols-16 gap-1">
-            {groupedSeats.topWindow.map((seat) => (
-                <div 
-                key={seat.id}
-                onClick={() => toggleSeatSelection(trainType,train.wagons[currentWagonIndex].id, seat.number, seat.taken)}
-                className={`
-                    flex items-center justify-center w-8 h-8 rounded-sm cursor-pointer text-xs
-                    ${seat.taken ? 'bg-red-500 text-white cursor-not-allowed' : 
-                    isSeatSelected(trainType,train.wagons[currentWagonIndex].id, seat.number) ? 'bg-green-500 text-white' : 'bg-white hover:bg-gray-200 border border-gray-300'}
-                `}
-                >
-                {seat.number}
-                </div>
-            ))}
+  
+              {/* Second Row */}
+              <div className="grid grid-cols-8 gap-1 pl-8">
+                {groupedSeats.business.slice(16).map((seat) => (
+                  <div 
+                    key={seat.id}
+                    onClick={() => toggleSeatSelection(trainType, currentWagon.id, seat.number, seat.taken)}
+                    className={`
+                      flex items-center justify-center w-8 h-8 rounded-sm cursor-pointer text-xs
+                      ${seat.taken ? 'bg-red-500 text-white cursor-not-allowed' : 
+                      isSeatSelected(trainType, currentWagon.id, seat.number) ? 'bg-green-500 text-white' : 'bg-white hover:bg-gray-200 border border-gray-300'}
+                    `}
+                  >
+                    {seat.number}
+                  </div>
+                ))}
+              </div>
             </div>
-            
-            {/* Top side seats (aisle row) */}
-            <div className="grid grid-cols-16 gap-1">
-            {groupedSeats.topAisle.map((seat) => (
-                <div 
-                key={seat.id}
-                onClick={() => toggleSeatSelection(trainType,train.wagons[currentWagonIndex].id, seat.number, seat.taken)}
-                className={`
-                    flex items-center justify-center w-8 h-8 rounded-sm cursor-pointer text-xs
-                    ${seat.taken ? 'bg-red-500 text-white cursor-not-allowed' : 
-                    isSeatSelected(trainType,train.wagons[currentWagonIndex].id, seat.number) ? 'bg-green-500 text-white' : 'bg-white hover:bg-gray-200 border border-gray-300'}
-                `}
-                >
-                {seat.number}
-                </div>
-            ))}
-            </div>
-            
-            {/* Aisle space */}
-            <div className="w-full h-6 flex items-center justify-center my-2">
-            <div className="h-full w-full flex items-center justify-center text-sm font-medium rounded">
-                
-            </div>
-            </div>
-            
-            {/* Bottom side seats (aisle row) */}
-            <div className="grid grid-cols-16 gap-1">
-            {groupedSeats.bottomAisle.map((seat) => (
-                <div 
-                key={seat.id}
-                onClick={() => toggleSeatSelection(trainType,train.wagons[currentWagonIndex].id, seat.number, seat.taken)}
-                className={`
-                    flex items-center justify-center w-8 h-8 rounded-sm cursor-pointer text-xs
-                    ${seat.taken ? 'bg-red-500 text-white cursor-not-allowed' : 
-                    isSeatSelected(trainType,train.wagons[currentWagonIndex].id, seat.number) ? 'bg-green-500 text-white' : 'bg-white hover:bg-gray-200 border border-gray-300'}
-                `}
-                >
-                {seat.number}
-                </div>
-            ))}
-            </div>
-            
-            {/* Bottom side seats (window row) */}
-            <div className="grid grid-cols-16 gap-1">
-            {groupedSeats.bottomWindow.map((seat) => (
-                <div 
-                key={seat.id}
-                onClick={() => toggleSeatSelection(trainType,train.wagons[currentWagonIndex].id, seat.number, seat.taken)}
-                className={`
-                    flex items-center justify-center w-8 h-8 rounded-sm cursor-pointer text-xs
-                    ${seat.taken ? 'bg-red-500 text-white cursor-not-allowed' : 
-                    isSeatSelected(trainType,train.wagons[currentWagonIndex].id, seat.number) ? 'bg-green-500 text-white' : 'bg-white hover:bg-gray-200 border border-gray-300'}
-                `}
-                >
-                {seat.number}
-                </div>
-            ))}
-            </div>
-        
-          </div>
           )}
+  
+          {/* Economy Wagon */}
+          {!currentWagon.type || currentWagon.type === 'economy' && (
+            <div className="space-y-2 ">
+              {/* Top Window Seats */}
+              {/* Top side seats (window row) */}
+              <div className="grid grid-cols-16 gap-1 ">
+                {groupedSeats.topWindow.map((seat) => (
+                  <div 
+                    key={seat.id}
+                    onClick={() => toggleSeatSelection(trainType, currentWagon.id, seat.number, seat.taken)}
+                    className={`
+                      flex items-center justify-center w-8 h-8 rounded-sm cursor-pointer text-xs
+                      ${seat.taken ? 'bg-red-500 text-white cursor-not-allowed' : 
+                      isSeatSelected(trainType, currentWagon.id, seat.number) ? 'bg-green-500 text-white' : 'bg-white hover:bg-gray-200 border border-gray-300'}
+                    `}
+                  >
+                    {seat.number}
+                  </div>
+                ))}
+              </div>
+              
+              {/* Top side seats (aisle row) */}
+              <div className="grid grid-cols-16 gap-1">
+                {groupedSeats.topAisle.map((seat) => (
+                  <div 
+                    key={seat.id}
+                    onClick={() => toggleSeatSelection(trainType, currentWagon.id, seat.number, seat.taken)}
+                    className={`
+                      flex items-center justify-center w-8 h-8 rounded-sm cursor-pointer text-xs
+                      ${seat.taken ? 'bg-red-500 text-white cursor-not-allowed' : 
+                      isSeatSelected(trainType, currentWagon.id, seat.number) ? 'bg-green-500 text-white' : 'bg-white hover:bg-gray-200 border border-gray-300'}
+                    `}
+                  >
+                    {seat.number}
+                  </div>
+                ))}
+              </div>
+              
+              {/* Aisle space */}
+              <div className="w-full h-6 flex items-center justify-center my-2">
+                <div className="h-full w-full flex items-center justify-center text-sm font-medium rounded">
+                </div>
+              </div>
+              
+              {/* Bottom side seats (aisle row) */}
+              <div className="grid grid-cols-16 gap-1">
+                {groupedSeats.bottomAisle.map((seat) => (
+                  <div 
+                    key={seat.id}
+                    onClick={() => toggleSeatSelection(trainType, currentWagon.id, seat.number, seat.taken)}
+                    className={`
+                      flex items-center justify-center w-8 h-8 rounded-sm cursor-pointer text-xs
+                      ${seat.taken ? 'bg-red-500 text-white cursor-not-allowed' : 
+                      isSeatSelected(trainType, currentWagon.id, seat.number) ? 'bg-green-500 text-white' : 'bg-white hover:bg-gray-200 border border-gray-300'}
+                    `}
+                  >
+                    {seat.number}
+                  </div>
+                ))}
+              </div>
+              
+              {/* Bottom side seats (window row) */}
+              <div className="grid grid-cols-16 gap-1">
+                {groupedSeats.bottomWindow.map((seat) => (
+                  <div 
+                    key={seat.id}
+                    onClick={() => toggleSeatSelection(trainType, currentWagon.id, seat.number, seat.taken)}
+                    className={`
+                      flex items-center justify-center w-8 h-8 rounded-sm cursor-pointer text-xs
+                      ${seat.taken ? 'bg-red-500 text-white cursor-not-allowed' : 
+                      isSeatSelected(trainType, currentWagon.id, seat.number) ? 'bg-green-500 text-white' : 'bg-white hover:bg-gray-200 border border-gray-300'}
+                    `}
+                  >
+                    {seat.number}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+  
+{/* Sleeper Wagon */}
+{currentWagon.type === 'sleeper' && (
+  <div className="flex flex-col h-46">
+    <div className="text-center mb-2 text-sm text-gray-500 font-semibold">
+      
+    </div>
+    <div className="flex overflow-x-auto pb-4">
+      {/* Create 10 rooms in a horizontal row */}
+      <div className="flex gap-2 min-w-max">
+        {Array.from({ length: 7 }, (_, roomIndex) => {
+          // Get the two beds for this room (top and bottom)
+          const topBed = currentWagon.seats.find(
+            seat => seat.position === 'top-berth' && Math.floor((seat.number - 1) / 2) === roomIndex
+          );
+          const bottomBed = currentWagon.seats.find(
+            seat => seat.position === 'bottom-berth' && Math.floor((seat.number - 1) / 2) === roomIndex
+          );
+
+          return (
+            <div key={roomIndex} className="border border-gray-400 rounded p-2 w-28">
+              <div className="text-xs text-center font-medium mb-1">{roomIndex + 1}</div>
+              
+              {/* Room layout with beds on the left side */}
+              <div className="flex h-24">
+                {/* Left side - beds */}
+                <div className="w-1/3 flex flex-col space-y-2 border-r border-gray-300 pr-1">
+                  {/* Top bed */}
+                  {topBed && (
+                    <div
+                      onClick={() => toggleSeatSelection(trainType, currentWagon.id, topBed.number, topBed.taken)}
+                      className={`
+                        flex items-center justify-center h-10 rounded cursor-pointer text-xs
+                        ${topBed.taken ? 'bg-red-500 text-white cursor-not-allowed' : 
+                        isSeatSelected(trainType, currentWagon.id, topBed.number) ? 'bg-green-500 text-white' : 'bg-white hover:bg-gray-200 border border-gray-300'}
+                      `}
+                    >
+                      {topBed.number}
+                    </div>
+                  )}
+                  
+                  {/* Bottom bed */}
+                  {bottomBed && (
+                    <div
+                      onClick={() => toggleSeatSelection(trainType, currentWagon.id, bottomBed.number, bottomBed.taken)}
+                      className={`
+                        flex items-center justify-center h-10 rounded cursor-pointer text-xs
+                        ${bottomBed.taken ? 'bg-red-500 text-white cursor-not-allowed' : 
+                        isSeatSelected(trainType, currentWagon.id, bottomBed.number) ? 'bg-green-500 text-white' : 'bg-white hover:bg-gray-200 border border-gray-300'}
+                      `}
+                    >
+                      {bottomBed.number}
+                    </div>
+                  )}
+                </div>
+                
+                {/* Right side - room space */}
+                <div className="w-2/3 pl-1 flex items-center justify-center">
+                  <div className="text-xs text-gray-400"></div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </div>
+)}
+  
+          {/* Lodge Wagon */}
+{/* Lodge Wagon */}
+{currentWagon.type === 'lodge' && (
+  <div className='flex flex-col'>
+    
+    <div className="pl-3 relative flex overflow-x-auto ">
+      {/* Lodge compartments row at the top */}
+      <div className="flex justify-center mb-12 ">
+        {currentWagon.seats.map((compartment) => {
+          const lodgeNumber = compartment.number.charCodeAt(0) - 65; // Convert A->0, B->1, etc.
+          
+          return (
+            <div
+              key={compartment.id}
+              className="flex flex-col min-w-24 items-center m-2 p-2 rounded-md border-2 border-gray-300 bg-gray-50"
+            >
+              <span className="text-sm font-bold mb-1"> {compartment.number.charCodeAt(0) - 64}</span>
+              
+              {/* 2x2 grid for the 4 seats inside each compartment */}
+              <div className="grid grid-cols-2 gap-2 w-full">
+                {[0, 1, 2, 3].map((index) => {
+                  // Get the calculated seat number from the seatNumbers array
+                  const seatNumber = compartment.seatNumbers[index];
+                  // Original seat index (1-4) for checking if taken
+                  const originalSeatIndex = index + 1;
+                  
+                  // Check if this specific seat is taken
+                  const isTaken = compartment.takenSeats && 
+                                compartment.takenSeats.includes(originalSeatIndex);
+                  
+                  return (
+                    <button
+                      key={`${compartment.number}-${seatNumber}`}
+                      onClick={() => toggleSeatSelection(
+                        trainType, 
+                        currentWagon.id, 
+                        compartment.number, 
+                        isTaken, 
+                        seatNumber // Pass the calculated seat number
+                      )}
+                      disabled={isTaken}
+                      className={`
+                        flex items-center justify-center p-2 rounded cursor-pointer text-xs
+                        ${isTaken ? 'bg-red-500 text-white cursor-not-allowed' :
+                          isSeatSelected(trainType, currentWagon.id, compartment.number, seatNumber) 
+                            ? 'bg-green-500 text-white' 
+                            : 'bg-white hover:bg-gray-100 border border-gray-300'}
+                      `}
+                    >
+                       {seatNumber}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </div>
+)}
         </div>
       </div>
     );
