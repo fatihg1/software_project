@@ -9,7 +9,10 @@ function Visuals() {
         '/train_slide4.png',
     ];
 
-    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    // Create duplicated images array with first image added to the end
+    const sliderImages = [images[images.length - 1], ...images, images[0]];
+
+    const [currentImageIndex, setCurrentImageIndex] = useState(1);
     const [isTransitioning, setIsTransitioning] = useState(true);
     const timeoutRef = useRef(null);
     const intervalRef = useRef(null);
@@ -18,16 +21,7 @@ function Visuals() {
         clearInterval(intervalRef.current);
         intervalRef.current = setInterval(() => {
             setIsTransitioning(true);
-            setCurrentImageIndex((prevIndex) => {
-                if (prevIndex === images.length - 1) {
-                    timeoutRef.current = setTimeout(() => {
-                        setIsTransitioning(false);
-                        setCurrentImageIndex(0);
-                    }, 1000); // Duration of the transition
-                    return prevIndex + 1;
-                }
-                return (prevIndex + 1) % images.length;
-            });
+            setCurrentImageIndex(prev => prev + 1);
         }, 4000);
     };
 
@@ -37,50 +31,58 @@ function Visuals() {
             clearInterval(intervalRef.current);
             clearTimeout(timeoutRef.current);
         };
-    }, [images.length]);
+    }, []);
+
+    useEffect(() => {
+        if (currentImageIndex === 0) {
+            timeoutRef.current = setTimeout(() => {
+                setIsTransitioning(false);
+                setCurrentImageIndex(sliderImages.length - 2);
+            }, 1000);
+        }
+        if (currentImageIndex === sliderImages.length - 1) {
+            timeoutRef.current = setTimeout(() => {
+                setIsTransitioning(false);
+                setCurrentImageIndex(1);
+            }, 1000);
+        }
+    }, [currentImageIndex]);
 
     const handlePrevClick = () => {
+        if (currentImageIndex <= 1) return;
         setIsTransitioning(true);
-        setCurrentImageIndex((prevIndex) => (prevIndex === 0 ? images.length - 1 : prevIndex - 1));
+        setCurrentImageIndex(prev => prev - 1);
         resetInterval();
     };
 
     const handleNextClick = () => {
+        if (currentImageIndex >= sliderImages.length - 2) return;
         setIsTransitioning(true);
-        setCurrentImageIndex((prevIndex) => (prevIndex === images.length - 1 ? 0 : prevIndex + 1));
+        setCurrentImageIndex(prev => prev + 1);
         resetInterval();
     };
 
     return (
         <div className="relative w-full h-screen overflow-hidden">
             <div
-                className={`relative w-full h-full flex transition-transform duration-1000 ease-in-out ${isTransitioning ? '' : 'transition-none'}`}
+                className={`relative w-full h-full flex transition-transform duration-1000 ease-in-out ${
+                    isTransitioning ? '' : '!transition-none'
+                }`}
                 style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}
             >
-                {images.map((image, index) => (
+                {sliderImages.map((image, index) => (
                     <img
                         key={index}
                         src={image}
                         alt={`slide ${index}`}
                         className="w-full h-full object-cover flex-shrink-0"
+                        loading="eager"
                     />
                 ))}
             </div>
             <div className="absolute top-0 left-0 w-1/2 h-full flex items-center justify-center">
                 <HomePage />
             </div>
-            <button
-                className="absolute top-1/2 left-4 transform -translate-y-1/2 text-blue-600 text-4xl"
-                onClick={handlePrevClick}
-            >
-                &#9664;
-            </button>
-            <button
-                className="absolute top-1/2 right-4 transform -translate-y-1/2 text-blue-600 text-4xl"
-                onClick={handleNextClick}
-            >
-                &#9654;
-            </button>
         </div>
     );
 }
