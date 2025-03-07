@@ -343,7 +343,7 @@ export default function HomePage() {
         )}
 
         {selectedSection === 'myTickets' && (
-          <form className="space-y-4" onSubmit={handleTicketLookup}>
+          <form className="space-y-4 min-w-100.5 w-full mx-auto" onSubmit={handleTicketLookup}>
             <div>
               <label className="block text-xs font-medium text-blue-700 mb-1">Ticket ID</label>
               <input 
