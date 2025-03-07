@@ -32,6 +32,7 @@ export default function TrainTicketSearch() {
   const [priceRange, setPriceRange] = useState([0, 500]);
   const [timeOfDay, setTimeOfDay] = useState("all");
   const [minPrice, maxPrice] = [0, 500]; // Range limits
+  const today = new Date().toISOString().split('T')[0];
 
   // Search functionality
   const search = () => {
@@ -283,6 +284,8 @@ export default function TrainTicketSearch() {
                 onChange={(e) => setDate(e.target.value)}
                 value={date}
                 min={new Date().toISOString().split('T')[0]}
+                onKeyDown={(e) => e.preventDefault()}
+                onPaste={(e) => e.preventDefault()}
               />
             </div>
 
@@ -299,12 +302,12 @@ export default function TrainTicketSearch() {
                   onChange={(e) => setReturnDate(e.target.value)}
                   value={returnDate}
                   min={date || new Date().toISOString().split('T')[0]}
+                  onKeyDown={(e) => e.preventDefault()}
+                  onPaste={(e) => e.preventDefault()}
                 />
               </div>
             )}
           </div>
-
-          {/* Existing filters code remains the same */}
           
           <button className="w-full bg-blue-600 text-white py-3 rounded-xl shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-center transition"
             onClick={search}
