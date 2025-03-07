@@ -183,7 +183,7 @@ export default function AboutUs() {
           variants={fadeIn}
           className="relative flex items-center justify-center h-full text-center px-4 py-30 md:py-0"
         >
-          <div className="max-w-4xl px-4">
+          <div className="max-w-4xl px-4 pt-26">
             <motion.h1 
               variants={itemFadeIn}
               className="text-4xl md:text-6xl font-bold text-white mb-6"
