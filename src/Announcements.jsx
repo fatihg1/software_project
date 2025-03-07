@@ -15,7 +15,7 @@ const Announcements = () => {
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto p-4">
+    <div className="w-full max-w-6xl mx-auto p-20">
       <h2 className="text-2xl font-bold mb-6 text-center">Latest Announcements</h2>
       
       {announcements.length === 0 ? (

@@ -30,7 +30,7 @@ export default function ContactUs() {
         <div className="bg-white p-6 rounded-2xl shadow-md">
           <FaMapMarkerAlt className="text-5xl text-red-500 mx-auto" />
           <h2 className="text-xl font-semibold mt-4">Address</h2>
-          <p className="text-gray-600 mt-2">1234 Street, City, Country</p>
+          <p className="text-gray-600 mt-2">Maslak District, Büyükdere Avenue, No:237 Sarıyer, 34485 Istanbul, Turkey</p>
         </div>
       </div>
     </div>

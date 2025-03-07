@@ -6,24 +6,24 @@ const faqs = [
     category: "Booking & Tickets",
     questions: [
       {
-        question: "How can I book a train ticket?",
-        answer: "You can book your train ticket through our website or mobile app. Simply enter your departure and destination stations, select a travel date, choose your preferred train and seat, then proceed to payment.",
+        question: "How can I purchase a train ticket?",
+        answer: "Train tickets can be purchased via our <strong>official website or mobile application</strong>. Simply enter the departure and destination stations, select the travel date, choose a preferred train and seat, and proceed with payment.",
       },
       {
         question: "Can I modify my ticket after booking?",
-        answer: "Yes, you can modify your ticket up to 24 hours before departure. Changes may include date, time, or seat selection. Modification fees may apply.",
+        answer: "<strong>Ticket modifications are not allowed</strong> after booking.",
       },
       {
-        question: "Do I need to print my ticket?",
-        answer: "No, a digital ticket (e-ticket) is sufficient. You can show the ticket from your email or mobile app. However, if you prefer, you can print your ticket for reference.",
+        question: "Do I need a printed ticket for travel?",
+        answer: "A <strong>digital ticket (e-ticket)</strong> is sufficient for travel. It can be presented via <strong>email</strong> or through our <strong>mobile application. Printed ticket is optional</strong>.",
       },
       {
-        question: "Can I book tickets for multiple passengers?",
-        answer: "Yes! You can book tickets for multiple passengers in a single transaction. Just add the names and details for each traveler during the booking process.",
+        question: "Is it possible to book tickets for multiple passengers?",
+        answer: "Yes, <strong>multiple passengers</strong> can be included in a <strong>single booking</strong>. The required details for each traveler must be provided during the <strong>reservation process</strong>.",
       },
       {
-        question: "Is there a mobile app for booking tickets?",
-        answer: "Yes, we have a mobile app available on iOS and Android for booking, modifying, and managing your train tickets.",
+        question: "Is a mobile application available for ticket bookings?",
+        answer: "Yes, our <strong>mobile application</strong> is available for both <strong>iOS and Android</strong>, enabling users to <strong>book, manage, and access their tickets</strong> with ease.",
       },
     ],
   },
@@ -31,102 +31,23 @@ const faqs = [
     category: "Cancellations & Refunds",
     questions: [
       {
-        question: "What is the cancellation policy?",
-        answer: "You can cancel your ticket up to 24 hours before departure for a full refund. Cancellations made within 24 hours will incur a 50% fee. No refund is provided for cancellations within 2 hours of departure.",
+        question: "What is the ticket cancellation policy?",
+        answer: "Tickets may be <strong>canceled up to 24 hours prior</strong> to departure for a <strong>full refund</strong>. Cancellations made <strong>within 24 hours</strong> will incur a 50% cancellation fee.<strong> No refunds will be issued for cancellations within two hours of departure</strong>.",
       },
       {
-        question: "How do I request a refund?",
-        answer: "Refunds can be requested through the 'My Tickets' section on our website or app. If you booked at a ticket counter, please visit the station for assistance.",
+        question: "How can I request a refund?",
+        answer: "<strong>Refund requests</strong> can be made via the <strong>'My Tickets' section</strong> on our <strong>website</strong> or <strong>mobile application</strong>. For tickets purchased at a <strong>ticket counter</strong>, refunds must be requested at the <strong>station</strong>.",
       },
       {
-        question: "Can I transfer my ticket to someone else?",
-        answer: "No, train tickets are non-transferable. The name on the ticket must match the passenger’s valid ID during travel.",
+        question: "Can a ticket be transferred to another person?",
+        answer: "No, <strong>train tickets are non-transferable</strong>. The <strong>name on the ticket</strong> must match the traveler's <strong>identification</strong> at the time of travel.",
       },
       {
-        question: "What happens if my train is canceled?",
-        answer: "If your train is canceled due to unforeseen circumstances, you will be offered a full refund or the option to rebook on the next available train.",
-      },
-      {
-        question: "Can I change my travel date after booking?",
-        answer: "Yes, you can change your travel date, but it may be subject to availability and a modification fee.",
-      },
+        question: "What happens if my train is cancelled?",
+        answer: "In the event of a <strong>train cancellation</strong> due to <strong>unforeseen circumstances</strong>, passengers will be eligible for a <strong>full refund</strong> or may <strong>rebook on the next available service</strong>.",
+      }
     ],
-  },
-  {
-    category: "Payments & Discounts",
-    questions: [
-      {
-        question: "What payment methods are accepted?",
-        answer: "We accept all major credit and debit cards, PayPal, Apple Pay, Google Pay, and bank transfers. Payments at station counters can be made in cash.",
-      },
-      {
-        question: "Are there any discounts available?",
-        answer: "Yes! We offer student, senior citizen (65+), and military discounts. Additionally, group bookings of 10 or more passengers receive a discount.",
-      },
-      {
-        question: "Can I get an invoice for my purchase?",
-        answer: "Yes, after completing your booking, an invoice will be sent to your email. You can also download it from your account section.",
-      },
-      {
-        question: "Is my payment information secure?",
-        answer: "Absolutely! We use encrypted payment gateways to ensure your transactions are safe and secure.",
-      },
-      {
-        question: "Do you offer loyalty points or rewards?",
-        answer: "Yes! Frequent travelers can earn points for each booking, which can be redeemed for discounts on future trips.",
-      },
-    ],
-  },
-  {
-    category: "Luggage & Baggage Policies",
-    questions: [
-      {
-        question: "How much luggage can I bring?",
-        answer: "Each passenger is allowed up to 2 carry-on bags (max 15kg each) and 1 checked baggage (max 25kg). Oversized or extra luggage may require an additional fee.",
-      },
-      {
-        question: "Can I bring my bicycle on board?",
-        answer: "Yes, foldable bicycles are allowed as carry-on luggage. Standard bicycles require a separate bicycle ticket and must be stored in the designated compartments.",
-      },
-      {
-        question: "Are pets allowed on the train?",
-        answer: "Small pets (under 8kg) can travel in a pet carrier. Larger pets must have a separate pet ticket and remain on a leash and muzzle at all times. Guide dogs travel for free.",
-      },
-      {
-        question: "Can I carry food and drinks on board?",
-        answer: "Yes, passengers are allowed to bring their own food and drinks. However, alcohol consumption is prohibited unless served on board.",
-      },
-      {
-        question: "Is there Wi-Fi on the train?",
-        answer: "Most of our trains offer free Wi-Fi. However, service quality may vary depending on location and network coverage.",
-      },
-    ],
-  },
-  {
-    category: "Safety & Onboard Services",
-    questions: [
-      {
-        question: "What safety measures are in place on the train?",
-        answer: "Our trains are equipped with CCTV, emergency exits, and trained staff to ensure passenger safety at all times.",
-      },
-      {
-        question: "Is there a first-aid service on board?",
-        answer: "Yes, all trains have basic first-aid kits and trained personnel to assist in case of medical emergencies.",
-      },
-      {
-        question: "Are there special facilities for passengers with disabilities?",
-        answer: "Yes, our trains offer wheelchair-accessible seating, priority boarding, and dedicated assistance services. Please inform us in advance for special arrangements.",
-      },
-      {
-        question: "Can I charge my phone or laptop on the train?",
-        answer: "Yes, our trains are equipped with power outlets and USB charging ports at most seats.",
-      },
-      {
-        question: "Are there restrooms on board?",
-        answer: "Yes, all trains are equipped with clean and accessible restrooms.",
-      },
-    ],
-  },
+  }
 ];
 
 export default function FAQs1() {
@@ -144,7 +65,7 @@ export default function FAQs1() {
           <FaQuestionCircle className="text-blue-500" /> Frequently Asked Questions
         </h1>
         <p className="text-gray-600 mt-3 text-lg">
-          Find answers to common questions about train bookings, payments, baggage policies, and more.
+          Find answers to common inquiries regarding <strong>ticket reservations</strong>, <strong>cancellations</strong>, and <strong>refunds</strong>.
         </p>
       </div>
 
@@ -153,7 +74,7 @@ export default function FAQs1() {
         {faqs.map((category, categoryIndex) => (
           <div key={categoryIndex} className="bg-white p-6 rounded-lg shadow-md">
             {/* Category Title */}
-            <h2 className="text-2xl font-semibold text-gray-800 border-b pb-2 mb-4">
+            <h2 className="text-3xl font-semibold text-gray-800 border-b pb-6">
               {category.category}
             </h2>
 
@@ -174,9 +95,7 @@ export default function FAQs1() {
 
                 {/* FAQ Answer - Expandable */}
                 {openIndex === `${categoryIndex}-${index}` && (
-                  <p className="mt-2 text-gray-600 bg-gray-50 p-4 rounded-md border border-gray-200">
-                    {faq.answer}
-                  </p>
+                  <div className="mt-2 text-gray-600 bg-gray-50 p-4 rounded-md border border-gray-200" dangerouslySetInnerHTML={{ __html: faq.answer }} />
                 )}
               </div>
             ))}

@@ -124,9 +124,9 @@ export default function ContactUs() {
             <h2 className="text-xl font-semibold mb-2">Visit Our Office</h2>
             <p className="text-gray-600 mb-2">Main Headquarters</p>
             <address className="not-italic text-gray-700">
-              1234 Train Station Avenue<br />
-              Central District, City 54321<br />
-              Country
+              Maslak District, Büyükdere Avenue, No:237<br />
+              Sarıyer, 34485 Istanbul<br />
+              Turkey
             </address>
           </motion.div>
         </motion.div>
