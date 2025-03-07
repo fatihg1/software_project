@@ -88,32 +88,9 @@ const HelpCenter = () => {
           <div className="bg-blue-800 text-white p-6">
             <h1 className="text-3xl font-bold text-center">Appeal Help Center</h1>
           </div>
-          
-          <div className="flex border-b">
-            <button
-              className={`w-1/2 p-4 transition-colors duration-300 ${
-                activeTab === 'lookUp' 
-                  ? 'bg-blue-800 text-white font-semibold' 
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-              onClick={() => setActiveTab('lookUp')}
-            >
-              Look Up an Appeal
-            </button>
-            <button
-              className={`w-1/2 p-4 transition-colors duration-300 ${
-                activeTab === 'addAppeal' 
-                  ? 'bg-blue-800 text-white font-semibold' 
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-              onClick={() => setActiveTab('addAppeal')}
-            >
-              Add an Appeal
-            </button>
-          </div>
-
+  
           <div className="p-8">
-            {activeTab === 'lookUp' ? (
+            {activeTab === 'AddApppeal' ? (
               <div className="space-y-6">
                 <div>
                   <label className="block text-gray-700 font-medium mb-2">Last Name</label>

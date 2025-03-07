@@ -308,11 +308,14 @@ export default function HomePage() {
             <div>
               <label className="block text-xs font-medium text-blue-700 mb-1">Departure Date</label>
               <input 
+                min={new Date().toISOString().split('T')[0]}
                 type="date" 
                 value={departureDate}
                 onChange={handleDepartureDateChange}
                 className="p-2 text-sm rounded border border-gray-300 w-full"
                 required
+                onKeyDown={(e) => e.preventDefault()}
+                onPaste={(e) => e.preventDefault()}
               />
             </div>
             
@@ -327,6 +330,8 @@ export default function HomePage() {
                   className="p-2 text-sm rounded border border-gray-300 w-full"
                   required
                   disabled={!isRoundTrip}
+                  onKeyDown={(e) => e.preventDefault()}
+                  onPaste={(e) => e.preventDefault()}
                 />
               </div>
             
