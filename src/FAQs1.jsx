@@ -72,7 +72,7 @@ export default function FAQs1() {
       {/* FAQ Sections */}
       <div className="space-y-8">
         {faqs.map((category, categoryIndex) => (
-          <div key={categoryIndex} className="bg-white p-6 rounded-lg shadow-md">
+          <div key={categoryIndex} className="bg-white p-6 rounded-lg shadow-md bg-gradient-to-r from-blue-50 to-white">
             {/* Category Title */}
             <h2 className="text-3xl font-semibold text-gray-800 border-b pb-6">
               {category.category}
