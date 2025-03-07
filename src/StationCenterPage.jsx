@@ -10,7 +10,7 @@ function StationCenterPage(){
             <ScrollToTop/>
             <Navbar/>
             <StationCenter/>
-            <div className="mt-65">
+            <div className="mt-75">
                 <Footer/>
             </div>
             
