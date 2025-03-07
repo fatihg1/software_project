@@ -12,7 +12,7 @@ const ManagerDashboard = () => {
     <div>
       <div className="flex h-screen bg-gray-100">
         {/* Sidebar */}
-        <div className="w-64 bg-blue-900 text-white p-6 flex flex-col">
+        <div className="w-64 bg-blue-900 text-white p-6 flex flex-col fixed h-screen">
           <h2 className="text-2xl font-bold mb-6">Admin Panel</h2>
           <nav className="flex flex-col space-y-4">
             <button 
@@ -39,7 +39,7 @@ const ManagerDashboard = () => {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 p-6 relative">
+        <div className="flex-1 p-6 ml-64 overflow-auto">
           {/* Header Section */}
           <div className="flex justify-between items-center mb-6">
             {/* Search Box */}

@@ -13,7 +13,7 @@ const AdminDashboard = () => {
     <div>
       <div className="flex h-screen bg-gray-100">
         {/* Sidebar */}
-        <div className="w-64 bg-blue-900 text-white p-6 flex flex-col">
+        <div className="w-64 bg-blue-900 text-white p-6 flex flex-col fixed h-screen">
           <h2 className="text-2xl font-bold mb-6">Admin Panel</h2>
           <nav className="flex flex-col space-y-4">
             <button className={`flex items-center space-x-2 p-3 rounded-md ${activeTab === "dashboard" ? "bg-purple-700" : "hover:bg-purple-700"} transition`} onClick={() => setActiveTab("dashboard")}>
@@ -32,7 +32,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 p-6 relative">
+        <div className="flex-1 p-6 ml-64 overflow-auto">
           {/* Header */}
           <div className="flex justify-between items-center mb-6">
             <h1 className="text-3xl font-bold text-gray-800 flex-1 text-center">📊 Admin Dashboard</h1>
