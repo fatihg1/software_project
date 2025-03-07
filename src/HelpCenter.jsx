@@ -115,7 +115,7 @@ const HelpCenter = () => {
       </div>
       */}
 
-      <div className="bg-white p-6 rounded-lg shadow-md">
+      <div className="bg-white p-6 rounded-lg shadow-md bg-gradient-to-r from-blue-50 to-white">
         {/* Commented out Look Up Appeal section
         {activeTab === 'lookUp' ? (
           <div className="space-y-6">
