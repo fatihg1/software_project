@@ -28,7 +28,7 @@ const TrainSeatSelection = () => {
       // Business Class Wagon
       {
         id: 1,
-        name: "Business Class",
+        name: "Business",
         type: 'business',
         seats: [
           ...Array(8).fill().map((_, columnIndex) => [
