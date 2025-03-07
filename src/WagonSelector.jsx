@@ -28,8 +28,11 @@ const WagonSelector = ({
               Wagon {index+1}
             </div>
             <div className="text-sm">
-              {wagon.seats.filter(seat => !seat.taken).length} seats left
-            </div>
+              {wagon.type === 'lodge' 
+                ? `${wagon.seats.length*4 - wagon.seats.filter(seat => seat.taken).length} ${wagon.seats.filter(seat => !seat.taken).length === 1 ? "seat" : "seats"} left`
+                : `${wagon.seats.filter(seat => !seat.taken).length} ${wagon.seats.filter(seat => !seat.taken).length === 1 ? "seat" : "seats"} left`
+              }
+          </div>
           </button>
         ))}
       </div>

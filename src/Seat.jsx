@@ -182,7 +182,9 @@ const TrainSeatSelection = () => {
               capacity: 4,
               // Instead of marking the whole compartment as taken
               // takenSeats: which individual seats are taken (1, 2, 3, or 4)
-              takenSeats: [2, 5].includes(index + 1) ? [1, 3] : [], // Example: compartments B and E have seats 1 and 3 taken
+              
+              takenSeats: [2].includes(index + 1) ? [1, 3] : [], // Example: compartments B and E have seats 1 and 3 taken
+              taken: [2, 5].includes(index + 1),
               price: 350, // Price per compartment
               seatNumbers: [1, 2, 3, 4].map(seatIndex => lodgeNumber * 4 + seatIndex)
             };
