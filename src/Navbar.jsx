@@ -39,30 +39,17 @@ function Navbar() {
           <div className="flex flex-row w-full justify-between h-full">
             {/* Logo and Brand */}
             <div className="flex flex-row items-center space-x-4">
-              <div className="bg-white p-1 rounded-full">
-                <svg
-                  width="40"
-                  height="40"
-                  className="hover:cursor-pointer"
-                  viewBox="0 0 200 200"
-                  xmlns="http://www.w3.org/2000/svg"
+              {/* Logo Container */}
+              <div className="bg-white p-1 rounded-full w-12 h-12 flex items-center justify-center overflow-hidden">
+                <img 
+                  src="/logo.png" 
+                  alt="Company Logo"
+                  className="w-full h-full object-cover hover:cursor-pointer"
                   onClick={() => handleNavigation("/")}
-                >
-                  <circle cx="100" cy="100" r="90" fill="#193CB8" />
-                  <text
-                    x="50%"
-                    y="50%"
-                    fontFamily="Arial, sans-serif"
-                    fontSize="80"
-                    fontWeight="bold"
-                    fill="white"
-                    textAnchor="middle"
-                    alignmentBaseline="middle"
-                  >
-                    RL
-                  </text>
-                </svg>
+                />
               </div>
+
+              {/* Brand Name */}
               <button
                 className={`text-2xl font-bold transition duration-300 hover:cursor-pointer ${
                   isActive("/") ? "text-blue-300" : "hover:text-blue-300"
@@ -72,6 +59,9 @@ function Navbar() {
                 Rail Link
               </button>
             </div>
+
+
+
 
             {/* Navigation Links */}
             <div className="hidden md:flex flex-row space-x-4 text-md items-center">

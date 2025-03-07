@@ -18,10 +18,10 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
 const stations = [
-  { name: "Grand Central Station", image: "/api/placeholder/800/500", location: "New York, USA", info: "Historic terminal in Midtown Manhattan" },
-  { name: "Union Station", image: "/api/placeholder/800/500", location: "Washington DC, USA", info: "Beaux-Arts style rail station" },
-  { name: "King's Cross", image: "/api/placeholder/800/500", location: "London, UK", info: "Major London railway terminus" },
-  { name: "Gare du Nord", image: "/api/placeholder/800/500", location: "Paris, France", info: "Busiest railway station in Europe" }
+  { name: "Haydarpasa Gari", image: "public/haydarpasa_gari.jpg", location: "Istanbul, Turkey", info: "Gateway to Istanbul's Railway Heritage" },
+  { name: "Ankara Gari", image: "public/ankara_gari.jpg", location: "Ankara, Turkey", info: "Heart of Turkey's Rail Network" },
+  { name: "Kars Gari", image: "public/kars_gari.jpg", location: "Kars, Turkey", info: "Historic Hub of the Silk Road" },
+  { name: "Alsancak Gari", image: "public/alsancak_gari.jpg", location: "Izmir, Turkey", info: "Izmir’s Timeless Railway Landmark" }
 ];
 
 const teamMembers = [
@@ -234,7 +234,7 @@ Our goal is to create a safe, efficient, and eco-friendly transportation network
       
       {/* Why Choose Us Section */}
       <div className="py-16 px-4 bg-white">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           <motion.div 
             initial="hidden"
             whileInView="visible"
@@ -256,9 +256,9 @@ Our goal is to create a safe, efficient, and eco-friendly transportation network
               className="w-full md:w-1/2 overflow-hidden rounded-2xl shadow-xl"
             >
               <img 
-                src="/api/placeholder/800/600"
+                src="logo.png"
                 alt="Train Travel Experience" 
-                className="w-full h-auto hover:scale-105 transition-transform duration-500"
+                className="w-full h-auto hover:scale-100 transition-transform duration-500"
               />
             </motion.div>
       
@@ -463,7 +463,7 @@ Our goal is to create a safe, efficient, and eco-friendly transportation network
               {stations.map((station, index) => (
                 <div key={index} className="px-4">
                   <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-                    <div className="h-80 overflow-hidden">
+                    <div className="h-160 overflow-hidden">
                       <motion.img 
                         whileHover={{ scale: 1.05, transition: { duration: 0.5 } }}
                         src={station.image} 
