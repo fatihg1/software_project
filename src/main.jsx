@@ -7,7 +7,7 @@ import Home from "./HomePage.jsx"
 import Contact from './ContactPage.jsx'
 import Aboutus from './AboutUsPage.jsx'
 import TrainTicketSearch from './SearchTrain.jsx'
-import TrainSearch from './StationCenterPage.jsx'
+import StationCenterPage from './StationCenterPage.jsx'
 import Navbar from './Navbar.jsx'
 import ManagerDashboard from "./Manager/ManagerDashboard.jsx"; 
 import TrainManagement from "./Admin/TrainManagement.jsx"; 
@@ -57,7 +57,7 @@ const router=createBrowserRouter([
     },
     { 
       path:'/station-center',
-      element:<TrainSearch/>
+      element:<StationCenterPage/>
     },
     {
       path:'/admin', // Admin Paneli
