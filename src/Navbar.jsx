@@ -86,7 +86,7 @@ function Navbar() {
 
               <button
                 className={`px-4 py-2 rounded-md transition duration-200 ${
-                  isActive("/help-center")
+                  isActive("/help")
                     ? "bg-blue-700 ring-2 ring-blue-300"
                     : "hover:bg-blue-700 hover:translate-y-[-2px] hover:cursor-pointer"
                 }`}
