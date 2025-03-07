@@ -20,6 +20,17 @@ function Navbar() {
   };
 
   const isActive = (path) => location.pathname === path;
+
+  const isInTicketFlow = () => {
+    return ['/select-train', '/select-seats', '/payment'].includes(location.pathname);
+  };
+
+  // Handle Buy Tickets button click
+  const handleBuyTicketsClick = () => {
+    if (!isInTicketFlow()) {
+      navigate("/select-train");
+    }
+  };
   
   // Function to get user role from metadata
   const getUserRole = () => {
@@ -64,11 +75,11 @@ function Navbar() {
             <div className="hidden md:flex flex-row space-x-4 text-md items-center">
               <button
                 className={`px-4 py-2 rounded-md transition duration-200 ${
-                  isActive("/select-train")
+                  isInTicketFlow("/select-train")
                     ? "bg-blue-700 ring-2 ring-blue-300"
                     : "hover:bg-blue-700 hover:translate-y-[-2px] hover:cursor-pointer"
                 }`}
-                onClick={() => handleNavigation("/select-train")}
+                onClick={() => handleBuyTicketsClick("/select-train")}
               >
                 <span className="text-white textShadow">Buy Tickets</span>
               </button>
