@@ -60,16 +60,13 @@ function Navbar() {
               </button>
             </div>
 
-
-
-
             {/* Navigation Links */}
             <div className="hidden md:flex flex-row space-x-4 text-md items-center">
               <button
                 className={`px-4 py-2 rounded-md transition duration-200 ${
                   isActive("/select-train")
                     ? "bg-blue-700 ring-2 ring-blue-300"
-                    : "hover:bg-blue-700 hover:translate-y-[-2px]"
+                    : "hover:bg-blue-700 hover:translate-y-[-2px] hover:cursor-pointer"
                 }`}
                 onClick={() => handleNavigation("/select-train")}
               >
@@ -80,7 +77,7 @@ function Navbar() {
                 className={`px-4 py-2 rounded-md transition duration-200 ${
                   isActive("/station-center")
                     ? "bg-blue-700 ring-2 ring-blue-300"
-                    : "hover:bg-blue-700 hover:translate-y-[-2px]"
+                    : "hover:bg-blue-700 hover:translate-y-[-2px] hover:cursor-pointer"
                 }`}
                 onClick={() => handleNavigation("/station-center")}
               >
@@ -91,7 +88,7 @@ function Navbar() {
                 className={`px-4 py-2 rounded-md transition duration-200 ${
                   isActive("/help-center")
                     ? "bg-blue-700 ring-2 ring-blue-300"
-                    : "hover:bg-blue-700 hover:translate-y-[-2px]"
+                    : "hover:bg-blue-700 hover:translate-y-[-2px] hover:cursor-pointer"
                 }`}
                 onClick={() => handleNavigation("/help")}
               >
@@ -102,7 +99,7 @@ function Navbar() {
                 className={`px-4 py-2 rounded-md transition duration-200 ${
                   isActive("/about-us")
                     ? "bg-blue-700 ring-2 ring-blue-300"
-                    : "hover:bg-blue-700 hover:translate-y-[-2px]"
+                    : "hover:bg-blue-700 hover:translate-y-[-2px] hover:cursor-pointer"
                 }`}
                 onClick={() => handleNavigation("/about-us")}
               >
@@ -113,7 +110,7 @@ function Navbar() {
                 className={`px-4 py-2 rounded-md transition duration-200 ${
                   isActive("/contact")
                     ? "bg-blue-700 ring-2 ring-blue-300"
-                    : "hover:bg-blue-700 hover:translate-y-[-2px]"
+                    : "hover:bg-blue-700 hover:translate-y-[-2px] hover:cursor-pointer"
                 }`}
                 onClick={() => handleNavigation("/contact")}
               >
@@ -126,7 +123,7 @@ function Navbar() {
                   className={`px-4 py-2 rounded-md transition duration-200 ${
                     isActive("/manager")
                       ? "bg-blue-700 ring-2 ring-blue-300"
-                      : "hover:bg-blue-700 hover:translate-y-[-2px]"
+                      : "hover:bg-blue-700 hover:translate-y-[-2px] hover:cursor-pointer"
                   }`}
                   onClick={() => handleNavigation("/manager")}
                 >
@@ -139,7 +136,7 @@ function Navbar() {
                   className={`px-4 py-2 rounded-md transition duration-200 ${
                     isActive("/admin")
                       ? "bg-blue-700 ring-2 ring-blue-300"
-                      : "hover:bg-blue-700 hover:translate-y-[-2px]"
+                      : "hover:bg-blue-700 hover:translate-y-[-2px] hover:cursor-pointer"
                   }`}
                   onClick={() => handleNavigation("/admin")}
                 >

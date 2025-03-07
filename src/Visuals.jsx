@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import HomePage from './Home.jsx';
-
+import { Link } from 'react-router-dom';
 function Visuals() {
     const images = [
         '/train_slide1.png',
@@ -71,13 +71,13 @@ function Visuals() {
                 style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}
             >
                 {sliderImages.map((image, index) => (
-                    <img
-                        key={index}
-                        src={image}
-                        alt={`slide ${index}`}
-                        className="w-full h-full object-cover flex-shrink-0"
-                        loading="eager"
-                    />
+                        <img
+                            key={index}
+                            src={image}
+                            alt={`slide ${index}`}
+                            className="w-full h-full object-cover flex-shrink-0"
+                            loading="eager"
+                        />
                 ))}
             </div>
             <div className="absolute top-0 left-0 w-1/2 h-full flex items-center justify-center">

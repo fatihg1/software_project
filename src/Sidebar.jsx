@@ -150,7 +150,7 @@ function SideNavigation() {
                   className={`w-full px-4 py-3 rounded-md transition duration-200 ${
                     isActive("/my-tickets")
                       ? "bg-blue-700 ring-2 ring-blue-300"
-                      : "hover:bg-blue-700"
+                      : "hover:bg-blue-700 hover:cursor-pointer"
                   }`}
                   onClick={() => handleNavigation("/my-tickets")}
                 >
@@ -162,7 +162,7 @@ function SideNavigation() {
                 className={`w-full px-4 py-3 rounded-md transition duration-200 ${
                   isActive("/select-train")
                     ? "bg-blue-700 ring-2 ring-blue-300"
-                    : "hover:bg-blue-700"
+                    : "hover:bg-blue-700 hover:cursor-pointer"
                 }`}
                 onClick={() => handleNavigation("/select-train")}
               >
@@ -173,7 +173,7 @@ function SideNavigation() {
                 className={`w-full px-4 py-3 rounded-md transition duration-200 ${
                   isActive("/station-center")
                     ? "bg-blue-700 ring-2 ring-blue-300"
-                    : "hover:bg-blue-700"
+                    : "hover:bg-blue-700 hover:cursor-pointer"
                 }`}
                 onClick={() => handleNavigation("/station-center")}
               >
@@ -184,7 +184,7 @@ function SideNavigation() {
                 className={`w-full px-4 py-3 rounded-md transition duration-200 ${
                   isActive("/help-center")
                     ? "bg-blue-700 ring-2 ring-blue-300"
-                    : "hover:bg-blue-700"
+                    : "hover:bg-blue-700 hover:cursor-pointer"
                 }`}
                 onClick={() => handleNavigation("/help")}
               >
@@ -195,7 +195,7 @@ function SideNavigation() {
                 className={`w-full px-4 py-3 rounded-md transition duration-200 ${
                   isActive("/about-us")
                     ? "bg-blue-700 ring-2 ring-blue-300"
-                    : "hover:bg-blue-700"
+                    : "hover:bg-blue-700 hover:cursor-pointer"
                 }`}
                 onClick={() => handleNavigation("/about-us")}
               >
@@ -206,7 +206,7 @@ function SideNavigation() {
                 className={`w-full px-4 py-3 rounded-md transition duration-200 ${
                   isActive("/contact")
                     ? "bg-blue-700 ring-2 ring-blue-300"
-                    : "hover:bg-blue-700"
+                    : "hover:bg-blue-700 hover:cursor-pointer"
                 }`}
                 onClick={() => handleNavigation("/contact")}
               >
@@ -217,7 +217,7 @@ function SideNavigation() {
                 className={`w-full px-4 py-3 rounded-md transition duration-200 ${
                   isActive("/faqs")
                     ? "bg-blue-700 ring-2 ring-blue-300"
-                    : "hover:bg-blue-700"
+                    : "hover:bg-blue-700 hover:cursor-pointer"
                 }`}
                 onClick={() => handleNavigation("/faqs")}
               >
@@ -231,7 +231,7 @@ function SideNavigation() {
                   className={`w-full px-4 py-3 rounded-md transition duration-200 ${
                     isActive("/manager")
                       ? "bg-blue-700 ring-2 ring-blue-300"
-                      : "hover:bg-blue-700"
+                      : "hover:bg-blue-700 hover:cursor-pointer"
                   }`}
                   onClick={() => handleNavigation("/manager")}
                 >
@@ -244,7 +244,7 @@ function SideNavigation() {
                   className={`w-full px-4 py-3 rounded-md transition duration-200 ${
                     isActive("/admin")
                       ? "bg-blue-700 ring-2 ring-blue-300"
-                      : "hover:bg-blue-700"
+                      : "hover:bg-blue-700 hover:cursor-pointer"
                   }`}
                   onClick={() => handleNavigation("/admin")}
                 >

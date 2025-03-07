@@ -136,7 +136,7 @@ const StationCenter = () => {
             />
             <button
               type="submit"
-              className="bg-blue-500 text-white p-3 px-6 hover:bg-blue-600"
+              className="bg-blue-500 text-white p-4 px-6 hover:bg-blue-600 h-full"
             >
               <Search size={20} />
             </button>
