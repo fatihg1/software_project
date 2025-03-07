@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useUser } from '@clerk/clerk-react';
 import logo from '/TRAIN_LOGO-02.png';
 import profile from '/user.png';
-
+import Sidebar from './Sidebar';
 function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -176,14 +176,7 @@ function Navbar() {
           </div>
 
           {/* Mobile Menu Toggle (Optional - you can expand this) */}
-          <div className="md:hidden">
-            <button 
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-white focus:outline-none"
-            >
-              {isMenuOpen ? '✕' : '☰'}
-            </button>
-          </div>
+          <Sidebar/>
         </div>
       </div>
     </div>

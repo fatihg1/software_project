@@ -28,8 +28,8 @@ import HelpCenter from './HelpCenter.jsx'
 import TrainRules from './TrainRulesPage.jsx'
 import TicketsPage from './MyTicketsPage.jsx'
 import FAQsPage from './FAQsPage.jsx'
-
-
+import AdminRoute from './AdminRoute.jsx'
+import ManagerRoute from './ManagerRoute.jsx'
 const router=createBrowserRouter([
     {
       path:'/',
@@ -61,19 +61,26 @@ const router=createBrowserRouter([
     },
     {
       path:'/admin', // Admin Paneli
-      element:<AdminDashboard/>
-    },
-    { 
-      path: "/admin/trains",
-      element: <TrainManagement /> 
-    }, 
-    { 
-      path:'/manager/users', 
-      element:<UserManagement/> 
-    },
-    {
-      path:"/admin/bookings",
-      element:<BookingManagement/>
+      element:<AdminRoute/>,
+      children:[
+        {
+          index:true,
+          element:<AdminDashboard/>,
+        },
+        { 
+          path: "/admin/trains",
+          element: <TrainManagement /> 
+        },
+        {
+          path:"/admin/bookings",
+          element:<BookingManagement/>
+        },
+        { 
+          path:'/admin/announcements',
+          element:<AnnouncementManagement/> 
+        },
+      ]
+      
     },
     {
       path:"/rules",
@@ -88,28 +95,34 @@ const router=createBrowserRouter([
       element:<HelpCenter/>
     },
     {
-      path:"/manager/finance",
-      element:<FinanceManagement/>
-    },
-    { 
-      path:'/admin/announcements',
-      element:<AnnouncementManagement/> 
-    },
-    {
       path:'/*',
       element:<NotFound/>
     },
     {
       path:"/manager",
-      element:<ManagerDashboard/>
-    },
-    {
-      path:"/manager/revenue",
-      element:<RevenueAnalysis/>
-    },
-    {
-      path:"/manager/salary",
-      element:<SalaryManagement/>
+      element:<ManagerRoute/>,
+      children:[
+        {
+          index:true,
+          element:<ManagerDashboard/>
+        },
+        {
+          path:"/manager/revenue",
+          element:<RevenueAnalysis/>
+        },
+        {
+          path:"/manager/salary",
+          element:<SalaryManagement/>
+        },
+        {
+          path:"/manager/finance",
+          element:<FinanceManagement/>
+        },
+        { 
+          path:'/manager/users', 
+          element:<UserManagement/> 
+        },
+      ]
     },
     {
       path: '/faqs',  
