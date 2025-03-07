@@ -267,7 +267,7 @@ const HelpCenter = () => {
                   placeholder="Enter Ticket ID"
                   value={travelInfo.ticketId}
                   onChange={(e) => setTravelInfo({...travelInfo, ticketId: e.target.value})}
-                  required
+                  
                 />
               </div>
               <div>
@@ -278,7 +278,7 @@ const HelpCenter = () => {
                   placeholder="Enter Departure Station"
                   value={travelInfo.departureStation}
                   onChange={(e) => setTravelInfo({...travelInfo, departureStation: e.target.value})}
-                  required
+                  
                 />
               </div>
               <div>
@@ -289,7 +289,7 @@ const HelpCenter = () => {
                   placeholder="Enter Arrival Station"
                   value={travelInfo.arrivalStation}
                   onChange={(e) => setTravelInfo({...travelInfo, arrivalStation: e.target.value})}
-                  required
+                  
                 />
               </div>
             </div>
