@@ -8,16 +8,13 @@ Ensure you have the following installed on your system:
 
 Git (Download Git)
 
-Node.js (LTS version recommended) (Download Node.js)
+Node.js (LTS version recommended) (Download Node.js) (Version:22.14.0)
 
-npm (Comes with Node.js) or yarn
+npm (Version:11.1.0) (Comes with Node.js) or yarn
 
 1️⃣ Clone the Repository
 
-git clone <repository-url>
-cd <repository-name>
-
-Replace <repository-url> with the actual Git repository URL.
+git clone (https://github.com/fatihg1/software_project)
 
 2️⃣ Install Node.js
 
@@ -77,7 +74,7 @@ npm install framer-motion
 
 9️⃣ Configure Environment Variables
 
-Create a .env file in the project root and add the following line:
+Ensure there is an .env file in your directory with the following line in its contents:
 
 VITE_CLERK_PUBLISHABLE_KEY=pk_test_cmVsYXRlZC1zd2FuLTY3LmNsZXJrLmFjY291bnRzLmRldiQ
 
@@ -88,3 +85,8 @@ Make sure to restart the server after modifying .env.
 npm run dev
 
 This will start a local development server, usually at http://localhost:5173/.
+
+You can find more resources for improving this project:
+
+https://tailwindcss.com
+https://react.dev
