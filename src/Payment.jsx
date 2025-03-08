@@ -1,8 +1,10 @@
 import { h6 } from 'framer-motion/client';
-import React, { useState } from 'react';
+import React, { useState,  useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Navbar from "./Navbar"
 
+
+  
 const PaymentModal = ({ 
   isOpen, 
   onClose, 
@@ -93,6 +95,8 @@ const PaymentModal = ({
   };
 
   if (!isOpen) return null;
+
+  
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50">
@@ -199,6 +203,20 @@ const PassengerInfoPage = () => {
   const bookingData = location.state?.bookingData || {};
   const [userAgreement, setUserAgreement] = useState(false);
   const [error, setError] = useState("");
+
+    //Block direct access to payment page
+    useEffect(() => {
+      if (!location.state || !location.state.bookingData) {
+        navigate("/ErrorPage", { replace: true }); 
+      }
+    }, [location, navigate]);
+  
+
+    if (!location.state || !location.state.bookingData) {
+      return null; 
+    }
+  
+
   
   const handlePayment = () => {
     if (!userAgreement) {

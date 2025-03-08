@@ -5,6 +5,8 @@ import WagonSelector from './WagonSelector';
 
 
 const TrainSeatSelection = () => {
+
+  
   // Initial state
   const [selectedSeats, setSelectedSeats] = useState({
     outbound: [],
@@ -13,6 +15,19 @@ const TrainSeatSelection = () => {
   const navigate = useNavigate();
   const location = useLocation();
   
+    // 🛑 Kullanıcının Doğrudan URL Girerek Gelmesini Engelle
+    useEffect(() => {
+      if (!location.state || !location.state.train) {
+        navigate("/ErrorPage", { replace: true }); // Kullanıcıyı ana sayfaya yönlendir
+      }
+    }, [location, navigate]);
+  
+    // Eğer `location.state` yoksa, hiçbir şey render etme (önlem)
+    if (!location.state || !location.state.train) {
+      return null; // Kullanıcı yönlendirilirken boş bir sayfa göster
+    }
+
+    
   // Extract train information from previous page
   const { train, returnTrain, tripType } = location.state || {};
 
