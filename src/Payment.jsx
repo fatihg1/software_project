@@ -543,7 +543,7 @@ if (cleanedBirthDate.length !== 8) {
                 setError("");
               }}
             />
-            <label htmlFor="agreement" className="block text-gray-800 font-medium text-sm mb-2 cursor-pointer transition-colors duration-200">
+            <label htmlFor="agreement" className="block text-gray-800 font-medium text-sm cursor-pointer transition-colors duration-200">
               I agree to the terms and conditions
             </label>
 
@@ -564,7 +564,7 @@ if (cleanedBirthDate.length !== 8) {
                   onClick={handleGoBack}
                   className="flex-1 px-6 py-3 bg-gray-500 text-white rounded-md hover:bg-gray-600"
                 >
-                  Back to Seats
+                  Back
                 </button>
                 
                 <button 
