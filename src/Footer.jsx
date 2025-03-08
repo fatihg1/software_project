@@ -34,7 +34,7 @@ const Footer = () => {
         <div>
           <h3 className="text-lg font-semibold text-white">Contact Us</h3>
           <p className="mt-2 text-gray-400">Maslak District, Büyükdere Avenue, No:237 Sarıyer, 34485 Istanbul, Turkey</p>
-          <p className="mt-1 text-gray-400">Email: info@trainticket.com</p>
+          <p className="mt-1 text-gray-400">Email: info@RailLink.com</p>
           <p className="mt-1 text-gray-400">Phone: +90 555 123 4567</p>
         </div>
       </div>
