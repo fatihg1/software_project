@@ -18,10 +18,10 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
 const stations = [
-  { name: "Haydarpasa Gari", image: "public/haydarpasa_gari.jpg", location: "Istanbul, Turkey", info: "Gateway to Istanbul's Railway Heritage" },
-  { name: "Ankara Gari", image: "public/ankara_gari.jpg", location: "Ankara, Turkey", info: "Heart of Turkey's Rail Network" },
-  { name: "Kars Gari", image: "public/kars_gari.jpg", location: "Kars, Turkey", info: "Historic Hub of the Silk Road" },
-  { name: "Alsancak Gari", image: "public/alsancak_gari.jpg", location: "Izmir, Turkey", info: "Izmir’s Timeless Railway Landmark" }
+  { name: "Haydarpasa Gari", image: "/haydarpasa_gari.jpg", location: "Istanbul, Turkey", info: "Gateway to Istanbul's Railway Heritage" },
+  { name: "Ankara Gari", image: "/ankara_gari.jpg", location: "Ankara, Turkey", info: "Heart of Turkey's Rail Network" },
+  { name: "Kars Gari", image: "/kars_gari.jpg", location: "Kars, Turkey", info: "Historic Hub of the Silk Road" },
+  { name: "Alsancak Gari", image: "/alsancak_gari.jpg", location: "Izmir, Turkey", info: "Izmir’s Timeless Railway Landmark" }
 ];
 
 const teamMembers = [
