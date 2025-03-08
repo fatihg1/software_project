@@ -25,8 +25,8 @@ const Footer = () => {
             <li><Link to="/help" className="hover:text-white" onClick={handleScrollToTop}>Help Center</Link></li>
             <li><Link to="/about-us" className="hover:text-white" onClick={handleScrollToTop}>About Us</Link></li>
             <li><Link to="/contact" className="hover:text-white" onClick={handleScrollToTop}>Contact</Link></li>
-            <li><Link to="/rules" className="hover:text-white" onClick={handleScrollToTop}>Train Rules</Link></li>
             <li><Link to="/faqs" className="hover:text-white" onClick={handleScrollToTop}>FAQs</Link></li>
+            <li><Link to="/rules" className="hover:text-white" onClick={handleScrollToTop}>Passenger Guidelines</Link></li>
           </ul>
         </div>
 
