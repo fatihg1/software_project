@@ -2,6 +2,7 @@ import { h6 } from 'framer-motion/client';
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Navbar from "./Navbar"
+import TermsAndConditionsPopup from './TermsConditions';
 
 const PaymentModal = ({ 
   isOpen, 
@@ -199,6 +200,7 @@ const PassengerInfoPage = () => {
   const bookingData = location.state?.bookingData || {};
   const [userAgreement, setUserAgreement] = useState(false);
   const [error, setError] = useState("");
+  const [showTerms, setShowTerms] = useState(false);
   
   const handlePayment = () => {
     if (!userAgreement) {
@@ -544,8 +546,16 @@ if (cleanedBirthDate.length !== 8) {
               }}
             />
             <label htmlFor="agreement" className="block text-gray-800 font-medium text-sm cursor-pointer transition-colors duration-200">
-              I agree to the terms and conditions
+              I agree to the 
+              
             </label>
+            <button
+            onClick={() => setShowTerms(true)}
+            className="text-blue-600 hover:text-blue-800 text-sm underline pl-1"
+            type="button"
+            >
+             terms and conditions.
+            </button>
 
           </div>
           {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
@@ -564,7 +574,7 @@ if (cleanedBirthDate.length !== 8) {
                   onClick={handleGoBack}
                   className="flex-1 px-6 py-3 bg-gray-500 text-white rounded-md hover:bg-gray-600"
                 >
-                  Back
+                  Back 
                 </button>
                 
                 <button 
@@ -588,6 +598,10 @@ if (cleanedBirthDate.length !== 8) {
         onSubmit={handleFinalSubmit}
         priceDetails={priceDetails}
         passengers={passengers}
+      />
+       <TermsAndConditionsPopup
+        isOpen={showTerms}
+        onClose={() => setShowTerms(false)}
       />
     </div>
   );
