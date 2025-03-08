@@ -30,6 +30,8 @@ import FAQsPage from './FAQsPage.jsx'
 import AdminRoute from './AdminRoute.jsx'
 import ManagerRoute from './ManagerRoute.jsx'
 import TicketSignedIn from './TicketSignedIn.jsx'
+import TicketsPage from './MyTicketsPage.jsx'
+
 const router=createBrowserRouter([
     {
       path:'/',
@@ -88,7 +90,7 @@ const router=createBrowserRouter([
     },
     {
       path:"/my-tickets",
-      element:<TicketSignedIn/>
+      element:<TicketsPage/>
     },
     { 
       path:'/help',
