@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import HomePage from './Home.jsx';
-import { Link } from 'react-router-dom';
 
 function Visuals() {
     const images = [

@@ -1,7 +1,6 @@
 import StationCenter from "./StationCenter";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
-import { div } from "framer-motion/client";
 import ScrollToTop from "./Scroll";
 
 function StationCenterPage(){
