@@ -5,6 +5,7 @@ import { useUser } from '@clerk/clerk-react';
 import logo from '/TRAIN_LOGO-02.png';
 import profile from '/user.png';
 import Sidebar from './Sidebar';
+
 function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -48,7 +49,7 @@ function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex flex-row w-full justify-between h-full">
-            {/* Logo and Brand */}
+            {/* Left section: Logo and Brand - Always visible */}
             <div className="flex flex-row items-center space-x-4">
               {/* Logo Container */}
               <div className="bg-white p-1 rounded-full w-12 h-12 flex items-center justify-center overflow-hidden">
@@ -71,8 +72,8 @@ function Navbar() {
               </button>
             </div>
 
-            {/* Navigation Links */}
-            <div className="hidden md:flex flex-row space-x-4 text-md items-center">
+            {/* Middle section: Navigation Links */}
+            <div className="hidden xl:flex flex-row space-x-4 text-md items-center">
               <button
                 className={`px-4 py-2 rounded-md transition duration-200 ${
                   isInTicketFlow("/select-train")
@@ -156,35 +157,41 @@ function Navbar() {
               )}
             </div>
 
-            {/* Profile Menu */}
-            <div className="relative flex flex-row items-center space-x-4">
-              {/* Conditional Rendering for Authentication */}
-              {!isSignedIn ? (
-                <div 
-                  className="p-2 rounded-full hover:bg-blue-700 transition duration-200"
-                  onClick={() => openSignIn()}
-                >
-                  <img
-                    src={profile}
-                    className="h-8 w-8 hover:cursor-pointer transition-transform duration-200 hover:scale-110"
-                    alt="Sign In"
-                  />
-                </div>
-              ) : (
-                <UserButton 
-                  appearance={{
-                    elements: {
-                      userButtonPopoverCard: 'bg-blue-900 text-white',
-                      userButtonTrigger: 'hover:scale-110 transition-transform'
-                    }
-                  }} 
-                />
-              )}
+            {/* Right section: Profile + Sidebar*/}
+            <div className="flex items-center space-x-4">
+              {/* User Profile Button */}
+              <div className="">
+                {!isSignedIn ? (
+                  <div 
+                    className="p-2 mr-5 rounded-full hover:bg-blue-700 transition duration-200"
+                    onClick={() => openSignIn()}
+                  >
+                    <img
+                      src={profile}
+                      className="h-8 w-8 hover:cursor-pointer transition-transform duration-200 hover:scale-110"
+                      alt="Sign In"
+                    />
+                  </div>
+                ) : (
+                  <div className="mr-5">
+                    <UserButton
+                      appearance={{
+                        elements: {
+                          userButtonPopoverCard: 'bg-blue-900 text-white',
+                          userButtonTrigger: 'hover:scale-110 transition-transform'
+                        }
+                      }} 
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Sidebar Toggle - Always visible */}
+              <div className="flex items-center">
+                <Sidebar />
+              </div>
             </div>
           </div>
-
-          {/* Mobile Menu Toggle (Optional - you can expand this) */}
-          <Sidebar/>
         </div>
       </div>
     </div>

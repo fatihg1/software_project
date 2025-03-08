@@ -13,7 +13,7 @@ const TermsAndConditionsPopup = ({ isOpen, onClose }) => {
   };
   
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 backdrop-blur-xs shadow-xs flex items-center justify-center z-50">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-screen flex flex-col">
         <div className="p-4 border-b border-gray-200 flex justify-between items-center">
           <h2 className="text-xl font-bold text-gray-800">Terms and Conditions</h2>

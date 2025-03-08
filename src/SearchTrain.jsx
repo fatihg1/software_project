@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Calendar, Search, MapPin, Clock, ArrowRight, RefreshCw, Filter, Info, ChevronDown, Sun, Sunrise, Sunset, Repeat } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 // Sample data - in a real app this would come from an API
 const trains = [
@@ -18,6 +18,7 @@ const cities = ["Istanbul", "Ankara", "Izmir", "Antalya", "Konya", "Eskişehir"]
 
 export default function TrainTicketSearch() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [tripType, setTripType] = useState("one-way");
   const [departure, setDeparture] = useState("");
   const [arrival, setArrival] = useState("");
@@ -33,13 +34,36 @@ export default function TrainTicketSearch() {
   const [timeOfDay, setTimeOfDay] = useState("all");
   const [minPrice, maxPrice] = [0, 500]; // Range limits
   const [validationError, setValidationError] = useState(null);
+  const [initialSearchDone, setInitialSearchDone] = useState(false);
   const today = new Date().toISOString().split('T')[0];
   
-  // Initialize dates
+  // Initialize dates and handle incoming navigation state
   useEffect(() => {
-    setDate(today);
-    setReturnDate(today);
-  }, []); // Empty dependency array runs only on mount
+    // Check if we have state from navigation
+    if (location.state) {
+      const { departure, arrival, date, returnDate, isRoundTrip } = location.state;
+      
+      // Set values from the passed state
+      if (departure) setDeparture(departure);
+      if (arrival) setArrival(arrival);
+      if (date) setDate(date);
+      
+      // Set trip type and return date if it's a round trip
+      if (isRoundTrip) {
+        setTripType("round-trip");
+        if (returnDate) setReturnDate(returnDate);
+      } else {
+        setTripType("one-way");
+      }
+      
+      // We'll trigger search with the provided parameters after state updates
+      // This will be handled by a separate useEffect
+    } else {
+      // Default initialization if no state is passed
+      setDate(today);
+      setReturnDate(today);
+    }
+  }, []);
 
   // Handle return date when trip type or outbound date changes
   useEffect(() => {
@@ -47,10 +71,26 @@ export default function TrainTicketSearch() {
       setReturnDate(prevReturn => prevReturn || date);
     }
   }, [tripType, date]);
+  
+  // Trigger initial search when coming from another page
+  useEffect(() => {
+    if (location.state && !initialSearchDone) {
+      const { departure, arrival } = location.state;
+      
+      // Only proceed if we have the necessary data
+      if ((departure || arrival) && !isSearching) {
+        // Wait for state updates to complete
+        setTimeout(() => {
+          search();
+          setInitialSearchDone(true);
+        }, 300);
+      }
+    }
+  }, [departure, arrival, date, returnDate, location.state, initialSearchDone]);
 
   // Search functionality
   const search = () => {
-    // Validate station selection
+    // Validate station selection - check current state values not the initial ones
     if (!departure && !arrival) {
       setValidationError("Please select at least a departure or arrival station");
       return;
@@ -266,7 +306,7 @@ export default function TrainTicketSearch() {
                 From
               </label>
               <select
-                className="w-full h-8.5 p-3 bg-gray-100 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full p-3 h-12 bg-gray-100 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                 onChange={(e) => setDeparture(e.target.value)}
                 value={departure}
               >
@@ -283,7 +323,7 @@ export default function TrainTicketSearch() {
                 To
               </label>
               <select
-                className="w-full h-8.5 p-3 bg-gray-100 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full p-3 h-12 bg-gray-100 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                 onChange={(e) => setArrival(e.target.value)}
                 value={arrival}
               >
@@ -300,9 +340,9 @@ export default function TrainTicketSearch() {
                 Outbound Date
               </label>
               <input
-                default = {today}
+                default={today}
                 type="date"
-                className="w-full h-8.5 p-3 bg-gray-100 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full p-3 h-12 bg-gray-100 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                 onChange={(e) => { setDate(e.target.value); setReturnDate(e.target.value); }}
                 value={date}
                 min={new Date().toISOString().split('T')[0]}
@@ -321,7 +361,7 @@ export default function TrainTicketSearch() {
                 <input
                   default={today}
                   type="date"
-                  className="w-full h-8.5 p-3 bg-gray-100 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full p-3 h-12 bg-gray-100 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
                   onChange={(e) => setReturnDate(e.target.value)}
                   value={returnDate}
                   min={date || new Date().toISOString().split('T')[0]}

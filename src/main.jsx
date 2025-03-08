@@ -26,10 +26,10 @@ import PaymentPageShow from './PaymentPage.jsx'
 import NotFound from './ErrorPage.jsx'
 import HelpCenter from './HelpCenterPage.jsx'
 import TrainRules from './TrainRulesPage.jsx'
-import TicketsPage from './MyTicketsPage.jsx'
 import FAQsPage from './FAQsPage.jsx'
 import AdminRoute from './AdminRoute.jsx'
 import ManagerRoute from './ManagerRoute.jsx'
+import TicketSignedIn from './TicketSignedIn.jsx'
 const router=createBrowserRouter([
     {
       path:'/',
@@ -88,7 +88,7 @@ const router=createBrowserRouter([
     },
     {
       path:"/my-tickets",
-      element:<TicketsPage/>
+      element:<TicketSignedIn/>
     },
     { 
       path:'/help',

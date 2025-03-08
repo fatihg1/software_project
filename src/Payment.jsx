@@ -204,8 +204,8 @@ const PassengerInfoPage = () => {
   const bookingData = location.state?.bookingData || {};
   const [userAgreement, setUserAgreement] = useState(false);
   const [error, setError] = useState("");
-<<<<<<< HEAD
-
+  const [showTerms, setShowTerms] = useState(false);
+  const [termsRead, setTermsRead] = useState(false);
     //Block direct access to payment page
     useEffect(() => {
       if (!location.state || !location.state.bookingData) {
@@ -219,9 +219,6 @@ const PassengerInfoPage = () => {
     }
   
 
-=======
-  const [showTerms, setShowTerms] = useState(false);
->>>>>>> 9df0e894a8cbb79e74f3ea61412821f372f6ed0c
   
   const handlePayment = () => {
     if (!userAgreement) {
@@ -562,6 +559,9 @@ if (cleanedBirthDate.length !== 8) {
               className="mr-2"
               checked={userAgreement}
               onChange={() => {
+                if (!termsRead) {
+                  setShowTerms(true);
+                }
                 setUserAgreement(!userAgreement);
                 setError("");
               }}
@@ -571,7 +571,7 @@ if (cleanedBirthDate.length !== 8) {
               
             </label>
             <button
-            onClick={() => setShowTerms(true)}
+            onClick={() => {setShowTerms(true); setTermsRead(true);}}
             className="text-blue-600 hover:text-blue-800 text-sm underline pl-1"
             type="button"
             >
