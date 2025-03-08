@@ -103,7 +103,7 @@ export default function ContactUs() {
             <h2 className="text-xl font-semibold mb-2">Email Us</h2>
             <p className="text-gray-600 mb-2">We'll respond within 24 hours</p>
             <a href="mailto:info@trainticket.com" className="text-blue-600 hover:text-blue-800 font-medium block">
-              info@trainticket.com
+              info@RailLink.com
             </a>
           </motion.div>
 
