@@ -2,6 +2,7 @@ import { h6 } from 'framer-motion/client';
 import React, { useState,  useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Navbar from "./Navbar"
+import TermsAndConditionsPopup from './TermsConditions';
 
 
   
@@ -203,6 +204,7 @@ const PassengerInfoPage = () => {
   const bookingData = location.state?.bookingData || {};
   const [userAgreement, setUserAgreement] = useState(false);
   const [error, setError] = useState("");
+<<<<<<< HEAD
 
     //Block direct access to payment page
     useEffect(() => {
@@ -217,6 +219,9 @@ const PassengerInfoPage = () => {
     }
   
 
+=======
+  const [showTerms, setShowTerms] = useState(false);
+>>>>>>> 9df0e894a8cbb79e74f3ea61412821f372f6ed0c
   
   const handlePayment = () => {
     if (!userAgreement) {
@@ -561,9 +566,17 @@ if (cleanedBirthDate.length !== 8) {
                 setError("");
               }}
             />
-            <label htmlFor="agreement" className="block text-gray-800 font-medium text-sm mb-2 cursor-pointer transition-colors duration-200">
-              I agree to the terms and conditions
+            <label htmlFor="agreement" className="block text-gray-800 font-medium text-sm cursor-pointer transition-colors duration-200">
+              I agree to the 
+              
             </label>
+            <button
+            onClick={() => setShowTerms(true)}
+            className="text-blue-600 hover:text-blue-800 text-sm underline pl-1"
+            type="button"
+            >
+             terms and conditions.
+            </button>
 
           </div>
           {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
@@ -582,7 +595,7 @@ if (cleanedBirthDate.length !== 8) {
                   onClick={handleGoBack}
                   className="flex-1 px-6 py-3 bg-gray-500 text-white rounded-md hover:bg-gray-600"
                 >
-                  Back to Seats
+                  Back 
                 </button>
                 
                 <button 
@@ -606,6 +619,10 @@ if (cleanedBirthDate.length !== 8) {
         onSubmit={handleFinalSubmit}
         priceDetails={priceDetails}
         passengers={passengers}
+      />
+       <TermsAndConditionsPopup
+        isOpen={showTerms}
+        onClose={() => setShowTerms(false)}
       />
     </div>
   );
