@@ -562,6 +562,7 @@ if (cleanedBirthDate.length !== 8) {
                 if (!termsRead) {
                   setShowTerms(true);
                 }
+                setTermsRead(true);
                 setUserAgreement(!userAgreement);
                 setError("");
               }}

@@ -13,7 +13,7 @@ const routes = [
   { img: img3, info: 'Izmir to Bursa' },
   { img: img4, info: 'Antalya to Konya' },
   { img: img5, info: 'Konya to Antalya' },
-  { img: img6, info: 'Sivas to Ankara' },
+  { img: img6, info: 'Eskişehir to Ankara' },
 ];
 
 function Routes() {
