@@ -10,7 +10,7 @@ function TrainRules(){
             <Navbar/>
             <div className="h-30"></div>
             <Rules/>
-            <div className='h-35'></div>
+            <div className='h-45'></div>
             <Footer/>
         </div>
     )
