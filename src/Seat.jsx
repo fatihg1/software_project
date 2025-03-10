@@ -423,83 +423,87 @@ const TrainSeatSelection = () => {
   
           {/* Economy Wagon */}
           {!currentWagon.type || currentWagon.type === 'economy' && (
-            <div className="space-y-2 ">
-              {/* Top Window Seats */}
-              {/* Top side seats (window row) */}
-              <div className="grid grid-cols-16 gap-1 ">
-                {groupedSeats.topWindow.map((seat) => (
-                  <div 
-                    key={seat.id}
-                    onClick={() => toggleSeatSelection(trainType, currentWagon.id, seat.number, seat.taken)}
-                    className={`
-                      flex items-center justify-center w-8 h-8 rounded-sm cursor-pointer text-xs
-                      ${seat.taken ? 'bg-red-500 text-white cursor-not-allowed' : 
-                      isSeatSelected(trainType, currentWagon.id, seat.number) ? 'bg-green-500 text-white' : 'bg-white hover:bg-gray-200 border border-gray-300'}
-                    `}
-                  >
-                    {seat.number}
-                  </div>
-                ))}
-              </div>
-              
-              {/* Top side seats (aisle row) */}
-              <div className="grid grid-cols-16 gap-1">
-                {groupedSeats.topAisle.map((seat) => (
-                  <div 
-                    key={seat.id}
-                    onClick={() => toggleSeatSelection(trainType, currentWagon.id, seat.number, seat.taken)}
-                    className={`
-                      flex items-center justify-center w-8 h-8 rounded-sm cursor-pointer text-xs
-                      ${seat.taken ? 'bg-red-500 text-white cursor-not-allowed' : 
-                      isSeatSelected(trainType, currentWagon.id, seat.number) ? 'bg-green-500 text-white' : 'bg-white hover:bg-gray-200 border border-gray-300'}
-                    `}
-                  >
-                    {seat.number}
-                  </div>
-                ))}
-              </div>
-              
-              {/* Aisle space */}
-              <div className="w-full h-6 flex items-center justify-center my-2">
-                <div className="h-full w-full flex items-center justify-center text-sm font-medium rounded">
-                </div>
-              </div>
-              
-              {/* Bottom side seats (aisle row) */}
-              <div className="grid grid-cols-16 gap-1">
-                {groupedSeats.bottomAisle.map((seat) => (
-                  <div 
-                    key={seat.id}
-                    onClick={() => toggleSeatSelection(trainType, currentWagon.id, seat.number, seat.taken)}
-                    className={`
-                      flex items-center justify-center w-8 h-8 rounded-sm cursor-pointer text-xs
-                      ${seat.taken ? 'bg-red-500 text-white cursor-not-allowed' : 
-                      isSeatSelected(trainType, currentWagon.id, seat.number) ? 'bg-green-500 text-white' : 'bg-white hover:bg-gray-200 border border-gray-300'}
-                    `}
-                  >
-                    {seat.number}
-                  </div>
-                ))}
-              </div>
-              
-              {/* Bottom side seats (window row) */}
-              <div className="grid grid-cols-16 gap-1">
-                {groupedSeats.bottomWindow.map((seat) => (
-                  <div 
-                    key={seat.id}
-                    onClick={() => toggleSeatSelection(trainType, currentWagon.id, seat.number, seat.taken)}
-                    className={`
-                      flex items-center justify-center w-8 h-8 rounded-sm cursor-pointer text-xs
-                      ${seat.taken ? 'bg-red-500 text-white cursor-not-allowed' : 
-                      isSeatSelected(trainType, currentWagon.id, seat.number) ? 'bg-green-500 text-white' : 'bg-white hover:bg-gray-200 border border-gray-300'}
-                    `}
-                  >
-                    {seat.number}
-                  </div>
-                ))}
-              </div>
+  <div className="space-y-2">
+    {/* Wrap all seat rows in a container with horizontal scroll */}
+    <div className="overflow-x-auto pb-4">
+      <div className="min-w-max">
+        {/* Top Window Seats */}
+        <div className="flex mb-2 justify-between">
+          {groupedSeats.topWindow.map((seat) => (
+            <div 
+              key={seat.id}
+              onClick={() => toggleSeatSelection(trainType, currentWagon.id, seat.number, seat.taken)}
+              className={`
+                flex items-center justify-center w-8 h-8 rounded-sm cursor-pointer text-xs mx-0.5
+                ${seat.taken ? 'bg-red-500 text-white cursor-not-allowed' : 
+                isSeatSelected(trainType, currentWagon.id, seat.number) ? 'bg-green-500 text-white' : 'bg-white hover:bg-gray-200 border border-gray-300'}
+              `}
+            >
+              {seat.number}
             </div>
-          )}
+          ))}
+        </div>
+        
+        {/* Top side seats (aisle row) */}
+        <div className="flex mb-2 justify-between">
+          {groupedSeats.topAisle.map((seat) => (
+            <div 
+              key={seat.id}
+              onClick={() => toggleSeatSelection(trainType, currentWagon.id, seat.number, seat.taken)}
+              className={`
+                flex items-center justify-center w-8 h-8 rounded-sm cursor-pointer text-xs mx-0.5
+                ${seat.taken ? 'bg-red-500 text-white cursor-not-allowed' : 
+                isSeatSelected(trainType, currentWagon.id, seat.number) ? 'bg-green-500 text-white' : 'bg-white hover:bg-gray-200 border border-gray-300'}
+              `}
+            >
+              {seat.number}
+            </div>
+          ))}
+        </div>
+        
+        {/* Aisle space */}
+        <div className="w-full h-6 flex items-center justify-center my-2">
+          <div className="h-full w-full flex items-center justify-center text-sm font-medium rounded">
+          </div>
+        </div>
+        
+        {/* Bottom side seats (aisle row) */}
+        <div className="flex mb-2 justify-between">
+          {groupedSeats.bottomAisle.map((seat) => (
+            <div 
+              key={seat.id}
+              onClick={() => toggleSeatSelection(trainType, currentWagon.id, seat.number, seat.taken)}
+              className={`
+                flex items-center justify-center w-8 h-8 rounded-sm cursor-pointer text-xs mx-0.5
+                ${seat.taken ? 'bg-red-500 text-white cursor-not-allowed' : 
+                isSeatSelected(trainType, currentWagon.id, seat.number) ? 'bg-green-500 text-white' : 'bg-white hover:bg-gray-200 border border-gray-300'}
+              `}
+            >
+              {seat.number}
+            </div>
+          ))}
+        </div>
+        
+        {/* Bottom side seats (window row) */}
+        <div className="flex justify-between">
+          {groupedSeats.bottomWindow.map((seat) => (
+            <div 
+              key={seat.id}
+              onClick={() => toggleSeatSelection(trainType, currentWagon.id, seat.number, seat.taken)}
+              className={`
+                flex items-center justify-center w-8 h-8 rounded-sm cursor-pointer text-xs mx-0.5
+                ${seat.taken ? 'bg-red-500 text-white cursor-not-allowed' : 
+                isSeatSelected(trainType, currentWagon.id, seat.number) ? 'bg-green-500 text-white' : 'bg-white hover:bg-gray-200 border border-gray-300'}
+              `}
+            >
+              {seat.number}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+)}
   
 {/* Sleeper Wagon */}
 {currentWagon.type === 'sleeper' && (
