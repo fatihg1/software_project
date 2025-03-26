@@ -13,7 +13,8 @@ const WeatherDashboard = () => {
     { name: 'Antalya', lat: 36.8969, lon: 30.7133 }
   ];
 
-  const API_KEY = 'f4e1c5123f3f048da77e870dd45613fd';
+  const API_KEY = import.meta.env.VITE_WEATHER_API_KEY;
+
 
   const getWeatherIcon = (weatherCode) => {
     const iconMap = {
