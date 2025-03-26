@@ -167,7 +167,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md lg:w-1/2 md:w-3/4 w-screen overflow-hidden lg:mx-20 lg:mt-10">
+    <div className="bg-white rounded-lg shadow-md z-10 lg:w-1/2 md:w-3/4 w-screen overflow-hidden lg:mx-120 lg:mt-10 lg:ml-10">
       {/* Tab navigation - exactly 50/50 split */}
       <div className="flex w-full border-b border-gray-200">
         <div 

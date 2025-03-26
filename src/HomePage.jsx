@@ -4,6 +4,8 @@ import Routes from "./Routes"
 import Footer from "./Footer"
 import Announcements from "./Announcements.jsx"
 import { AnnouncementsProvider } from "./AnnouncementsContext.jsx"
+import Weather from './Weather.jsx';
+
 
 function Home(){
   return(
@@ -12,6 +14,7 @@ function Home(){
         <Navbar/>
         <Visuals/>
         <Routes/>
+        <Weather/>
         <Announcements/>
         <Footer/>
       </div>
