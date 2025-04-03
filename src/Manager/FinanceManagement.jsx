@@ -4,14 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 const FinanceManagement = () => {
   const navigate = useNavigate();
-  const [salesRefunds, setSalesRefunds] = useState([
-    { id: 1, user: "Ali Yılmaz", amount: 150, type: "Sale", date: "2024-03-10" },
-    { id: 2, user: "Ayşe Kaya", amount: 200, type: "Refund", date: "2024-03-12" },
-    { id: 3, user: "Mehmet Demir", amount: 120, type: "Sale", date: "2024-03-15" },
-    { id: 4, user: "Fatma Aydın", amount: 180, type: "Sale", date: "2024-03-18" },
-    { id: 5, user: "Burak Can", amount: 90, type: "Refund", date: "2024-03-20" },
-    { id: 6, user: "Emre Güler", amount: 250, type: "Sale", date: "2024-03-22" },
-  ]);
+  const [salesRefunds, setSalesRefunds] = useState([]);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [paymentFilter, setPaymentFilter] = useState("All");
@@ -20,6 +13,13 @@ const FinanceManagement = () => {
   const [isMobile, setIsMobile] = useState(false);
   const recordsPerPage = 7;
 
+  useEffect(() => {
+    fetch("http://localhost:8080/finance")
+      .then((res) => res.json())
+      .then((data) => setSalesRefunds(data))
+      .catch((err) => console.error("Error fetching finance data:", err));
+  }, []);
+  
   // Check if the screen is mobile size
   useEffect(() => {
     const checkIsMobile = () => {
@@ -68,13 +68,19 @@ const FinanceManagement = () => {
     .filter((r) => r.type === "Sale")
     .reduce((sum, r) => sum + r.amount, 0);
 
-  // Delete Confirmation Dialog
-  const deleteRecord = (id) => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this record?");
-    if (confirmDelete) {
-      setSalesRefunds(salesRefunds.filter((record) => record.id !== id));
-    }
-  };
+
+    
+    const deleteRecord = (id) => {
+      const confirmDelete = window.confirm("Are you sure you want to delete this record?");
+      if (!confirmDelete) return;
+    
+      fetch(`http://localhost:8080/finance/${id}`, {
+        method: "DELETE",
+      })
+        .then(() => setSalesRefunds(salesRefunds.filter((record) => record.id !== id)))
+        .catch((err) => console.error("Error deleting record:", err));
+    };
+    
 
   return (
     <div className="flex h-screen bg-gray-100 relative">

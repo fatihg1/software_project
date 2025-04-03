@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 
 // Sample data - in a real app this would come from an API
 const trains = [
-  { id: 1, departure: "Istanbul", arrival: "Ankara", date: "2025-03-15", time: "10:00", duration: "4h 30m", price: 250, seats: 42 },
+  { id: 1, departure: "Istanbul", arrival: "Ankara", date: "2025-04-15", time: "10:00", duration: "4h 30m", price: 250, seats: 42 },
   { id: 2, departure: "Ankara", arrival: "Izmir", date: "2025-03-25", time: "12:00", duration: "6h 15m", price: 250, seats: 18 },
   { id: 3, departure: "Istanbul", arrival: "Izmir", date: "2025-03-26", time: "14:00", duration: "8h 45m", price: 250, seats: 25 },
   { id: 4, departure: "Ankara", arrival: "Istanbul", date: "2025-03-17", time: "16:00", duration: "4h 30m", price: 300, seats: 32 },

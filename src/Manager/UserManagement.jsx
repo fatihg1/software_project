@@ -4,17 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 const UserManagement = () => {
   const navigate = useNavigate();
-  const [users, setUsers] = useState([
-    { id: 1, name: "Ali Yılmaz", role: "user" },
-    { id: 2, name: "Ayşe Kaya", role: "admin" },
-    { id: 3, name: "Mehmet Demir", role: "user" },
-    { id: 4, name: "Fatma Aydın", role: "manager" },
-    { id: 5, name: "Burak Can", role: "user" },
-    { id: 6, name: "Emre Güler", role: "manager" },
-    { id: 7, name: "Zeynep Arslan", role: "admin" },
-    { id: 8, name: "Kadir Öztürk", role: "user" },
-    { id: 9, name: "Gizem Polat", role: "admin" },
-  ]);
+  const [users, setUsers] = useState([]);
 
   const [name, setName] = useState("");
   const [role, setRole] = useState("user");
@@ -23,6 +13,14 @@ const UserManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    fetch("http://localhost:8080/users")
+      .then((res) => res.json())
+      .then((data) => setUsers(data))
+      .catch((err) => console.error("Error fetching users:", err));
+  }, []);
+  
   const usersPerPage = 7;
 
   // Mobile responsiveness
@@ -47,10 +45,13 @@ const UserManagement = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const filteredUsers = users.filter((user) =>
-    (user.name.toLowerCase().includes(searchQuery.toLowerCase())) &&
-    (roleFilter === "All" || user.role === roleFilter)
-  );
+const filteredUsers = Array.isArray(users)
+  ? users.filter((user) =>
+      (user.name?.toLowerCase().includes(searchQuery.toLowerCase())) &&
+      (roleFilter === "All" || user.role === roleFilter)
+    )
+  : [];
+
 
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
@@ -69,34 +70,62 @@ const UserManagement = () => {
     setSidebarOpen(!sidebarOpen);
   };
 
-  // Function to delete a user (With Confirmation)
   const deleteUser = (id) => {
     const confirmDelete = window.confirm("Are you sure you want to delete this user?");
-    if (confirmDelete) {
-      setUsers(users.filter((user) => user.id !== id));
-    }
+    if (!confirmDelete) return;
+  
+    fetch(`http://localhost:8080/users/${id}`, {
+      method: "DELETE",
+    })
+      .then(() => setUsers(users.filter((user) => user.id !== id)))
+      .catch((err) => console.error("Error deleting user:", err));
   };
+  
 
-  // Function to cycle through roles (User → Manager → Admin → User)
   const toggleRole = (id) => {
-    setUsers(users.map(user => {
-      if (user.id === id) {
-        const roles = ["user", "manager", "admin"];
-        const newRole = roles[(roles.indexOf(user.role) + 1) % roles.length];
-        return { ...user, role: newRole };
-      }
-      return user;
-    }));
+    const roles = ["user", "manager", "admin"];
+    const user = users.find(u => u.id === id);
+    if (!user) return;
+  
+    const newRole = roles[(roles.indexOf(user.role) + 1) % roles.length];
+    const updatedUser = { ...user, role: newRole };
+  
+    fetch(`http://localhost:8080/users/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updatedUser),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setUsers(users.map((u) => (u.id === id ? data : u)));
+      })
+      .catch((err) => console.error("Error updating role:", err));
   };
+  
 
-  // Function to add a new user
   const addUser = () => {
     if (name.trim() === "") return;
-    const newUser = { id: users.length + 1, name, role };
-    setUsers([...users, newUser]);
-    setName("");
-    setRole("user");
+  
+    const newUser = { name, role };
+  
+    fetch("http://localhost:8080/users", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newUser),
+    })
+      .then((res) => res.json())
+      .then((savedUser) => {
+        setUsers([...users, savedUser]);
+        setName("");
+        setRole("user");
+      })
+      .catch((err) => console.error("Error adding user:", err));
   };
+  
 
   return (
     <div className="flex h-screen bg-gray-100 relative">
