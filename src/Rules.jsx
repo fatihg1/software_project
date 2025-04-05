@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronUp, ScrollText, Luggage, UserCheck, TrainFront } from 'lucide-react';
+import { useLanguage } from './LanguageContext.jsx';
+import translations from './translations.jsx';
 
 const RuleSection = ({ title, icon: Icon, children }) => {
   const [isOpen, setIsOpen] = useState(true);
@@ -29,41 +31,42 @@ const RuleSection = ({ title, icon: Icon, children }) => {
 };
 
 const TrainRules = () => {
+  const { language } = useLanguage();
+  const t = translations[language];
+
   return (
     <div className="max-w-xl mx-auto bg-white shadow-lg rounded-xl overflow-hidden">
       <div className="bg-blue-600 text-white p-6 text-center">
         <h1 className="text-3xl font-bold flex items-center justify-center space-x-3">
           <TrainFront size={36} />
-          <span>Passenger Guidelines</span>
+          <span>{t.passengerGuidelines}</span>
         </h1>
-        <p className="mt-2 text-blue-100">Ensuring a safe and comfortable journey for all</p>
+        <p className="mt-2 text-blue-100">{t.subtitle}</p>
       </div>
 
       <div>
-        <RuleSection title="General Information" icon={ScrollText}>
-          <li>All passengers must have a valid ticket before boarding.</li>
-          <li>Tickets are non-refundable unless specified otherwise.</li>
-          <li>Food and beverages may be consumed onboard, but please dispose of waste properly.</li>
-          <li>Passengers should be seated in their assigned carriages.</li>
+        <RuleSection title={t.guidelines.pggeneralInfo.title} icon={ScrollText}>
+          {t.guidelines.pggeneralInfo.items.map((item, index) => (
+            <li key={index}>{item}</li>
+          ))}
         </RuleSection>
 
-        <RuleSection title="Luggage Policy" icon={Luggage}>
-          <li>Each passenger is allowed up to 2 pieces of luggage.</li>
-          <li>Larger luggage must be stored in designated compartments.</li>
-          <li>Sharp objects and hazardous materials are prohibited.</li>
+        <RuleSection title={t.guidelines.pgluggagePolicy.title} icon={Luggage}>
+          {t.guidelines.pgluggagePolicy.items.map((item, index) => (
+            <li key={index}>{item}</li>
+          ))}
         </RuleSection>
 
-        <RuleSection title="Behavior and Safety" icon={UserCheck}>
-          <li>Passengers should remain seated during the journey.</li>
-          <li>Smoking is strictly prohibited on the train.</li>
-          <li>Alcohol may only be consumed in moderation and in designated areas.</li>
-          <li>In case of an emergency, follow the instructions of the train staff.</li>
+        <RuleSection title={t.guidelines.pgbehaviorSafety.title} icon={UserCheck}>
+          {t.guidelines.pgbehaviorSafety.items.map((item, index) => (
+            <li key={index}>{item}</li>
+          ))}
         </RuleSection>
 
-        <RuleSection title="Arrival & Departure" icon={TrainFront}>
-          <li>Be sure to arrive at least 15 minutes before departure.</li>
-          <li>Once the train has arrived at the station, passengers are to disembark in an orderly fashion.</li>
-          <li>If you miss your train, contact the ticket counter for possible rescheduling options.</li>
+        <RuleSection title={t.guidelines.pgarrivalDeparture.title} icon={TrainFront}>
+          {t.guidelines.pgarrivalDeparture.items.map((item, index) => (
+            <li key={index}>{item}</li>
+          ))}
         </RuleSection>
       </div>
     </div>

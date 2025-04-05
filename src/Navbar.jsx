@@ -5,14 +5,16 @@ import { useUser } from '@clerk/clerk-react';
 import logo from '/TRAIN_LOGO-02.png';
 import profile from '/user.png';
 import Sidebar from './Sidebar';
-
+import MultilingualComponent from './MultiLingual.jsx';
+import {useLanguage} from './LanguageContext.jsx';
+import translations from './translations.jsx';
 function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const { openSignIn } = useClerk();
   const { user, isSignedIn } = useUser();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
+  const { language } = useLanguage();
   // Scroll to top and navigate
   const handleNavigation = (path) => {
     navigate(path);
@@ -82,7 +84,7 @@ function Navbar() {
                 }`}
                 onClick={() => handleBuyTicketsClick("/select-train")}
               >
-                <span className="text-white textShadow">Buy Tickets</span>
+                <span className="text-white textShadow">{translations[language].buyTickets}</span>
               </button>
 
               <button
@@ -93,7 +95,7 @@ function Navbar() {
                 }`}
                 onClick={() => handleNavigation("/station-center")}
               >
-                <span className="text-white textShadow">Station Center</span>
+                <span className="text-white textShadow">{translations[language].stationCenter}</span>
               </button>
 
               <button
@@ -104,7 +106,7 @@ function Navbar() {
                 }`}
                 onClick={() => handleNavigation("/help")}
               >
-                <span className="text-white textShadow">Help Center</span>
+                <span className="text-white textShadow">{translations[language].helpCenter}</span>
               </button>
 
               <button
@@ -115,7 +117,7 @@ function Navbar() {
                 }`}
                 onClick={() => handleNavigation("/about-us")}
               >
-                <span className="text-white textShadow">About Us</span>
+                <span className="text-white textShadow">{translations[language].about}</span>
               </button>
 
               <button
@@ -126,7 +128,7 @@ function Navbar() {
                 }`}
                 onClick={() => handleNavigation("/contact")}
               >
-                <span className="text-white textShadow">Contact</span>
+                <span className="text-white textShadow">{translations[language].contact}</span>
               </button>
               
               {/* Role-specific buttons */}
@@ -139,7 +141,7 @@ function Navbar() {
                   }`}
                   onClick={() => handleNavigation("/manager")}
                 >
-                  <span className="text-white textShadow">Manager</span>
+                  <span className="text-white textShadow">{translations[language].manager}</span>
                 </button>
               )}
               
@@ -152,14 +154,15 @@ function Navbar() {
                   }`}
                   onClick={() => handleNavigation("/admin")}
                 >
-                  <span className="text-white textShadow">Admin</span>
+                  <span className="text-white textShadow">{translations[language].admin}</span>
                 </button>
               )}
             </div>
-
+              
             {/* Right section: Profile + Sidebar*/}
             <div className="flex items-center space-x-4">
               {/* User Profile Button */}
+              <MultilingualComponent/>
               <div className="">
                 {!isSignedIn ? (
                   <div 
@@ -187,7 +190,7 @@ function Navbar() {
               </div>
 
               {/* Sidebar Toggle - Always visible */}
-              <div className="flex items-center">
+              <div className="flex items-center lg:hidden">
                 <Sidebar />
               </div>
             </div>

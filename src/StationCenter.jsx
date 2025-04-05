@@ -1,7 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Train, MapPin } from 'lucide-react';
+import { Search, Train } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { useLanguage } from './LanguageContext.jsx';
+import translations from './translations.jsx';
 
-// Sample data - replace with your actual API call
+const slideUp = {
+  hidden: { opacity: 0, y: 50 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: { 
+      type: "spring", 
+      stiffness: 100, 
+      damping: 10,
+      delay: 0.2
+    }
+  }
+};
+
 const trainRoutes = [
   {
     id: 'TR001',
@@ -42,38 +58,33 @@ const trainRoutes = [
 ];
 
 const StationCenter = () => {
+  const { language } = useLanguage();
+  const t = translations[language].stationCenterDetail;
   const [searchQuery, setSearchQuery] = useState('');
   const [suggestions, setSuggestions] = useState([]);
   const [results, setResults] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
-  // Get all unique stations for suggestions
   const getAllStations = () => {
     const stationSet = new Set();
     trainRoutes.forEach(route => {
-      route.stations.forEach(station => {
-        stationSet.add(station);
-      });
+      route.stations.forEach(station => stationSet.add(station));
     });
     return Array.from(stationSet);
   };
 
-  // Filter suggestions based on input
   useEffect(() => {
     if (searchQuery.trim() === '') {
       setSuggestions([]);
       return;
     }
     
-    const allStations = getAllStations();
-    const filteredStations = allStations.filter(station => 
+    const filteredStations = getAllStations().filter(station => 
       station.toLowerCase().includes(searchQuery.toLowerCase())
     );
-    
     setSuggestions(filteredStations);
   }, [searchQuery]);
 
-  // Search for routes
   const searchRoutes = (query) => {
     if (!query) {
       setResults([]);
@@ -85,47 +96,40 @@ const StationCenter = () => {
         station.toLowerCase().includes(query.toLowerCase())
       )
     );
-    
     setResults(matchingRoutes);
   };
 
-  // Handle search submission
   const handleSearch = (e) => {
     e.preventDefault();
     searchRoutes(searchQuery);
     setShowSuggestions(false);
   };
 
-  // Select suggestion
   const selectSuggestion = (suggestion) => {
     setSearchQuery(suggestion);
     setShowSuggestions(false);
     searchRoutes(suggestion);
   };
 
-  // Simple map component that shows the route stations as points
-  const RouteMap = ({ stations }) => {
-    // 
-    return (
-      <div>
-
-      </div>
-    );
-  };
-
   return (
-    <div className="max-w-4xl mx-auto p-4 pt-30">
+    <motion.div 
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.3 }}
+      variants={slideUp}
+      className="max-w-4xl mx-auto p-4 pt-40"
+    >
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Station Center</h1>
-        <p className="text-gray-600">Search for train routes by station name</p>
+        <h1 className="text-3xl font-bold mb-2">{t.title}</h1>
+        <p className="text-gray-600">{t.subtitle}</p>
       </div>
-      
+
       <div className="mb-8">
         <form onSubmit={handleSearch} className="relative">
           <div className="flex items-center border-2 border-blue-500 rounded-lg overflow-hidden">
             <input
               type="text"
-              placeholder="Enter station name"
+              placeholder={t.searchPlaceholder}
               className="w-full p-3 focus:outline-none"
               value={searchQuery}
               onChange={(e) => {
@@ -141,8 +145,7 @@ const StationCenter = () => {
               <Search size={20} />
             </button>
           </div>
-          
-          {/* Suggestions dropdown */}
+
           {showSuggestions && suggestions.length > 0 && (
             <div className="absolute z-10 w-full bg-white mt-1 border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
               {suggestions.map((suggestion, index) => (
@@ -158,60 +161,81 @@ const StationCenter = () => {
           )}
         </form>
       </div>
-      
-      
+
       <div>
         {searchQuery && results.length === 0 ? (
-          <div className="text-center p-6 bg-gray-50 rounded-lg">
-            No train routes found for "{searchQuery}"
-          </div>
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.3 }}
+            variants={slideUp}
+            className="text-center p-6 bg-gray-50 rounded-lg"
+          >
+            {t.noResults.replace('{query}', searchQuery)}
+          </motion.div>
         ) : (
           <div>
             {results.length > 0 && (
-              <div className="mb-4">
-                <h2 className="text-xl font-semibold">Train Routes via {searchQuery}</h2>
-                <p className="text-gray-600">{results.length} routes found</p>
-              </div>
+              <motion.div
+                variants={slideUp}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.3 }}
+                className="mb-4"
+              >
+                <h2 className="text-xl font-semibold">
+                  {t.resultsTitle.replace('{station}', searchQuery)}
+                </h2>
+                <p className="text-gray-600">
+                  {t.resultsCount.replace('{count}', results.length)}
+                </p>
+              </motion.div>
             )}
-            
+
             {results.map((train) => (
-              <div key={train.id} className="mb-6 bg-white p-4 rounded-lg shadow-md">
+              <motion.div
+                key={train.id}
+                variants={slideUp}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, amount: 0.3 }}
+                className="mb-6 bg-white p-4 rounded-lg shadow-md"
+              >
                 <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <div className="flex items-center">
-                      <Train size={20} className="text-blue-500 mr-2" />
-                      
-                    </div>
-                    
+                  <div className="flex items-center">
+                    <Train size={20} className="text-blue-500 mr-2" />
+                    <span className="font-medium">{train.name}</span>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm text-gray-500">Duration: {train.duration}</p>
+                    <p className="text-sm text-gray-500">
+                      {t.durationLabel}: {train.duration}
+                    </p>
                   </div>
                 </div>
-                
+
                 <div className="mb-4">
                   <div className="flex justify-between mb-2">
                     <div>
-                      <p className="text-sm text-gray-500">Departure</p>
-                      
+                      <p className="text-sm text-gray-500">{t.departureLabel}</p>
                       <p className="font-medium">{train.stations[0]}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm text-gray-500">Arrival</p>
-                      
-                      <p className="font-medium">{train.stations[train.stations.length - 1]}</p>
+                      <p className="text-sm text-gray-500">{t.arrivalLabel}</p>
+                      <p className="font-medium">
+                        {train.stations[train.stations.length - 1]}
+                      </p>
                     </div>
                   </div>
-                  
+
                   <div className="py-2">
-                    <p className="text-sm font-medium mb-1">Route:</p>
+                    <p className="text-sm font-medium mb-1">{t.routeLabel}:</p>
                     <div className="flex flex-wrap gap-2">
                       {train.stations.map((station, index) => (
                         <div key={index} className="flex items-center">
-                          <span 
+                          <span
                             className={`px-2 py-1 text-xs rounded-full ${
-                              station.toLowerCase() === searchQuery.toLowerCase() 
-                                ? "bg-blue-100 text-blue-800" 
+                              station.toLowerCase() === searchQuery.toLowerCase()
+                                ? "bg-blue-100 text-blue-800"
                                 : "bg-gray-100"
                             }`}
                           >
@@ -225,15 +249,12 @@ const StationCenter = () => {
                     </div>
                   </div>
                 </div>
-                
-                <RouteMap stations={train.stations} />
-                
-              </div>
+              </motion.div>
             ))}
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 };
 

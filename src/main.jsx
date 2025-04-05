@@ -31,7 +31,7 @@ import AdminRoute from './AdminRoute.jsx'
 import ManagerRoute from './ManagerRoute.jsx'
 import TicketSignedIn from './TicketSignedIn.jsx'
 import TicketsPage from './MyTicketsPage.jsx'
-
+import {LanguageProvider} from './LanguageContext.jsx'
 const router=createBrowserRouter([
     {
       path:'/',
@@ -141,8 +141,10 @@ const router=createBrowserRouter([
   
   createRoot(document.getElementById('root')).render(
     <StrictMode>
+      <LanguageProvider>
       <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
         <RouterProvider router={router} />
       </ClerkProvider>
+      </LanguageProvider>
     </StrictMode>,
   )

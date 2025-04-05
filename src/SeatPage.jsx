@@ -3,7 +3,6 @@ import Navbar from "./Navbar"
 import Footer from "./Footer"
 import ScrollToTop from "./Scroll"
 
-
 function SeatPage(){
     return(
         <div>

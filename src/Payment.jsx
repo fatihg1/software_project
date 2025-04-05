@@ -3,8 +3,9 @@ import React, { useState,  useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Navbar from "./Navbar"
 import TermsAndConditionsPopup from './TermsConditions';
-
-
+import ProgressSteps from "./ProgressSteps.jsx"
+import { useLanguage } from './LanguageContext.jsx';
+import translations from './translations.jsx';
   
 const PaymentModal = ({ 
   isOpen, 
@@ -13,6 +14,7 @@ const PaymentModal = ({
   priceDetails,
   passengers
 }) => {
+  const { language } = useLanguage();
   const [paymentForm, setPaymentForm] = useState({
     cardNumber: '',
     cardHolder: '',
@@ -45,39 +47,39 @@ const PaymentModal = ({
     
     // Validate card number
     if (!paymentForm.cardNumber.trim()) {
-      formErrors.cardNumber = 'Card number is required';
+      formErrors.cardNumber = translations[language].cardNumberRequired;
       isValid = false;
     } else if (!/^\d{16}$/.test(paymentForm.cardNumber.replace(/\s/g, ''))) {
-      formErrors.cardNumber = 'Card number should be 16 digits';
+      formErrors.cardNumber = translations[language].cardNumberInvalid;
       isValid = false;
     }
     
     if (!paymentForm.cardHolder.trim()) {
-      formErrors.cardHolder = 'Card holder name is required';
+      formErrors.cardHolder = translations[language].cardHolderRequired;
       isValid = false;
     }
     
     if (!paymentForm.expiryDate.trim()) {
-      formErrors.expiryDate = 'Expiry date is required';
+      formErrors.expiryDate = translations[language].expiryDateRequired;
       isValid = false;
     } else if (!/^\d{2}\/\d{2}$/.test(paymentForm.expiryDate)) {
-      formErrors.expiryDate = 'Use format MM/YY';
+      formErrors.expiryDate = translations[language].expiryDateInvalid;
       isValid = false;
     }
     
     if (!paymentForm.cvv.trim()) {
-      formErrors.cvv = 'CVV is required';
+      formErrors.cvv = translations[language].cvvRequired;
       isValid = false;
     } else if (!/^\d{3,4}$/.test(paymentForm.cvv)) {
-      formErrors.cvv = 'CVV should be 3 or 4 digits';
+      formErrors.cvv = translations[language].cvvInvalid;
       isValid = false;
     }
     
     if (!paymentForm.email.trim()) {
-      formErrors.email = 'Email is required';
+      formErrors.email = translations[language].emailRequired;
       isValid = false;
     } else if (!/\S+@\S+\.\S+/.test(paymentForm.email)) {
-      formErrors.email = 'Email is invalid';
+      formErrors.email = translations[language].emailInvalid;
       isValid = false;
     }
     
@@ -102,10 +104,10 @@ const PaymentModal = ({
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50">
       <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-2xl">
-        <h2 className="text-2xl font-bold mb-4">Payment Details</h2>
+        <h2 className="text-2xl font-bold mb-4">{translations[language].paymentDetails}</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label htmlFor="cardNumber" className="block text-gray-700 mb-1">Card Number</label>
+            <label htmlFor="cardNumber" className="block text-gray-700 mb-1">{translations[language].cardNumber}</label>
             <input
               type="text"
               id="cardNumber"
@@ -119,7 +121,7 @@ const PaymentModal = ({
           </div>
           
           <div className="mb-4">
-            <label htmlFor="cardHolder" className="block text-gray-700 mb-1">Card Holder</label>
+            <label htmlFor="cardHolder" className="block text-gray-700 mb-1">{translations[language].cardHolder}</label>
             <input
               type="text"
               id="cardHolder"
@@ -134,7 +136,7 @@ const PaymentModal = ({
           
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
-              <label htmlFor="expiryDate" className="block text-gray-700 mb-1">Expiry Date</label>
+              <label htmlFor="expiryDate" className="block text-gray-700 mb-1">{translations[language].expiryDate}</label>
               <input
                 type="text"
                 id="expiryDate"
@@ -148,7 +150,7 @@ const PaymentModal = ({
             </div>
             
             <div>
-              <label htmlFor="cvv" className="block text-gray-700 mb-1">CVV</label>
+              <label htmlFor="cvv" className="block text-gray-700 mb-1">{translations[language].cvv}</label>
               <input
                 type="text"
                 id="cvv"
@@ -163,7 +165,7 @@ const PaymentModal = ({
           </div>
           
           <div className="mb-4">
-            <label htmlFor="email" className="block text-gray-700 mb-1">Email for Confirmation</label>
+            <label htmlFor="email" className="block text-gray-700 mb-1">{translations[language].emailConfirmation}</label>
             <input
               type="email"
               id="email"
@@ -182,14 +184,14 @@ const PaymentModal = ({
               onClick={onClose}
               className="px-6 py-3 bg-gray-500 text-white rounded-md hover:bg-gray-600"
             >
-              Cancel
+              {translations[language].cancel}
             </button>
             
             <button 
               type="submit"
               className="px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700"
             >
-              Pay Now ${priceDetails.grandTotal.toFixed(2)}
+              {translations[language].payNow.replace('{amount}', priceDetails.grandTotal.toFixed(2))}
             </button>
           </div>
         </form>
@@ -199,6 +201,7 @@ const PaymentModal = ({
 };
 
 const PassengerInfoPage = () => {
+  const { language } = useLanguage();
   const location = useLocation();
   const navigate = useNavigate();
   const bookingData = location.state?.bookingData || {};
@@ -209,9 +212,9 @@ const PassengerInfoPage = () => {
     //Block direct access to payment page
     useEffect(() => {
       if (!location.state || !location.state.bookingData) {
-        navigate("/ErrorPage", { replace: true }); 
+        navigate(translations[language].errorPagePath, { replace: true }); 
       }
-    }, [location, navigate]);
+    }, [location, navigate, language]);
   
 
     if (!location.state || !location.state.bookingData) {
@@ -222,7 +225,7 @@ const PassengerInfoPage = () => {
   
   const handlePayment = () => {
     if (!userAgreement) {
-      setError("You must agree to the terms before proceeding.");
+      setError(translations[language].termsAgreementError);
       return false;
     }
     return true;
@@ -391,25 +394,27 @@ if (cleanedBirthDate.length !== 8) {
   };
   
   return (
-    <div>
-    <div className={`relative ${isPaymentModalOpen ? 'blur-md' : ''}`}>
-      <Navbar />
+    <div className="flex flex-col md:flex-row gap-8 sm:p-6 sm:pt-15 max-w-6xl mx-auto">
+    <div className={`relative w-7xl ${isPaymentModalOpen ? 'blur-md' : ''}`}>
       <div className="max-w-4xl mx-auto p-4 pt-25">
         {/* Trip summary - similar to previous implementation */}
         <div className=" p-4 rounded-lg mb-6">
-          <h2 className="text-xl font-semibold text-blue-800">
-            {tripType === 'round-trip' ? 'Round Trip' : 'One Way Trip'}
-          </h2>
+            <h2 className="text-xl font-semibold text-blue-800">
+              {tripType === 'round-trip' 
+                ? translations[language].roundTrip 
+                : translations[language].oneWayTrip}
+            </h2>
           {outboundTrain.departure && outboundTrain.arrival && (
             <div>
               <p className="text-blue-600">
-                Outbound: {outboundTrain.departure} to {outboundTrain.arrival}
+                {translations[language].outboundLabel}: {outboundTrain.departure} {translations[language].to} {outboundTrain.arrival}
                 {outboundTrain.date && ` • ${outboundTrain.date}`}
                 {outboundTrain.time && ` • ${outboundTrain.time}`}
               </p>
+
               {tripType === 'round-trip' && returnTrain.departure && (
                 <p className="text-blue-600">
-                  Return: {returnTrain.departure} to {returnTrain.arrival}
+                  {translations[language].returnLabel}: {returnTrain.departure} {translations[language].to} {returnTrain.arrival}
                   {returnTrain.date && ` • ${returnTrain.date}`}
                   {returnTrain.time && ` • ${returnTrain.time}`}
                 </p>
@@ -419,29 +424,35 @@ if (cleanedBirthDate.length !== 8) {
         </div>
         
         <div className="border rounded-lg p-6">
-          <h3 className="text-2xl font-bold mb-6">Passenger Information</h3>
+        <h3 className="text-2xl font-bold mb-6">{translations[language].passengerInformation}</h3>
           
           <form>
             {passengers.map((passenger, index) => (
               <div key={index} className="border-b pb-6 mb-6">
                 <h4 className="text-lg font-semibold mb-4">
-                  Passenger {index % selectedSeats.outbound.length + 1}
+                  {translations[language].passenger.replace('{number}', index % selectedSeats.outbound.length + 1)}
                 </h4>
+
                 <h5 className="text-lg font-semibold mb-4">
-                  {tripType==='round-trip' ? "Outbound Train: " : "" }
-                  Wagon {selectedSeats.outbound[index % selectedSeats.outbound.length].wagon}, Seat {selectedSeats.outbound[index % selectedSeats.outbound.length].number}
+                  {tripType === 'round-trip' ? translations[language].outboundTrain + ' ' : ''}
+                  {translations[language].wagon} {selectedSeats.outbound[index % selectedSeats.outbound.length].wagon}, {" "}
+                  {translations[language].seat} {selectedSeats.outbound[index % selectedSeats.outbound.length].number}
                 </h5>
-                {tripType==='round-trip' && 
-                <h6 className='text-lg font-semibold mb-4'>
-                  Return Train: Wagon {selectedSeats.return[index % selectedSeats.return.length].wagon}, Seat {selectedSeats.return[index % selectedSeats.return.length].number}
-                </h6>}
-                
+
+                {tripType === 'round-trip' && (
+                  <h6 className="text-lg font-semibold mb-4">
+                    {translations[language].returnTrain}: {translations[language].wagon} {selectedSeats.return[index % selectedSeats.return.length].wagon}, 
+                    {translations[language].seat} {selectedSeats.return[index % selectedSeats.return.length].number}
+                  </h6>
+                )}
                 
                 <div className="grid grid-cols-2 gap-4">
                   
                 
                   <div>
-                    <label className="block text-gray-700 mb-1">First Name</label>
+                  <label className="block text-gray-700 mb-1">
+                        {translations[language].firstName}
+                      </label>
                     <input
                       type="text"
                       name="firstName"
@@ -451,13 +462,13 @@ if (cleanedBirthDate.length !== 8) {
                     />
                     {errors[`${index}-firstName`] && (
                       <p className="text-red-500 text-sm mt-1">
-                        {errors[`${index}-firstName`]}
+                        {translations[language].firstNameRequired}
                       </p>
                     )}
                   </div>
                   
                   <div>
-                    <label className="block text-gray-700 mb-1">Surname</label>
+                    <label className="block text-gray-700 mb-1">{translations[language].surname}</label>
                     <input
                       type="text"
                       name="surname"
@@ -467,13 +478,13 @@ if (cleanedBirthDate.length !== 8) {
                     />
                     {errors[`${index}-surname`] && (
                       <p className="text-red-500 text-sm mt-1">
-                        {errors[`${index}-surname`]}
+                        {translations[language].surnameRequired}
                       </p>
                     )}
                   </div>
                   
                   <div>
-                    <label className="block text-gray-700 mb-1">Government ID</label>
+                    <label className="block text-gray-700 mb-1">{translations[language].governmentId}</label>
                     <input
                       type="text"
                       name="governmentId"
@@ -484,13 +495,13 @@ if (cleanedBirthDate.length !== 8) {
                     />
                     {errors[`${index}-governmentId`] && (
                       <p className="text-red-500 text-sm mt-1">
-                        {errors[`${index}-governmentId`]}
+                        {translations[language].governmentIdRequired}
                       </p>
                     )}
                   </div>
                   
                   <div>
-                    <label className="block text-gray-700 mb-1">Phone Number</label>
+                    <label className="block text-gray-700 mb-1">{translations[language].phoneNumber}</label>
                     <input
                       type="tel"
                       name="phoneNumber"
@@ -501,13 +512,13 @@ if (cleanedBirthDate.length !== 8) {
                     />
                     {errors[`${index}-phoneNumber`] && (
                       <p className="text-red-500 text-sm mt-1">
-                        {errors[`${index}-phoneNumber`]}
+                        {translations[language].phoneNumberRequired}
                       </p>
                     )}
                   </div>
                   
                   <div>
-                    <label className="block text-gray-700 mb-1">Email</label>
+                    <label className="block text-gray-700 mb-1">{translations[language].email}</label>
                     <input
                       type="email"
                       name="email"
@@ -518,13 +529,13 @@ if (cleanedBirthDate.length !== 8) {
                     />
                     {errors[`${index}-email`] && (
                       <p className="text-red-500 text-sm mt-1">
-                        {errors[`${index}-email`]}
+                        {translations[language].emailRequired}
                       </p>
                     )}
                   </div>
                   
                   <div>
-                      <label className="block text-gray-700 mb-1">Birth Date</label>
+                      <label className="block text-gray-700 mb-1">{translations[language].birthDate}</label>
                       <input
                           type="text"
                           name="birthDate"
@@ -545,7 +556,7 @@ if (cleanedBirthDate.length !== 8) {
                       />
                       {errors[`${index}-birthDate`] && (
                           <p className="text-red-500 text-sm mt-1">
-                          {errors[`${index}-birthDate`]}
+                          {translations[language].birthDateRequired}
                           </p>
                       )}
                       </div>
@@ -568,7 +579,7 @@ if (cleanedBirthDate.length !== 8) {
               }}
             />
             <label htmlFor="agreement" className="block text-gray-800 font-medium text-sm cursor-pointer transition-colors duration-200">
-              I agree to the 
+            {translations[language].termsAgreement} 
               
             </label>
             <button
@@ -576,7 +587,7 @@ if (cleanedBirthDate.length !== 8) {
             className="text-blue-600 hover:text-blue-800 text-sm underline pl-1"
             type="button"
             >
-             terms and conditions.
+             {translations[language].termsAndConditions}
             </button>
 
           </div>
@@ -584,9 +595,9 @@ if (cleanedBirthDate.length !== 8) {
             {/* Booking Summary and Total */}
             <div className="mt-6 border-t pt-6">
               <div className="flex justify-between mb-4">
-                <span className="text-lg font-medium">Total Ticket Price:</span>
+                <span className="text-lg font-medium">{translations[language].totalPrice}:</span>
                 <span className="text-xl font-bold">
-                  ${priceDetails.grandTotal.toFixed(2)}
+                  {translations[language].currencySymbol}{priceDetails.grandTotal.toFixed(2)}
                 </span>
               </div>
               
@@ -596,7 +607,7 @@ if (cleanedBirthDate.length !== 8) {
                   onClick={handleGoBack}
                   className="flex-1 px-6 py-3 bg-gray-500 text-white rounded-md hover:bg-gray-600"
                 >
-                  Back 
+                  {translations[language].backButton} 
                 </button>
                 
                 <button 
@@ -605,7 +616,7 @@ if (cleanedBirthDate.length !== 8) {
                   className="flex-1 px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700"
                   disabled={selectedSeats.outbound.length === 0}
                 >
-                  Proceed to Payment
+                  {translations[language].proceedToPayment}
                 </button>
               </div>
             </div>
@@ -625,6 +636,9 @@ if (cleanedBirthDate.length !== 8) {
         isOpen={showTerms}
         onClose={() => setShowTerms(false)}
       />
+      <div className="md:sticky md:top-6 md:h-fit pt-12">
+        <ProgressSteps currentStep="payment" />
+      </div>
     </div>
   );
 };

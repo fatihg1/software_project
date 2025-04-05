@@ -1,9 +1,25 @@
 import React from 'react';
 import { useAnnouncements } from './AnnouncementsContext.jsx';
+import {motion} from 'framer-motion';
+import {useLanguage} from './LanguageContext.jsx';
+import translations from './translations.jsx';
+const slideUp = {
+  hidden: { opacity: 0, y: 50 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: { 
+      type: "spring", 
+      stiffness: 100, 
+      damping: 10,
+      delay: 0.2
+    }
+  }
+};
 
 const Announcements = () => {
   const { announcements } = useAnnouncements();
-
+  const {language} = useLanguage();
   // Priority color mapping
   const getPriorityColor = (priority) => {
     switch(priority) {
@@ -15,12 +31,17 @@ const Announcements = () => {
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto p-20">
-      <h2 className="text-2xl font-bold mb-6 text-center">Latest Announcements</h2>
+    <motion.div
+    initial="hidden"
+    whileInView={"visible"}
+    viewport={{ once: true, amount:0.3 }}
+    variants={slideUp}
+    className="w-full max-w-6xl mx-auto p-20">
+      <h2 className="text-2xl font-bold mb-6 text-center">{translations[language].announcements}</h2>
       
       {announcements.length === 0 ? (
         <div className="text-center text-gray-500">
-          No current announcements
+          {translations[language].noAnnouncements}
         </div>
       ) : (
         <div className="space-y-4">
@@ -41,7 +62,7 @@ const Announcements = () => {
           ))}
         </div>
       )}
-    </div>
+    </motion.div>
   );
 };
 
