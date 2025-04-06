@@ -13,10 +13,11 @@ const slideUp = {
       type: "spring", 
       stiffness: 100, 
       damping: 10,
-      delay: 0.2
+      delay: 0 // Try removing or reducing the delay
     }
   }
 };
+
 
 const trainRoutes = [
   {
@@ -112,10 +113,11 @@ const StationCenter = () => {
   };
 
   return (
-    <motion.div 
+    <motion.div
+      key={location.pathname} 
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, amount: 0.3 }}
+      viewport={{ once: true, amount: 0.1 }}
       variants={slideUp}
       className="max-w-4xl mx-auto p-4 pt-40"
     >

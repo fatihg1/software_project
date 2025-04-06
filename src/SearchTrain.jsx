@@ -14,7 +14,7 @@ const slideUp = {
       type: "spring", 
       stiffness: 100, 
       damping: 10,
-      delay: 0.2
+      delay: 0,
     }
   }
 };
@@ -302,10 +302,11 @@ export default function TrainTicketSearch() {
   );
 
   return (
-    <motion.div 
+    <motion.div
+      key={location.pathname} 
       initial="hidden"
       whileInView={"visible"}
-      viewport={{ once: true, amount:0.3 }}
+      viewport={{ once: true}}
       variants={slideUp}
       className="flex flex-col md:flex-row gap-8 sm:p-6 sm:pt-15 max-w-6xl mx-auto"
     >

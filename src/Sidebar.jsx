@@ -3,8 +3,11 @@ import { SignIn, useClerk, UserButton } from '@clerk/clerk-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useUser } from '@clerk/clerk-react';
 import { Menu, X } from 'lucide-react';
-
+import translations from './translations.jsx';
+import { useLanguage } from './LanguageContext.jsx';
 function SideNavigation() {
+  const { language } = useLanguage();
+  const t = translations[language].sidebar;
   const navigate = useNavigate();
   const location = useLocation();
   const { openSignIn } = useClerk();
@@ -100,7 +103,7 @@ function SideNavigation() {
               <div className="bg-white p-1 rounded-full w-12 h-12 flex items-center justify-center overflow-hidden">
                 <img 
                   src="/logo.png" 
-                  alt="Company Logo"
+                  alt={t.logoAlt}
                   className="w-full h-full object-cover hover:cursor-pointer"
                   onClick={() => handleNavigation("/")}
                 />
@@ -109,7 +112,7 @@ function SideNavigation() {
                 className="text-2xl font-bold transition duration-300 hover:cursor-pointer hover:text-blue-300"
                 onClick={() => handleNavigation("/")}
               >
-                Rail Link
+                {t.brandName}
               </button>
             </div>
           </div>
@@ -118,12 +121,12 @@ function SideNavigation() {
           <div className="p-6 border-b border-blue-700">
             {!isSignedIn ? (
               <div className="flex justify-between items-center">
-                <span>Sign in to access all features</span>
+                <span>{t.signInPrompt}</span>
                 <button 
                   className="bg-blue-600 px-4 py-2 rounded-md hover:bg-blue-500 transition duration-200"
                   onClick={() => openSignIn()}
                 >
-                  Sign In
+                  {t.signIn}
                 </button>
               </div>
             ) : (
@@ -136,7 +139,6 @@ function SideNavigation() {
                     }
                   }} 
                 />
-                
               </div>
             )}
           </div>
@@ -144,7 +146,7 @@ function SideNavigation() {
           {/* Navigation Links */}
           <div className="flex-1 p-6">
             <div className="flex flex-col space-y-3">
-              {/* My Tickets button - only visible when logged in */}
+              {/* My Tickets button */}
               {isSignedIn && (
                 <button
                   className={`w-full px-4 py-3 rounded-md transition duration-200 ${
@@ -154,7 +156,7 @@ function SideNavigation() {
                   }`}
                   onClick={() => handleNavigation("/my-tickets")}
                 >
-                  <span className="text-white">My Tickets</span>
+                  <span className="text-white">{t.myTickets}</span>
                 </button>
               )}
               
@@ -166,89 +168,82 @@ function SideNavigation() {
                 }`}
                 onClick={() => handleNavigation("/select-train")}
               >
-                <span className="text-white">Buy Tickets</span>
+                <span className="text-white">{t.buyTickets}</span>
+              </button>
+
+              {/* Other navigation buttons */}
+              <button 
+              className={`w-full px-4 py-3 rounded-md transition duration-200 ${
+                isActive("/select-train")
+                  ? "bg-blue-700 ring-2 ring-blue-300"
+                  : "hover:bg-blue-700 hover:cursor-pointer"
+              }`}
+              onClick={() => handleNavigation("/station-center")}>
+                <span className="text-white">{t.stationCenter}</span>
+              </button>
+
+              <button 
+              className={`w-full px-4 py-3 rounded-md transition duration-200 ${
+                isActive("/select-train")
+                  ? "bg-blue-700 ring-2 ring-blue-300"
+                  : "hover:bg-blue-700 hover:cursor-pointer"
+              }`}
+              onClick={() => handleNavigation("/help")}>
+                <span className="text-white">{t.helpCenter}</span>
               </button>
 
               <button
-                className={`w-full px-4 py-3 rounded-md transition duration-200 ${
-                  isActive("/station-center")
-                    ? "bg-blue-700 ring-2 ring-blue-300"
-                    : "hover:bg-blue-700 hover:cursor-pointer"
-                }`}
-                onClick={() => handleNavigation("/station-center")}
-              >
-                <span className="text-white">Station Center</span>
+              className={`w-full px-4 py-3 rounded-md transition duration-200 ${
+                isActive("/select-train")
+                  ? "bg-blue-700 ring-2 ring-blue-300"
+                  : "hover:bg-blue-700 hover:cursor-pointer"
+              }`}
+               onClick={() => handleNavigation("/about-us")}>
+                <span className="text-white">{t.aboutUs}</span>
               </button>
 
               <button
-                className={`w-full px-4 py-3 rounded-md transition duration-200 ${
-                  isActive("/help-center")
-                    ? "bg-blue-700 ring-2 ring-blue-300"
-                    : "hover:bg-blue-700 hover:cursor-pointer"
-                }`}
-                onClick={() => handleNavigation("/help")}
-              >
-                <span className="text-white">Help Center</span>
+              className={`w-full px-4 py-3 rounded-md transition duration-200 ${
+                isActive("/select-train")
+                  ? "bg-blue-700 ring-2 ring-blue-300"
+                  : "hover:bg-blue-700 hover:cursor-pointer"
+              }`}
+               onClick={() => handleNavigation("/contact")}>
+                <span className="text-white">{t.contact}</span>
               </button>
 
               <button
-                className={`w-full px-4 py-3 rounded-md transition duration-200 ${
-                  isActive("/about-us")
-                    ? "bg-blue-700 ring-2 ring-blue-300"
-                    : "hover:bg-blue-700 hover:cursor-pointer"
-                }`}
-                onClick={() => handleNavigation("/about-us")}
-              >
-                <span className="text-white">About Us</span>
+              className={`w-full px-4 py-3 rounded-md transition duration-200 ${
+                isActive("/select-train")
+                  ? "bg-blue-700 ring-2 ring-blue-300"
+                  : "hover:bg-blue-700 hover:cursor-pointer"
+              }`}
+               onClick={() => handleNavigation("/faqs")}>
+                <span className="text-white">{t.faqs}</span>
               </button>
 
-              <button
-                className={`w-full px-4 py-3 rounded-md transition duration-200 ${
-                  isActive("/contact")
-                    ? "bg-blue-700 ring-2 ring-blue-300"
-                    : "hover:bg-blue-700 hover:cursor-pointer"
-                }`}
-                onClick={() => handleNavigation("/contact")}
-              >
-                <span className="text-white">Contact</span>
-              </button>
-
-              <button
-                className={`w-full px-4 py-3 rounded-md transition duration-200 ${
-                  isActive("/faqs")
-                    ? "bg-blue-700 ring-2 ring-blue-300"
-                    : "hover:bg-blue-700 hover:cursor-pointer"
-                }`}
-                onClick={() => handleNavigation("/faqs")}
-              >
-                <span className="text-white">FAQs</span>
-              </button>
-              
-              
               {/* Role-specific buttons */}
               {isSignedIn && userRole === 'manager' && (
                 <button
-                  className={`w-full px-4 py-3 rounded-md transition duration-200 ${
-                    isActive("/manager")
-                      ? "bg-blue-700 ring-2 ring-blue-300"
-                      : "hover:bg-blue-700 hover:cursor-pointer"
-                  }`}
-                  onClick={() => handleNavigation("/manager")}
-                >
-                  <span className="text-white">Manager</span>
+                className={`w-full px-4 py-3 rounded-md transition duration-200 ${
+                  isActive("/select-train")
+                    ? "bg-blue-700 ring-2 ring-blue-300"
+                    : "hover:bg-blue-700 hover:cursor-pointer"
+                }`}
+                 onClick={() => handleNavigation("/manager")}>
+                  <span className="text-white">{t.manager}</span>
                 </button>
               )}
               
               {isSignedIn && userRole === 'admin' && (
                 <button
-                  className={`w-full px-4 py-3 rounded-md transition duration-200 ${
-                    isActive("/admin")
-                      ? "bg-blue-700 ring-2 ring-blue-300"
-                      : "hover:bg-blue-700 hover:cursor-pointer"
-                  }`}
-                  onClick={() => handleNavigation("/admin")}
-                >
-                  <span className="text-white">Admin</span>
+                className={`w-full px-4 py-3 rounded-md transition duration-200 ${
+                  isActive("/select-train")
+                    ? "bg-blue-700 ring-2 ring-blue-300"
+                    : "hover:bg-blue-700 hover:cursor-pointer"
+                }`}
+                 onClick={() => handleNavigation("/admin")}>
+                  <span className="text-white">{t.admin}</span>
                 </button>
               )}
             </div>
@@ -256,7 +251,7 @@ function SideNavigation() {
 
           {/* Footer */}
           <div className="p-6 border-t border-blue-700 text-center">
-            <p className="text-sm text-blue-300">© 2025 Rail Link</p>
+            <p className="text-sm text-blue-300">© {new Date().getFullYear()} {t.brandName}</p>
           </div>
         </div>
       </div>

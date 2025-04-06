@@ -1,5 +1,35 @@
 const translations = {
     en: {
+      //errorpage
+      errorPage:{
+        notFound: "Page Not Found",
+        code: "Error Code:",
+        desc: "Sorry, the page you are looking for was not found :(",
+        text: "The page you requested may have been removed or is temporarily unavailable.",
+        back: "Return to Home Page",
+      },
+      contact1: {
+        title: "Contact Us",
+        subtitle: "We're here to help with your train ticket inquiries. Feel free to reach out through any of the channels below.",
+        phone: {
+          title: "Phone Support",
+          description: "Available 24/7 for urgent matters"
+        },
+        email: {
+          title: "Email Us",
+          description: "We'll respond within 24 hours"
+        },
+        office: {
+          title: "Visit Our Office",
+          description: "Main Headquarters",
+          address: [
+            "Maslak District, Büyükdere Avenue, No:237",
+            "Sarıyer, 34485 Istanbul",
+            "Turkey"
+          ]
+        }
+      },
+        ourTeam: "Our Team",
         //homepage
         admin: "Admin",
         manager: "Manager",
@@ -15,7 +45,7 @@ const translations = {
         bookTickets: "Book Tickets",
         myTickets: "My Tickets",
         oneWay: "One Way",
-        roundTrip: "Round Trip",
+        
         departure: "From",
         arrival: "To",
         departureStation: "Departure Station",
@@ -72,21 +102,21 @@ const translations = {
         selectDeparture: "Select Departure",
         selectReturn: "Select Destination",
         findTrainText: "Search and book train tickets across Turkey",
-        selectDeparture: "Select Departure",
-        selectReturn: "Select Destination",
-        outboundDate: "Outbound Date",
-        searchTrains: "Search Trains",
+        
+        
+        
+        
         noTrainFound: "No outbound trains found",
         noTrainFoundText: "Try adjusting your search criteria",
-        continueBooking:"Continue to Booking",
+       
         trainSelection: "Train Selection",
         selectJourney: "Select Your Journey",
         seatSelection: "Seat Selection",
         chooseSeat: "Choose Your Seat",
-        paymentDetails: "Payment Details",
+        
         completePayment: "Complete Your Payment",
         outboundDate: "Outbound Date",
-        returnDate: "Return Date",
+        
         searching: "Searching...",
         searchTrains: "Search Trains",
         outboundFound: "outbound trains found",//durak ismi entegre etme
@@ -95,7 +125,7 @@ const translations = {
         noOutboundFound: "No outbound trains found",
         tryAdjusting: "Try adjusting your search criteria",
         continueBooking:"Continue to Booking",
-        seatsLeft: "Only {count} seats left!",
+        
         seatsAvailable: "{count} seats available",
         currencySymbol: "$",
         hoursAbbr: "h",
@@ -119,7 +149,7 @@ const translations = {
         outboundSeats: "Outbound Train Seats",
         returnSeats: "Return Train Seats",
         noSeatsSelected: "No seats selected",
-        wagonSeat: "Wagon {wagon}, Seat {seat}",
+        
         backButton: "Back",
         continueToPayment: "Continue to Payment",
         seatSelectionError: "Please select the same number of seats for both outbound and return trains",
@@ -165,7 +195,7 @@ const translations = {
     birthDate: "Birth Date",
     birthDateInvalid: "Invalid birth date format (DD/MM/YYYY)",
     termsAgreement: "I agree to the ",
-    termsAndConditions: "terms and conditions",
+    
     termsAgreementError: "You must agree to the terms before proceeding",
     totalPrice: "Total Ticket Price",
     proceedToPayment: "Proceed to Payment",
@@ -475,8 +505,190 @@ const translations = {
           note: "Please save this number for future reference."
         }
       },
+        //about us
+      aboutTitle: "About Us",
+    aboutText: "At Rail Link, we are committed to redefining train travel by making it more accessible, convenient, and enjoyable for everyone. With a strong emphasis on safety, efficiency, and innovation, we provide seamless rail services that connect cities, communities, and people. Our mission is to offer affordable, eco-friendly, and time-efficient transportation solutions, ensuring that every journey is comfortable and stress-free.",
+    
+    missionTitle: "Our Mission",
+    missionText: "At Rail Link, our mission is to transform train travel by making it smarter, greener, and more connected. We strive to offer a seamless travel experience through cutting-edge technology, sustainable practices, and unparalleled customer service. Our goal is to create a safe, efficient, and eco-friendly transportation network that enhances mobility for everyone.",
+    
+    whyChooseUsTitle: "Why Choose Us",
+    features: {
+      secure:{
+        title: "Secure Booking",
+        text: "State-of-the-art encryption and secure payment gateways to protect your personal and financial information."},
+      real:{
+        title: "Real-Time Updates",
+        text: "Instant notifications about schedule changes, delays, or platform updates directly to your device."},
+      network:{
+        title: "Extensive Network",
+        text: "Access to an extensive network of train routes covering major cities and hidden gems alike."}
+    },
+    
+    servicesTitle: "Our Services",
+    services: {
+      route:{title: "Wide Route Options",
+      text: "Access hundreds of destinations with flexible scheduling options."},
+      support:{title: "24/7 Customer Support",
+      text: "Our dedicated team is available around the clock to assist you."},
+      price:{title: "Best Price Guarantee",
+      text: "We'll match or beat any competitor's price for the same route."}
+    },
+    
+    historyTitle: "Our Journey",
+    timeline: [
+      "Founded as a small startup with a vision to make train travel accessible to everyone.",
+      "Expanded our network to cover 50+ cities and launched our award-winning mobile app.",
+      "Reached the milestone of serving over 1 million customers and expanded internationally.",
+      "Leading the industry with innovative technology and an unwavering commitment to customer satisfaction."
+    ],
+    
+    stationsTitle: "Stations We Serve",
+    stationsSubtitle: "Explore some of the beautiful and historic train stations in our network.",
+    stations: [
+      { 
+        name: "Haydarpasa Station", 
+        location: "Istanbul, Turkey",
+        info: "Gateway to Istanbul's Railway Heritage"
+      },
+      { 
+        name: "Ankara Station", 
+        location: "Ankara, Turkey",
+        info: "Heart of Turkey's Rail Network"
+      },
+      { 
+        name: "Kars Station", 
+        location: "Kars, Turkey",
+        info: "Historic Hub of the Silk Road"
+      },
+      { 
+        name: "Alsancak Station", 
+        location: "Izmir, Turkey",
+        info: "Izmir's Timeless Railway Landmark"
+      }
+    ],
+    
+    teamMembers: [
+      { name: "Jane Doe", position: "CEO" },
+      { name: "John Smith", position: "Operations Manager" },
+      { name: "Sarah Johnson", position: "Customer Support Lead" }
+    ],
+    
+    faqTitle: "Frequently Asked Questions",
+    faqSubtitle: "Find answers to common inquiries regarding <strong>ticket reservations</strong>, <strong>cancellations</strong>, and <strong>refunds</strong>.",
+    faq: [
+      {
+        question: "How far in advance can I book tickets?",
+        answer: "You can book tickets up to 3 months in advance for most routes. Some special routes and seasonal trains may have different booking windows."
+      },
+      {
+        question: "What payment methods do you accept?",
+        answer: "We accept all major credit cards, debit cards, PayPal, and mobile payment solutions including Apple Pay and Google Pay."
+      },
+      {
+        question: "Can I cancel or modify my booking?",
+        answer: "Yes, you can cancel or modify your booking up to 24 hours before departure. A small fee may apply depending on your ticket type."
+      },
+      {
+        question: "Do you offer discounts for group travel?",
+        answer: "Yes, we offer special discounts for groups of 10 or more travelers. Please contact our customer service for more details."
+      }
+    ],
+    
+    contactTitle: "Have Questions?",
+    contactText: "Our customer support team is available 24/7 to assist you with any inquiries.",
+    contactButton: "Contact Us",
+
+    faq1:[
+      
+        {category: "Booking & Tickets",
+        questions: [
+          {
+            question: "How can I purchase a train ticket?",
+            answer: "Train tickets can be purchased via our <strong>official website or mobile application</strong>. Simply enter the departure and destination stations, select the travel date, choose a preferred train and seat, and proceed with payment.",
+          },
+          {
+            question: "Can I modify my ticket after booking?",
+            answer: "<strong>Ticket modifications are not allowed</strong> after booking.",
+          },
+          {
+            question: "Do I need a printed ticket for travel?",
+            answer: "A <strong>digital ticket (e-ticket)</strong> is sufficient for travel. It can be presented via <strong>email</strong> or through our <strong>mobile application. Printed ticket is optional</strong>.",
+          },
+          {
+            question: "Is it possible to book tickets for multiple passengers?",
+            answer: "Yes, <strong>multiple passengers</strong> can be included in a <strong>single booking</strong>. The required details for each traveler must be provided during the <strong>reservation process</strong>.",
+          },
+          {
+            question: "Is a mobile application available for ticket bookings?",
+            answer: "Yes, our <strong>mobile application</strong> is available for both <strong>iOS and Android</strong>, enabling users to <strong>book, manage, and access their tickets</strong> with ease.",
+          },
+        ],
+      },
+      
+      
+        {category: "Cancellations & Refunds",
+        questions: [
+          {
+            question: "What is the ticket cancellation policy?",
+            answer: "Tickets may be <strong>canceled up to 24 hours prior</strong> to departure for a <strong>full refund</strong>. Cancellations made <strong>within 24 hours</strong> will incur a 50% cancellation fee.<strong> No refunds will be issued for cancellations within two hours of departure</strong>.",
+          },
+          {
+            question: "How can I request a refund?",
+            answer: "<strong>Refund requests</strong> can be made via the <strong>'My Tickets' section</strong> on our <strong>website</strong> or <strong>mobile application</strong>. For tickets purchased at a <strong>ticket counter</strong>, refunds must be requested at the <strong>station</strong>.",
+          },
+          {
+            question: "Can a ticket be transferred to another person?",
+            answer: "No, <strong>train tickets are non-transferable</strong>. The <strong>name on the ticket</strong> must match the traveler's <strong>identification</strong> at the time of travel.",
+          },
+          {
+            question: "What happens if my train is cancelled?",
+            answer: "In the event of a <strong>train cancellation</strong> due to <strong>unforeseen circumstances</strong>, passengers will be eligible for a <strong>full refund</strong> or may <strong>rebook on the next available service</strong>.",
+          }
+      ],
+      },
+    ],
+    sidebar: {
+      brandName: "Rail Link",
+      logoAlt: "Company Logo",
+      signInPrompt: "Sign in to access all features",
+      signIn: "Sign In",
+      myTickets: "My Tickets",
+      buyTickets: "Buy Tickets",
+      stationCenter: "Station Center",
+      helpCenter: "Help Center",
+      aboutUs: "About Us",
+      contact: "Contact",
+      faqs: "FAQs",
+      manager: "Manager Dashboard",
+      admin: "Admin Panel"
+    },
     },
     tr: {
+      //errorpage
+      errorPage:{
+        notFound: "Sayfa Bulunamadı",
+        code: "Hata kodu:",
+        desc: "Üzgünüz, aradığınız sayfa bulunamadı :(",
+        text: "Aradığınız sayfa kaldırılmış veya geçici olarak kullanılamıyor olabilir.",
+        back: "Anasayfaya Geri Dön",
+      },
+      //sidebar
+      sidebar: {
+        brandName: "Rail Link",
+        logoAlt: "Şirket Logosu",
+        signInPrompt: "Tüm özelliklere erişmek için giriş yapın",
+        signIn: "Giriş Yap",
+        myTickets: "Biletlerim",
+        buyTickets: "Bilet Al",
+        stationCenter: "İstasyon Merkezi",
+        helpCenter: "Yardım Merkezi",
+        aboutUs: "Hakkımızda",
+        contact: "İletişim",
+        faqs: "SSS",
+        manager: "Yönetici Paneli",
+        admin: "Yönetici Paneli"
+      },
         //navbar
         buyTickets: "Bilet Al",
         about: "Hakkımızda",
@@ -494,13 +706,13 @@ const translations = {
         bookTickets: "Bilet Al",
         myTickets: "Biletlerim",
         oneWay: "Tek Yön",
-        roundTrip: "Gidiş-Dönüş",
+        
         departure: "Nereden",
         arrival: "Nereye",
         departureStation: "Ayrılış İstasyonu",
         arrivalStation: "Varış İstasyonu",
         departureDate: "Ayrılış Tarihi",
-        returnDate: "Dönüş Tarihi",
+        
         today: "Bugün",
         tomorrow: "Yarın",
         same: "Aynı",
@@ -536,7 +748,7 @@ const translations = {
         faqs: "SSS",
         rules: "Yolcu Kuralları",
         contactUs: "Bize Ulaşın",
-        address:"Maslak District, Büyükdere Avenue, No:237 Sarıyer, 34485 Istanbul, Turkey",
+        address:"Maslak, Büyükdere Caddesi, No:237 Sarıyer, 34485 İstanbul, Türkiye",
         email: "Email: info@RailLink.com",
         phone: "Telefon: +90 555 123 4567",
         rightsReserved: "© 2025 Rail Link. Tüm hakları saklıdır.",
@@ -563,7 +775,7 @@ const translations = {
         noTrainFoundText: "Arama kriterlerinizi ayarlamayı deneyin",
         tryAdjusting: "Arama kriterlerinizi ayarlamayı deneyin",
         continueBooking:"Rezervasyona Devam Et",
-        seatsLeft: "Sadece {count} koltuk kaldı!",
+        
         seatsAvailable: "{count} koltuk müsait",
         currencySymbol: "₺",
         hoursAbbr: "sa",
@@ -582,7 +794,7 @@ const translations = {
         outboundSeats: "Gidiş Treni Koltukları",
         returnSeats: "Dönüş Treni Koltukları",
         noSeatsSelected: "Seçili koltuk yok",
-        wagonSeat: "Vagon {wagon}, Koltuk {seat}",
+        
         backButton: "Geri",
         continueToPayment: "Ödemeye Geç",
         seatSelectionError: "Lütfen gidiş ve dönüş trenleri için aynı sayıda koltuk seçin",
@@ -627,7 +839,7 @@ const translations = {
     birthDate: "Doğum Tarihi",
     birthDateInvalid: "Geçersiz doğum tarihi formatı (GG/AA/YYYY)",
     termsAgreement: "Şartları kabul ediyorum ",
-    termsAndConditions: "kullanım koşullarını",
+    
     termsAgreementError: "Devam etmek için şartları kabul etmelisiniz",
     totalPrice: "Toplam Bilet Ücreti",
     proceedToPayment: "Ödemeye Geç",
@@ -934,6 +1146,169 @@ const translations = {
           note: "Lütfen bu numarayı gelecekte referans için saklayın."
         }
       },
+        aboutTitle: "Hakkımızda",
+    aboutText: "Rail Link olarak, tren yolculuğunu herkes için daha erişilebilir, kullanışlı ve keyifli hale getirerek yeniden tanımlamaya kararlıyız. Güvenlik, verimlilik ve yeniliğe yaptığımız güçlü vurgu ile şehirleri, toplulukları ve insanları birbirine bağlayan kesintisiz demiryolu hizmetleri sunuyoruz. Misyonumuz, her yolculuğun konforlu ve stressiz olmasını sağlayarak uygun fiyatlı, çevre dostu ve zaman açısından verimli ulaşım çözümleri sunmaktır.",
+    
+    missionTitle: "Misyonumuz",
+    missionText: "Rail Link'te misyonumuz, tren yolculuğunu daha akıllı, daha yeşil ve daha bağlantılı hale getirerek dönüştürmektir. En son teknoloji, sürdürülebilir uygulamalar ve benzersiz müşteri hizmetleri ile kesintisiz bir seyahat deneyimi sunmak için çabalıyoruz. Amacımız, herkes için hareketliliği artıran güvenli, verimli ve çevre dostu bir ulaşım ağı oluşturmaktır.",
+    
+    whyChooseUsTitle: "Neden Bizi Tercih Etmelisiniz?",
+    features: {
+      secure:{
+        title: "Güvenli Rezervasyon",
+        text: "Kişisel ve finansal bilgilerinizi korumak için son teknoloji şifreleme ve güvenli ödeme sistemleri.",},
+      real:{
+        title: "Gerçek Zamanlı Güncellemeler",
+        text: "Program değişiklikleri, gecikmeler veya peron güncellemeleri hakkında anında bildirimler.",},
+      network:{
+        title: "Geniş Ağ",
+        text: "Büyük şehirleri ve gizli kalmış yerleri kapsayan geniş tren rotaları ağına erişim."},
+    },
+    
+    servicesTitle: "Hizmetlerimiz",
+    services: {
+      route:{title: "Geniş Rota Seçenekleri",
+      text: "Esnek programlama seçenekleriyle yüzlerce varış noktasına erişim."},
+      support:{title: "7/24 Müşteri Desteği",
+      text: "Adanmış ekibimiz size yardımcı olmak için her zaman hazır."},
+      price:{title: "En İyi Fiyat Garantisi",
+      text: "Aynı rota için rakip fiyatlarıyla eşleşiyor veya daha iyi fiyat sunuyoruz."}
+    },
+    
+    historyTitle: "Tarihçemiz",
+    timeline: [
+      "Tren yolculuğunu herkes için erişilebilir kılma vizyonuyla küçük bir startup olarak kurulduk.",
+      "50'den fazla şehri kapsayan ağımızı genişlettik ve ödüllü mobil uygulamamızı başlattık.",
+      "1 milyondan fazla müşteriye hizmet verme dönüm noktasına ulaştık ve uluslararası genişledik.",
+      "Yenilikçi teknoloji ve müşteri memnuniyetine sarsılmaz bağlılıkla sektöre liderlik ediyoruz."
+    ],
+    
+    stationsTitle: "Hizmet Verdiğimiz İstasyonlar",
+    stationsSubtitle: "Ağımızdaki güzel ve tarihi tren istasyonlarından bazılarını keşfedin.",
+    stations: [
+      { 
+        name: "Haydarpaşa Garı", 
+        location: "İstanbul, Türkiye",
+        info: "İstanbul'un Demiryolu Mirasına Açılan Kapı"
+      },
+      { 
+        name: "Ankara Garı", 
+        location: "Ankara, Türkiye",
+        info: "Türkiye Demiryolu Ağının Kalbi"
+      },
+      { 
+        name: "Kars Garı", 
+        location: "Kars, Türkiye",
+        info: "İpek Yolu'nun Tarihi Merkezi"
+      },
+      { 
+        name: "Alsancak Garı", 
+        location: "İzmir, Türkiye",
+        info: "İzmir'in Zamansız Demiryolu Simgesi"
+      }
+    ],
+    
+    teamMembers: [
+      { name: "Jane Doe", position: "Genel Müdür" },
+      { name: "John Smith", position: "Operasyon Müdürü" },
+      { name: "Sarah Johnson", position: "Müşteri Destek Müdürü" }
+    ],
+    
+    faqTitle: "Sıkça Sorulan Sorular",
+    faq: [
+      {
+        question: "Biletleri ne kadar süre önceden satın alabilirim?",
+        answer: "Çoğu rota için biletleri 3 ay öncesine kadar satın alabilirsiniz. Bazı özel rotalar ve sezonluk trenlerde farklı rezervasyon süreleri olabilir."
+      },
+      {
+        question: "Hangi ödeme yöntemlerini kabul ediyorsunuz?",
+        answer: "Tüm büyük kredi kartları, banka kartları, PayPal ve Apple Pay ile Google Pay gibi mobil ödeme çözümlerini kabul ediyoruz."
+      },
+      {
+        question: "Rezervasyonumu iptal veya değiştirebilir miyim?",
+        answer: "Evet, kalkıştan 24 saat öncesine kadar rezervasyonunuzu iptal edebilir veya değiştirebilirsiniz. Bilet türüne bağlı olarak küçük bir ücret uygulanabilir."
+      },
+      {
+        question: "Grup seyahatleri için indirim sunuyor musunuz?",
+        answer: "Evet, 10 veya daha fazla yolcudan oluşan gruplar için özel indirimler sunuyoruz. Detaylar için müşteri hizmetlerimizle iletişime geçin."
+      }
+    ],
+    
+    contactTitle: "Sorularınız mı var?",
+    contactText: "Müşteri destek ekibimiz her türlü sorunuz için 7/24 hizmetinizdedir.",
+    contactButton: "İletişime Geçin",
+    ourTeam: "Ekibimiz",
+
+    faqSubtitle: "<strong>Bilet rezervasyonları</strong>, <strong>iptal işlemleri</strong> ve <strong>iade talepleri</strong> ile ilgili sık sorulan soruların yanıtlarını bulun.",
+    faq1: [
+      {
+        category: "Rezervasyon & Biletler",
+        questions: [
+          {
+            question: "Tren bileti nasıl satın alabilirim?",
+            answer: "Tren biletlerini <strong>resmi web sitemiz veya mobil uygulamamız</strong> aracılığıyla satın alabilirsiniz. Kalkış ve varış istasyonlarını girerek seyahat tarihini seçin, tercih ettiğiniz treni ve koltuğu belirleyin ve ödeme işlemini tamamlayın.",
+          },
+          {
+            question: "Rezervasyon sonrası bileti değiştirebilir miyim?",
+            answer: "<strong>Bilet değişikliklerine izin verilmemektedir</strong>.",
+          },
+          {
+            question: "Seyahat için basılı bilete ihtiyacım var mı?",
+            answer: "Seyahat için <strong>dijital bilet (e-bilet)</strong> yeterlidir. Biletinizi <strong>e-posta</strong> ile veya <strong>mobil uygulamamız</strong> üzerinden gösterebilirsiniz. <strong>Basılı bilet isteğe bağlıdır</strong>.",
+          },
+          {
+            question: "Birden fazla yolcu için bilet satın alabilir miyim?",
+            answer: "Evet, <strong>tek bir rezervasyon</strong> içinde <strong>birden fazla yolcu</strong> ekleyebilirsiniz. Her yolcu için gerekli bilgileri <strong>rezervasyon işlemi</strong> sırasında sağlamalısınız.",
+          },
+          {
+            question: "Bilet satın almak için mobil uygulama mevcut mu?",
+            answer: "Evet, hem <strong>iOS hem de Android</strong> için <strong>mobil uygulamamız</strong> mevcuttur. Kullanıcılar uygulama üzerinden <strong>bilet satın alma, yönetme ve erişme</strong> işlemlerini kolayca yapabilir.",
+          },
+        ]
+      },
+      {
+        category: "İptal & İadeler",
+        questions: [
+          {
+            question: "Bilet iptal politikası nedir?",
+            answer: "Biletler <strong>kalkıştan 24 saat öncesine kadar</strong> iptal edilebilir ve <strong>tam iade</strong> alınabilir. <strong>24 saat içinde</strong> yapılan iptallerde %50 iptal ücreti alınır. <strong>Kalkışa 2 saat kala yapılan iptallerde iade yapılmaz</strong>.",
+          },
+          {
+            question: "İade talebini nasıl oluşturabilirim?",
+            answer: "<strong>İade talepleri</strong> <strong>web sitemiz</strong> veya <strong>mobil uygulamamız</strong> üzerindeki <strong>'Biletlerim' bölümünden</strong> oluşturulabilir. <strong>Gişeden</strong> satın alınan biletler için iadeler <strong>istasyondan</strong> talep edilmelidir.",
+          },
+          {
+            question: "Bilet başka birine devredilebilir mi?",
+            answer: "Hayır, <strong>tren biletleri devredilemez</strong>. Bilet üzerindeki <strong>isim</strong> ile yolcunun <strong>kimliği</strong> seyahat sırasında eşleşmelidir.",
+          },
+          {
+            question: "Trenim iptal edilirse ne olur?",
+            answer: "<strong>Öngörülemeyen durumlar</strong> nedeniyle tren iptal edilirse yolcular <strong>tam iade</strong> alabilir veya <strong>sonraki sefer için yeniden rezervasyon</strong> yapabilir.",
+          }
+        ]
+      }
+    ],
+    contact1: {
+      title: "İletişim",
+      subtitle: "Tren bileti ile ilgili sorularınız için buradayız. Aşağıdaki kanallardan bize ulaşabilirsiniz.",
+      phone: {
+        title: "Telefon Desteği",
+        description: "Acil durumlar için 7/24 hizmet"
+      },
+      email: {
+        title: "E-posta Gönderin",
+        description: "24 saat içinde yanıt veririz"
+      },
+      office: {
+        title: "Ofisimizi Ziyaret Edin",
+        description: "Genel Merkez",
+        address: [
+          "Maslak Mahallesi, Büyükdere Caddesi, No:237",
+          "Sarıyer, 34485 İstanbul",
+          "Türkiye"
+        ]
+      }
+    },
     }
 }
 

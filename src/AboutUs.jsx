@@ -16,18 +16,22 @@ import {
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import { useLanguage } from './LanguageContext.jsx';
+import translations from './translations.jsx';
 
-const stations = [
-  { name: "Haydarpasa Gari", image: "/haydarpasa_gari.jpg", location: "Istanbul, Turkey", info: "Gateway to Istanbul's Railway Heritage" },
-  { name: "Ankara Gari", image: "/ankara_gari.jpg", location: "Ankara, Turkey", info: "Heart of Turkey's Rail Network" },
-  { name: "Kars Gari", image: "/kars_gari.jpg", location: "Kars, Turkey", info: "Historic Hub of the Silk Road" },
-  { name: "Alsancak Gari", image: "/alsancak_gari.jpg", location: "Izmir, Turkey", info: "Izmir’s Timeless Railway Landmark" }
+const years = [2015, 2018, 2021, "Today"];
+
+const originalStations = [
+  { image: "/haydarpasa_gari.jpg" },
+  { image: "/ankara_gari.jpg" },
+  { image: "/kars_gari.jpg" },
+  { image: "/alsancak_gari.jpg" }
 ];
 
-const teamMembers = [
-  { name: "Jane Doe", position: "CEO", image: "/api/placeholder/300/300" },
-  { name: "John Smith", position: "Operations Manager", image: "/api/placeholder/300/300" },
-  { name: "Sarah Johnson", position: "Customer Support Lead", image: "/api/placeholder/300/300" }
+const originalTeamMembers = [
+  { image: "/api/placeholder/300/300" },
+  { image: "/api/placeholder/300/300" },
+  { image: "/api/placeholder/300/300" }
 ];
 
 const FAQs = [
@@ -118,6 +122,8 @@ const slideFromRight = {
 };
 
 export default function AboutUs() {
+  const { language } = useLanguage();
+  const t = translations[language];
   const [openFAQ, setOpenFAQ] = useState(null);
   const [isPageLoaded, setIsPageLoaded] = useState(false);
   const navigate = useNavigate();
@@ -166,15 +172,12 @@ export default function AboutUs() {
 
   return (
     <div className="bg-gray-50 min-h-screen">
-      {/* Hero Section with Parallax Effect */}
+      {/* Hero Section */}
       <div className="relative min-h-[40vh] md:h-128 overflow-hidden">
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ 
-            backgroundImage: `url('/api/placeholder/1600/800')`,
-            backgroundAttachment: 'fixed'
-          }}
-        >
+        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ 
+          backgroundImage: "url('/api/placeholder/1600/800')",
+          backgroundAttachment: 'fixed'
+        }}>
           <div className="absolute inset-0 bg-blue-900 bg-opacity-70"></div>
         </div>
         <motion.div 
@@ -184,23 +187,17 @@ export default function AboutUs() {
           className="relative flex items-center justify-center h-full text-center px-4 py-30 md:py-0"
         >
           <div className="max-w-4xl px-4 pt-26">
-            <motion.h1 
-              variants={itemFadeIn}
-              className="text-4xl md:text-6xl font-bold text-white mb-6"
-            >
-              About Us
+            <motion.h1 variants={itemFadeIn} className="text-4xl md:text-6xl font-bold text-white mb-6">
+              {t.aboutTitle}
             </motion.h1>
-            <motion.p 
-              variants={itemFadeIn}
-              className="text-white text-xl md:text-2xl max-w-3xl mx-auto leading-relaxed"
-            >
-              At Rail Link, we are committed to redefining train travel by making it more accessible, convenient, and enjoyable for everyone. With a strong emphasis on safety, efficiency, and innovation, we provide seamless rail services that connect cities, communities, and people. Our mission is to offer affordable, eco-friendly, and time-efficient transportation solutions, ensuring that every journey is comfortable and stress-free.
+            <motion.p variants={itemFadeIn} className="text-white text-xl md:text-2xl max-w-3xl mx-auto leading-relaxed">
+              {t.aboutText}
             </motion.p>
           </div>
         </motion.div>
       </div>
-      
-      {/* Our Mission Section */}
+
+      {/* Mission Section */}
       <motion.div 
         initial="hidden"
         whileInView="visible"
@@ -210,29 +207,18 @@ export default function AboutUs() {
       >
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <motion.h2 
-              variants={itemFadeIn}
-              className="text-3xl md:text-4xl font-bold text-gray-800 mb-4"
-            >
-              Our Mission
+            <motion.h2 variants={itemFadeIn} className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+              {t.missionTitle}
             </motion.h2>
-            <motion.div 
-              variants={scaleIn}
-              className="w-24 h-1 bg-blue-500 mx-auto mb-6"
-            ></motion.div>
-            <motion.p 
-              variants={itemFadeIn}
-              className="text-gray-600 text-lg max-w-3xl mx-auto"
-            >
-At Rail Link, our mission is to transform train travel by making it smarter, greener, and more connected. We strive to offer a seamless travel experience through cutting-edge technology, sustainable practices, and unparalleled customer service.
-
-Our goal is to create a safe, efficient, and eco-friendly transportation network that enhances mobility for everyone. By continuously innovating and improving, we ensure that every journey is not just a trip, but a comfortable, enjoyable, and stress-free experience.
+            <motion.div variants={scaleIn} className="w-24 h-1 bg-blue-500 mx-auto mb-6"></motion.div>
+            <motion.p variants={itemFadeIn} className="text-gray-600 text-lg max-w-3xl mx-auto">
+              {t.missionText}
             </motion.p>
           </div>
         </div>
       </motion.div>
-      
-      {/* Why Choose Us Section */}
+
+      {/* Why Choose Us */}
       <div className="py-16 px-4 bg-white">
         <div className="max-w-5xl mx-auto">
           <motion.div 
@@ -242,18 +228,17 @@ Our goal is to create a safe, efficient, and eco-friendly transportation network
             variants={fadeIn}
             className="text-center mb-12"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Why Choose Us</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">{t.whyChooseUsTitle}</h2>
             <div className="w-24 h-1 bg-blue-500 mx-auto mb-6"></div>
           </motion.div>
           
           <div className="flex flex-col md:flex-row items-center gap-8">
-            {/* Image Section */}
             <motion.div 
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.3 }}
               variants={slideFromLeft}
-              className="w-full md:w-1/2 overflow-hidden rounded-2xl shadow-xl"
+              className="w-full md:w-1/2 overflow-hidden rounded-2xl"
             >
               <img 
                 src="logo.png"
@@ -262,7 +247,6 @@ Our goal is to create a safe, efficient, and eco-friendly transportation network
               />
             </motion.div>
       
-            {/* Text Section */}
             <motion.div 
               initial="hidden"
               whileInView="visible"
@@ -271,48 +255,24 @@ Our goal is to create a safe, efficient, and eco-friendly transportation network
               className="w-full md:w-1/2 p-6"
             >
               <div className="space-y-8">
-                <motion.div variants={itemFadeIn} className="flex gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
-                    <FaShieldAlt className="text-xl text-blue-600" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold text-gray-800 mb-2">Secure Booking</h3>
-                    <p className="text-gray-600">
-                      State-of-the-art encryption and secure payment gateways to protect your personal and financial information.
-                    </p>
-                  </div>
-                </motion.div>
-                
-                <motion.div variants={itemFadeIn} className="flex gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
-                    <FaClock className="text-xl text-green-600" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold text-gray-800 mb-2">Real-Time Updates</h3>
-                    <p className="text-gray-600">
-                      Instant notifications about schedule changes, delays, or platform updates directly to your device.
-                    </p>
-                  </div>
-                </motion.div>
-                
-                <motion.div variants={itemFadeIn} className="flex gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center">
-                    <FaMapMarkedAlt className="text-xl text-orange-600" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold text-gray-800 mb-2">Extensive Network</h3>
-                    <p className="text-gray-600">
-                      Access to an extensive network of train routes covering major cities and hidden gems alike.
-                    </p>
-                  </div>
-                </motion.div>
+                {Object.values(t.features).map((feature, index) => (
+                  <motion.div key={index} variants={itemFadeIn} className="flex gap-4">
+                    <div className="flex-shrink-0 w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
+                      <FaShieldAlt className="text-xl text-blue-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-semibold text-gray-800 mb-2">{feature.title}</h3>
+                      <p className="text-gray-600">{feature.text}</p>
+                    </div>
+                  </motion.div>
+                ))}
               </div>
             </motion.div>
           </div>
         </div>
       </div>
-      
-      {/* Key Features Grid */}
+
+      {/* Services */}
       <div className="py-16 px-4 bg-gray-50">
         <div className="max-w-6xl mx-auto">
           <motion.div 
@@ -322,7 +282,7 @@ Our goal is to create a safe, efficient, and eco-friendly transportation network
             variants={fadeIn}
             className="text-center mb-12"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Our Services</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">{t.servicesTitle}</h2>
             <div className="w-24 h-1 bg-blue-500 mx-auto mb-6"></div>
           </motion.div>
           
@@ -333,46 +293,25 @@ Our goal is to create a safe, efficient, and eco-friendly transportation network
             variants={staggerContainer}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
           >
-            <motion.div 
-              variants={itemFadeIn}
-              whileHover={{ y: -10, transition: { duration: 0.3 } }}
-              className="bg-white p-8 rounded-2xl shadow-md text-center"
-            >
-              <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <FaTrain className="text-2xl text-blue-600" />
-              </div>
-              <h3 className="text-xl font-semibold mt-4 text-gray-800">Wide Route Options</h3>
-              <p className="text-gray-600 mt-2">Access hundreds of destinations with flexible scheduling options.</p>
-            </motion.div>
-
-            <motion.div 
-              variants={itemFadeIn}
-              whileHover={{ y: -10, transition: { duration: 0.3 } }}
-              className="bg-white p-8 rounded-2xl shadow-md text-center"
-            >
-              <div className="bg-orange-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <FaUsers className="text-2xl text-orange-600" />
-              </div>
-              <h3 className="text-xl font-semibold mt-4 text-gray-800">24/7 Customer Support</h3>
-              <p className="text-gray-600 mt-2">Our dedicated team is available around the clock to assist you.</p>
-            </motion.div>
-
-            <motion.div 
-              variants={itemFadeIn}
-              whileHover={{ y: -10, transition: { duration: 0.3 } }}
-              className="bg-white p-8 rounded-2xl shadow-md text-center"
-            >
-              <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <FaHandshake className="text-2xl text-green-600" />
-              </div>
-              <h3 className="text-xl font-semibold mt-4 text-gray-800">Best Price Guarantee</h3>
-              <p className="text-gray-600 mt-2">We'll match or beat any competitor's price for the same route.</p>
-            </motion.div>
+            {Object.values(t.services).map((service, index) => (
+              <motion.div 
+                key={index}
+                variants={itemFadeIn}
+                whileHover={{ y: -10, transition: { duration: 0.3 } }}
+                className="bg-white p-8 rounded-2xl shadow-md text-center"
+              >
+                <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <FaTrain className="text-2xl text-blue-600" />
+                </div>
+                <h3 className="text-xl font-semibold mt-4 text-gray-800">{service.title}</h3>
+                <p className="text-gray-600 mt-2">{service.text}</p>
+              </motion.div>
+            ))}
           </motion.div>
         </div>
       </div>
 
-      {/* Our History Timeline */}
+      {/* History */}
       <div className="py-16 px-4 bg-white">
         <div className="max-w-6xl mx-auto">
           <motion.div 
@@ -382,7 +321,7 @@ Our goal is to create a safe, efficient, and eco-friendly transportation network
             variants={fadeIn}
             className="text-center mb-12"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Our Journey</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">{t.historyTitle}</h2>
             <div className="w-24 h-1 bg-blue-500 mx-auto mb-6"></div>
           </motion.div>
           
@@ -393,52 +332,20 @@ Our goal is to create a safe, efficient, and eco-friendly transportation network
             variants={staggerContainer}
             className="relative border-l-4 border-blue-500 ml-6 md:ml-0 md:mx-auto md:max-w-3xl pl-6 pb-6 space-y-12"
           >
-            <motion.div variants={itemFadeIn} className="relative">
-              <div className="absolute -left-10 mt-1.5 w-6 h-6 rounded-full bg-blue-500 border-4 border-white"></div>
-              <div>
-                <h3 className="text-xl font-bold text-gray-800">2015</h3>
-                <p className="text-gray-600 mt-2">
-                  Founded as a small startup with a vision to make train travel accessible to everyone.
-                </p>
-              </div>
-            </motion.div>
-            
-            <motion.div variants={itemFadeIn} className="relative">
-              <div className="absolute -left-10 mt-1.5 w-6 h-6 rounded-full bg-blue-500 border-4 border-white"></div>
-              <div>
-                <h3 className="text-xl font-bold text-gray-800">2018</h3>
-                <p className="text-gray-600 mt-2">
-                  Expanded our network to cover 50+ cities and launched our award-winning mobile app.
-                </p>
-              </div>
-            </motion.div>
-            
-            <motion.div variants={itemFadeIn} className="relative">
-              <div className="absolute -left-10 mt-1.5 w-6 h-6 rounded-full bg-blue-500 border-4 border-white"></div>
-              <div>
-                <h3 className="text-xl font-bold text-gray-800">2021</h3>
-                <p className="text-gray-600 mt-2">
-                  Reached the milestone of serving over 1 million customers and expanded internationally.
-                </p>
-              </div>
-            </motion.div>
-            
-            <motion.div variants={itemFadeIn} className="relative">
-              <div className="absolute -left-10 mt-1.5 w-6 h-6 rounded-full bg-blue-500 border-4 border-white"></div>
-              <div>
-                <h3 className="text-xl font-bold text-gray-800">Today</h3>
-                <p className="text-gray-600 mt-2">
-                  Leading the industry with innovative technology and an unwavering commitment to customer satisfaction.
-                </p>
-              </div>
-            </motion.div>
+            {t.timeline.map((entry, index) => (
+              <motion.div key={index} variants={itemFadeIn} className="relative">
+                <div className="absolute -left-10 mt-1.5 w-6 h-6 rounded-full bg-blue-500 border-4 border-white"></div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-800">{years[index]}</h3>
+                  <p className="text-gray-600 mt-2">{entry}</p>
+                </div>
+              </motion.div>
+            ))}
           </motion.div>
         </div>
       </div>
 
-      
-      
-      {/* Train Stations Showcase */}
+      {/* Stations */}
       <motion.div 
         initial="hidden"
         whileInView="visible"
@@ -448,25 +355,20 @@ Our goal is to create a safe, efficient, and eco-friendly transportation network
       >
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Stations We Serve</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">{t.stationsTitle}</h2>
             <div className="w-24 h-1 bg-blue-500 mx-auto mb-6"></div>
-            <p className="text-gray-600 text-lg max-w-3xl mx-auto">
-              Explore some of the beautiful and historic train stations in our network.
-            </p>
+            <p className="text-gray-600 text-lg max-w-3xl mx-auto">{t.stationsSubtitle}</p>
           </div>
           
-          <motion.div 
-            variants={scaleIn}
-            className="station-slider"
-          >
+          <motion.div variants={scaleIn} className="station-slider">
             <Slider {...sliderSettings}>
-              {stations.map((station, index) => (
+              {t.stations.map((station, index) => (
                 <div key={index} className="px-4">
                   <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
                     <div className="h-160 overflow-hidden">
                       <motion.img 
                         whileHover={{ scale: 1.05, transition: { duration: 0.5 } }}
-                        src={station.image} 
+                        src={originalStations[index].image} 
                         alt={station.name} 
                         className="w-full h-full object-cover"
                       />
@@ -477,40 +379,77 @@ Our goal is to create a safe, efficient, and eco-friendly transportation network
                       <p className="text-gray-600 mt-3">{station.info}</p>
                     </div>
                   </div>
-                </div>
+                </div> 
               ))}
             </Slider>
           </motion.div>
         </div>
       </motion.div>
-      
-      
-      
-      {/* Contact CTA */}
+
+      {/* FAQs */}
+      <div className="py-16 px-4 bg-gray-50">
+        <div className="max-w-4xl mx-auto">
+          <motion.div 
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.3 }}
+            variants={fadeIn}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">{t.faqTitle}</h2>
+            <div className="w-24 h-1 bg-blue-500 mx-auto mb-6"></div>
+          </motion.div>
+          
+          <div className="space-y-4">
+            {t.faq.map((faq, index) => (
+              <motion.div 
+                key={index}
+                variants={itemFadeIn}
+                className="bg-white rounded-lg shadow-md overflow-hidden"
+              >
+                <div 
+                  className="p-4 flex justify-between items-center cursor-pointer hover:bg-gray-50"
+                  onClick={() => toggleFAQ(index)}
+                >
+                  <h3 className="font-semibold text-gray-800">{faq.question}</h3>
+                  {openFAQ === index ? <FaChevronUp /> : <FaChevronDown />}
+                </div>
+                {openFAQ === index && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="p-4 pt-0 text-gray-600"
+                  >
+                    {faq.answer}
+                  </motion.div>
+                )}
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Contact */}
       <motion.div 
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, amount: 0.3 }}
+        viewport={{ once: true, amount: 0.1 }}
         variants={fadeIn}
         className="py-16 px-4 bg-blue-600 text-white"
       >
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">Have Questions?</h2>
-          <p className="text-xl mb-8">
-            Our customer support team is available 24/7 to assist you with any inquiries.
-          </p>
+          <h2 className="text-3xl md:text-4xl font-bold mb-6">{t.contactTitle}</h2>
+          <p className="text-xl mb-8">{t.contactText}</p>
           <motion.button 
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="bg-white text-blue-600 font-bold py-3 px-8 rounded-full text-lg hover:bg-blue-50 transition-colors duration-300"
-            onClick={()=>navigate('/contact')}
+            onClick={() => navigate('/contact')}
           >
-            Contact Us
+            {t.contactButton}
           </motion.button>
         </div>
       </motion.div>
-
-      
     </div>
   );
 }
