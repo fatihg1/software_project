@@ -8,6 +8,8 @@ import Sidebar from './Sidebar';
 import MultilingualComponent from './MultiLingual.jsx';
 import {useLanguage} from './LanguageContext.jsx';
 import translations from './translations.jsx';
+import { useEffect } from 'react';
+
 function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -45,6 +47,40 @@ function Navbar() {
   };
   
   const userRole = getUserRole();
+
+  useEffect(() => {
+    if (isSignedIn && user) {
+      const fullName = user.fullName || user.username || "Unnamed";
+      const defaultRole = "user";
+  
+      fetch("http://localhost:8080/users", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: fullName,
+          role: defaultRole,
+        }),
+      })
+        .then((res) => {
+          if (!res.ok) {
+            console.log("Kullanıcı zaten kayıtlı olabilir.");
+            return;
+          }
+          return res.json();
+        })
+        .then((data) => {
+          if (data) {
+            console.log("Kullanıcı backend'e kaydedildi:", data);
+          }
+        })
+        .catch((err) => {
+          console.error("Backend kullanıcı ekleme hatası:", err.message);
+        });
+    }
+  }, [isSignedIn, user]);
+  
 
   return (
     <div className="bg-gradient-to-r from-blue-900 to-blue-800 text-white fixed w-full p-3 z-50 shadow-lg">
