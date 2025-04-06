@@ -475,6 +475,95 @@ const translations = {
           note: "Please save this number for future reference."
         }
       },
+        //about us
+      aboutTitle: "About Us",
+    aboutText: "At Rail Link, we are committed to redefining train travel by making it more accessible, convenient, and enjoyable for everyone. With a strong emphasis on safety, efficiency, and innovation, we provide seamless rail services that connect cities, communities, and people. Our mission is to offer affordable, eco-friendly, and time-efficient transportation solutions, ensuring that every journey is comfortable and stress-free.",
+    
+    missionTitle: "Our Mission",
+    missionText: "At Rail Link, our mission is to transform train travel by making it smarter, greener, and more connected. We strive to offer a seamless travel experience through cutting-edge technology, sustainable practices, and unparalleled customer service. Our goal is to create a safe, efficient, and eco-friendly transportation network that enhances mobility for everyone.",
+    
+    whyChooseUsTitle: "Why Choose Us",
+    features: {
+      secureBooking: "Secure Booking",
+      secureText: "State-of-the-art encryption and secure payment gateways to protect your personal and financial information.",
+      realTime: "Real-Time Updates",
+      realTimeText: "Instant notifications about schedule changes, delays, or platform updates directly to your device.",
+      network: "Extensive Network",
+      networkText: "Access to an extensive network of train routes covering major cities and hidden gems alike."
+    },
+    
+    servicesTitle: "Our Services",
+    services: {
+      routeOptions: "Wide Route Options",
+      routeText: "Access hundreds of destinations with flexible scheduling options.",
+      support: "24/7 Customer Support",
+      supportText: "Our dedicated team is available around the clock to assist you.",
+      price: "Best Price Guarantee",
+      priceText: "We'll match or beat any competitor's price for the same route."
+    },
+    
+    historyTitle: "Our Journey",
+    timeline: [
+      "Founded as a small startup with a vision to make train travel accessible to everyone.",
+      "Expanded our network to cover 50+ cities and launched our award-winning mobile app.",
+      "Reached the milestone of serving over 1 million customers and expanded internationally.",
+      "Leading the industry with innovative technology and an unwavering commitment to customer satisfaction."
+    ],
+    
+    stationsTitle: "Stations We Serve",
+    stationsSubtitle: "Explore some of the beautiful and historic train stations in our network.",
+    stations: [
+      { 
+        name: "Haydarpasa Station", 
+        location: "Istanbul, Turkey",
+        info: "Gateway to Istanbul's Railway Heritage"
+      },
+      { 
+        name: "Ankara Station", 
+        location: "Ankara, Turkey",
+        info: "Heart of Turkey's Rail Network"
+      },
+      { 
+        name: "Kars Station", 
+        location: "Kars, Turkey",
+        info: "Historic Hub of the Silk Road"
+      },
+      { 
+        name: "Alsancak Station", 
+        location: "Izmir, Turkey",
+        info: "Izmir's Timeless Railway Landmark"
+      }
+    ],
+    
+    teamMembers: [
+      { name: "Jane Doe", position: "CEO" },
+      { name: "John Smith", position: "Operations Manager" },
+      { name: "Sarah Johnson", position: "Customer Support Lead" }
+    ],
+    
+    faqTitle: "Frequently Asked Questions",
+    faq: [
+      {
+        question: "How far in advance can I book tickets?",
+        answer: "You can book tickets up to 3 months in advance for most routes. Some special routes and seasonal trains may have different booking windows."
+      },
+      {
+        question: "What payment methods do you accept?",
+        answer: "We accept all major credit cards, debit cards, PayPal, and mobile payment solutions including Apple Pay and Google Pay."
+      },
+      {
+        question: "Can I cancel or modify my booking?",
+        answer: "Yes, you can cancel or modify your booking up to 24 hours before departure. A small fee may apply depending on your ticket type."
+      },
+      {
+        question: "Do you offer discounts for group travel?",
+        answer: "Yes, we offer special discounts for groups of 10 or more travelers. Please contact our customer service for more details."
+      }
+    ],
+    
+    contactTitle: "Have Questions?",
+    contactText: "Our customer support team is available 24/7 to assist you with any inquiries.",
+    contactButton: "Contact Us"
     },
     tr: {
         //navbar
@@ -934,6 +1023,94 @@ const translations = {
           note: "Lütfen bu numarayı gelecekte referans için saklayın."
         }
       },
+        aboutTitle: "Hakkımızda",
+    aboutText: "Rail Link olarak, tren yolculuğunu herkes için daha erişilebilir, kullanışlı ve keyifli hale getirerek yeniden tanımlamaya kararlıyız. Güvenlik, verimlilik ve yeniliğe yaptığımız güçlü vurgu ile şehirleri, toplulukları ve insanları birbirine bağlayan kesintisiz demiryolu hizmetleri sunuyoruz. Misyonumuz, her yolculuğun konforlu ve stressiz olmasını sağlayarak uygun fiyatlı, çevre dostu ve zaman açısından verimli ulaşım çözümleri sunmaktır.",
+    
+    missionTitle: "Misyonumuz",
+    missionText: "Rail Link'te misyonumuz, tren yolculuğunu daha akıllı, daha yeşil ve daha bağlantılı hale getirerek dönüştürmektir. En son teknoloji, sürdürülebilir uygulamalar ve benzersiz müşteri hizmetleri ile kesintisiz bir seyahat deneyimi sunmak için çabalıyoruz. Amacımız, herkes için hareketliliği artıran güvenli, verimli ve çevre dostu bir ulaşım ağı oluşturmaktır.",
+    
+    whyChooseUsTitle: "Neden Bizi Tercih Etmelisiniz?",
+    features: {
+      secureBooking: "Güvenli Rezervasyon",
+      secureText: "Kişisel ve finansal bilgilerinizi korumak için son teknoloji şifreleme ve güvenli ödeme sistemleri.",
+      realTime: "Gerçek Zamanlı Güncellemeler",
+      realTimeText: "Program değişiklikleri, gecikmeler veya peron güncellemeleri hakkında anında bildirimler.",
+      network: "Geniş Ağ",
+      networkText: "Büyük şehirleri ve gizli kalmış yerleri kapsayan geniş tren rotaları ağına erişim."
+    },
+    
+    servicesTitle: "Hizmetlerimiz",
+    services: {
+      routeOptions: "Geniş Rota Seçenekleri",
+      routeText: "Esnek programlama seçenekleriyle yüzlerce varış noktasına erişim.",
+      support: "7/24 Müşteri Desteği",
+      supportText: "Adanmış ekibimiz size yardımcı olmak için her zaman hazır.",
+      price: "En İyi Fiyat Garantisi",
+      priceText: "Aynı rota için rakip fiyatlarıyla eşleşiyor veya daha iyi fiyat sunuyoruz."
+    },
+    
+    historyTitle: "Tarihçemiz",
+    timeline: [
+      "Tren yolculuğunu herkes için erişilebilir kılma vizyonuyla küçük bir startup olarak kurulduk.",
+      "50'den fazla şehri kapsayan ağımızı genişlettik ve ödüllü mobil uygulamamızı başlattık.",
+      "1 milyondan fazla müşteriye hizmet verme dönüm noktasına ulaştık ve uluslararası genişledik.",
+      "Yenilikçi teknoloji ve müşteri memnuniyetine sarsılmaz bağlılıkla sektöre liderlik ediyoruz."
+    ],
+    
+    stationsTitle: "Hizmet Verdiğimiz İstasyonlar",
+    stationsSubtitle: "Ağımızdaki güzel ve tarihi tren istasyonlarından bazılarını keşfedin.",
+    stations: [
+      { 
+        name: "Haydarpaşa Garı", 
+        location: "İstanbul, Türkiye",
+        info: "İstanbul'un Demiryolu Mirasına Açılan Kapı"
+      },
+      { 
+        name: "Ankara Garı", 
+        location: "Ankara, Türkiye",
+        info: "Türkiye Demiryolu Ağının Kalbi"
+      },
+      { 
+        name: "Kars Garı", 
+        location: "Kars, Türkiye",
+        info: "İpek Yolu'nun Tarihi Merkezi"
+      },
+      { 
+        name: "Alsancak Garı", 
+        location: "İzmir, Türkiye",
+        info: "İzmir'in Zamansız Demiryolu Simgesi"
+      }
+    ],
+    
+    teamMembers: [
+      { name: "Jane Doe", position: "Genel Müdür" },
+      { name: "John Smith", position: "Operasyon Müdürü" },
+      { name: "Sarah Johnson", position: "Müşteri Destek Müdürü" }
+    ],
+    
+    faqTitle: "Sıkça Sorulan Sorular",
+    faq: [
+      {
+        question: "Biletleri ne kadar süre önceden satın alabilirim?",
+        answer: "Çoğu rota için biletleri 3 ay öncesine kadar satın alabilirsiniz. Bazı özel rotalar ve sezonluk trenlerde farklı rezervasyon süreleri olabilir."
+      },
+      {
+        question: "Hangi ödeme yöntemlerini kabul ediyorsunuz?",
+        answer: "Tüm büyük kredi kartları, banka kartları, PayPal ve Apple Pay ile Google Pay gibi mobil ödeme çözümlerini kabul ediyoruz."
+      },
+      {
+        question: "Rezervasyonumu iptal veya değiştirebilir miyim?",
+        answer: "Evet, kalkıştan 24 saat öncesine kadar rezervasyonunuzu iptal edebilir veya değiştirebilirsiniz. Bilet türüne bağlı olarak küçük bir ücret uygulanabilir."
+      },
+      {
+        question: "Grup seyahatleri için indirim sunuyor musunuz?",
+        answer: "Evet, 10 veya daha fazla yolcudan oluşan gruplar için özel indirimler sunuyoruz. Detaylar için müşteri hizmetlerimizle iletişime geçin."
+      }
+    ],
+    
+    contactTitle: "Sorularınız mı var?",
+    contactText: "Müşteri destek ekibimiz her türlü sorunuz için 7/24 hizmetinizdedir.",
+    contactButton: "İletişime Geçin"
     }
 }
 
