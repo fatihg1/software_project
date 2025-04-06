@@ -15,7 +15,7 @@ const translations = {
         bookTickets: "Book Tickets",
         myTickets: "My Tickets",
         oneWay: "One Way",
-        roundTrip: "Round Trip",
+        
         departure: "From",
         arrival: "To",
         departureStation: "Departure Station",
@@ -72,21 +72,21 @@ const translations = {
         selectDeparture: "Select Departure",
         selectReturn: "Select Destination",
         findTrainText: "Search and book train tickets across Turkey",
-        selectDeparture: "Select Departure",
-        selectReturn: "Select Destination",
-        outboundDate: "Outbound Date",
-        searchTrains: "Search Trains",
+        
+        
+        
+        
         noTrainFound: "No outbound trains found",
         noTrainFoundText: "Try adjusting your search criteria",
-        continueBooking:"Continue to Booking",
+       
         trainSelection: "Train Selection",
         selectJourney: "Select Your Journey",
         seatSelection: "Seat Selection",
         chooseSeat: "Choose Your Seat",
-        paymentDetails: "Payment Details",
+        
         completePayment: "Complete Your Payment",
         outboundDate: "Outbound Date",
-        returnDate: "Return Date",
+        
         searching: "Searching...",
         searchTrains: "Search Trains",
         outboundFound: "outbound trains found",//durak ismi entegre etme
@@ -95,7 +95,7 @@ const translations = {
         noOutboundFound: "No outbound trains found",
         tryAdjusting: "Try adjusting your search criteria",
         continueBooking:"Continue to Booking",
-        seatsLeft: "Only {count} seats left!",
+        
         seatsAvailable: "{count} seats available",
         currencySymbol: "$",
         hoursAbbr: "h",
@@ -119,7 +119,7 @@ const translations = {
         outboundSeats: "Outbound Train Seats",
         returnSeats: "Return Train Seats",
         noSeatsSelected: "No seats selected",
-        wagonSeat: "Wagon {wagon}, Seat {seat}",
+        
         backButton: "Back",
         continueToPayment: "Continue to Payment",
         seatSelectionError: "Please select the same number of seats for both outbound and return trains",
@@ -165,7 +165,7 @@ const translations = {
     birthDate: "Birth Date",
     birthDateInvalid: "Invalid birth date format (DD/MM/YYYY)",
     termsAgreement: "I agree to the ",
-    termsAndConditions: "terms and conditions",
+    
     termsAgreementError: "You must agree to the terms before proceeding",
     totalPrice: "Total Ticket Price",
     proceedToPayment: "Proceed to Payment",
@@ -494,13 +494,13 @@ const translations = {
         bookTickets: "Bilet Al",
         myTickets: "Biletlerim",
         oneWay: "Tek Yön",
-        roundTrip: "Gidiş-Dönüş",
+        
         departure: "Nereden",
         arrival: "Nereye",
         departureStation: "Ayrılış İstasyonu",
         arrivalStation: "Varış İstasyonu",
         departureDate: "Ayrılış Tarihi",
-        returnDate: "Dönüş Tarihi",
+        
         today: "Bugün",
         tomorrow: "Yarın",
         same: "Aynı",
@@ -563,7 +563,7 @@ const translations = {
         noTrainFoundText: "Arama kriterlerinizi ayarlamayı deneyin",
         tryAdjusting: "Arama kriterlerinizi ayarlamayı deneyin",
         continueBooking:"Rezervasyona Devam Et",
-        seatsLeft: "Sadece {count} koltuk kaldı!",
+        
         seatsAvailable: "{count} koltuk müsait",
         currencySymbol: "₺",
         hoursAbbr: "sa",
@@ -582,7 +582,7 @@ const translations = {
         outboundSeats: "Gidiş Treni Koltukları",
         returnSeats: "Dönüş Treni Koltukları",
         noSeatsSelected: "Seçili koltuk yok",
-        wagonSeat: "Vagon {wagon}, Koltuk {seat}",
+        
         backButton: "Geri",
         continueToPayment: "Ödemeye Geç",
         seatSelectionError: "Lütfen gidiş ve dönüş trenleri için aynı sayıda koltuk seçin",
@@ -627,7 +627,7 @@ const translations = {
     birthDate: "Doğum Tarihi",
     birthDateInvalid: "Geçersiz doğum tarihi formatı (GG/AA/YYYY)",
     termsAgreement: "Şartları kabul ediyorum ",
-    termsAndConditions: "kullanım koşullarını",
+    
     termsAgreementError: "Devam etmek için şartları kabul etmelisiniz",
     totalPrice: "Toplam Bilet Ücreti",
     proceedToPayment: "Ödemeye Geç",
