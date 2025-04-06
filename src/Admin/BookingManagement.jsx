@@ -4,14 +4,8 @@ import { useNavigate } from "react-router-dom";
 
 const BookingManagement = () => {
   const navigate = useNavigate();
-  const [bookings, setBookings] = useState([
-    { id: 1, user: "Ali Yılmaz", train: "Istanbul - Ankara", date: "2024-03-10", status: "Confirmed" },
-    { id: 2, user: "Ayşe Kaya", train: "Izmir - Istanbul", date: "2024-03-12", status: "Pending" },
-    { id: 3, user: "Mehmet Demir", train: "Ankara - Izmir", date: "2024-03-15", status: "Canceled" },
-    { id: 4, user: "Fatma Aydın", train: "Konya - Istanbul", date: "2024-03-18", status: "Pending" },
-    { id: 5, user: "Burak Can", train: "Antalya - Izmir", date: "2024-03-20", status: "Confirmed" },
-    { id: 6, user: "Emre Güler", train: "Bursa - Ankara", date: "2024-03-22", status: "Canceled" },
-  ]);
+  const [bookings, setBookings] = useState([]);
+
 
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
@@ -24,6 +18,12 @@ const BookingManagement = () => {
   
   // Detect mobile screen and handle sidebar accordingly
   useEffect(() => {
+
+    fetch("http://localhost:8080/bookings")
+    .then((res) => res.json())
+    .then((data) => setBookings(data))
+    .catch((err) => console.error("Error fetching bookings:", err));
+
     const handleResize = () => {
       const mobile = window.innerWidth < 768;
       setIsMobile(mobile);
@@ -64,19 +64,41 @@ const BookingManagement = () => {
   };
 
   // Change Booking Status
-  const changeStatus = (id, newStatus) => {
-    setBookings(bookings.map(booking => 
-      booking.id === id ? { ...booking, status: newStatus } : booking
-    ));
-  };
+const changeStatus = (id, newStatus) => {
+  const bookingToUpdate = bookings.find((b) => b.id === id);
+  if (!bookingToUpdate) return;
+
+  const updatedBooking = { ...bookingToUpdate, status: newStatus };
+
+  fetch(`http://localhost:8080/bookings/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(updatedBooking),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      setBookings((prev) =>
+        prev.map((b) => (b.id === id ? data : b))
+      );
+    })
+    .catch((err) => console.error("Update failed:", err));
+};
+
 
   // Delete Confirmation Dialog
   const deleteBooking = (id) => {
     const confirmDelete = window.confirm("Are you sure you want to delete this booking?");
-    if (confirmDelete) {
-      setBookings(bookings.filter(booking => booking.id !== id));
-    }
+    if (!confirmDelete) return;
+  
+    fetch(`http://localhost:8080/bookings/${id}`, {
+      method: "DELETE",
+    })
+      .then(() => {
+        setBookings((prev) => prev.filter((b) => b.id !== id));
+      })
+      .catch((err) => console.error("Delete failed:", err));
   };
+  
 
   return (
     <div className="bg-gray-100 min-h-screen relative">

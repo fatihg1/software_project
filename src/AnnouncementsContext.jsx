@@ -1,60 +1,31 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
 
-// Create the context
+// Context oluştur
 const AnnouncementsContext = createContext();
 
-// Provider component
+// Provider bileşeni
 export const AnnouncementsProvider = ({ children }) => {
-  const [announcements, setAnnouncements] = useState([
-    {
-      id: 1,
-      title: 'Welcome to Our Service',
-      content: 'We are excited to launch our new help center!',
-      date: '2024-03-05',
-      priority: 'high'
-    }
-  ]);
+  const [announcements, setAnnouncements] = useState([]);
 
-  // Function to add a new announcement
-  const addAnnouncement = (newAnnouncement) => {
-    const announcementWithId = {
-      ...newAnnouncement,
-      id: Date.now() // Use timestamp as unique ID
-    };
-    setAnnouncements([...announcements, announcementWithId]);
-  };
-
-  // Function to remove an announcement
-  const removeAnnouncement = (id) => {
-    setAnnouncements(announcements.filter(announcement => announcement.id !== id));
-  };
-
-  // Function to update an existing announcement
-  const updateAnnouncement = (id, updatedAnnouncement) => {
-    setAnnouncements(announcements.map(announcement => 
-      announcement.id === id ? { ...announcement, ...updatedAnnouncement } : announcement
-    ));
-  };
+  useEffect(() => {
+    fetch("http://localhost:8080/announcements")
+      .then(res => res.json())
+      .then(data => setAnnouncements(data))
+      .catch(err => console.error("Duyuru verileri çekilemedi:", err));
+  }, []);
 
   return (
-    <AnnouncementsContext.Provider 
-      value={{ 
-        announcements, 
-        addAnnouncement, 
-        removeAnnouncement, 
-        updateAnnouncement 
-      }}
-    >
+    <AnnouncementsContext.Provider value={{ announcements }}>
       {children}
     </AnnouncementsContext.Provider>
   );
 };
 
-// Custom hook to use the Announcements context
+// Hook
 export const useAnnouncements = () => {
   const context = useContext(AnnouncementsContext);
   if (!context) {
-    throw new Error('useAnnouncements must be used within an AnnouncementsProvider');
+    throw new Error('useAnnouncements sadece AnnouncementsProvider içinde kullanılabilir');
   }
   return context;
 };
