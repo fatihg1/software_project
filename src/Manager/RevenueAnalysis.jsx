@@ -11,6 +11,14 @@ const RevenueAnalysis = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   
+  useEffect(() => {
+    fetch("http://localhost:8080/revenue")
+      .then((res) => res.json())
+      .then((data) => setRevenueData(data))
+      .catch((err) => console.error("Error fetching revenue data:", err));
+  }, []);
+
+  
   // Handle responsive behavior
   useEffect(() => {
     const handleResize = () => {

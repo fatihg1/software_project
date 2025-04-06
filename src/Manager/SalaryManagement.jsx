@@ -4,13 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 const SalaryManagement = () => {
   const navigate = useNavigate();
-  const [employees, setEmployees] = useState([
-    { id: 1, name: "Ayşe Kaya", role: "admin", salary: 10000, status: "Unpaid" },
-    { id: 2, name: "Fatma Aydın", role: "manager", salary: 9000, status: "Paid" },
-    { id: 3, name: "Zeynep Arslan", role: "admin", salary: 11000, status: "Unpaid" },
-    { id: 4, name: "Emre Güler", role: "manager", salary: 9500, status: "Paid" },
-    { id: 5, name: "Gizem Polat", role: "admin", salary: 10200, status: "Unpaid" },
-  ]);
+  const [employees, setEmployees] = useState([]);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [salaryFilter, setSalaryFilter] = useState("All");
@@ -19,6 +13,14 @@ const SalaryManagement = () => {
   const [isMobile, setIsMobile] = useState(false);
   const employeesPerPage = 7;
 
+
+  useEffect(() => {
+    fetch("http://localhost:8080/salary")
+      .then((res) => res.json())
+      .then((data) => setEmployees(data))
+      .catch((err) => console.error("Error fetching salary data:", err));
+  }, []);
+  
   // Handle responsive behavior
   useEffect(() => {
     const handleResize = () => {
@@ -61,25 +63,56 @@ const SalaryManagement = () => {
 
   // Update Salary
   const updateSalary = (id, newSalary) => {
-    setEmployees(employees.map(employee =>
-      employee.id === id ? { ...employee, salary: newSalary } : employee
-    ));
+    const employee = employees.find((e) => e.id === id);
+    const updated = { ...employee, salary: newSalary };
+  
+    fetch(`http://localhost:8080/salary/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updated),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setEmployees(employees.map((e) => (e.id === id ? data : e)));
+      })
+      .catch((err) => console.error("Error updating salary:", err));
   };
+  
 
   // Mark Salary as Paid/Unpaid
   const togglePaymentStatus = (id) => {
-    setEmployees(employees.map(employee =>
-      employee.id === id ? { ...employee, status: employee.status === "Paid" ? "Unpaid" : "Paid" } : employee
-    ));
+    const employee = employees.find((e) => e.id === id);
+    const updated = { ...employee, status: employee.status === "Paid" ? "Unpaid" : "Paid" };
+  
+    fetch(`http://localhost:8080/salary/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updated),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setEmployees(employees.map((e) => (e.id === id ? data : e)));
+      })
+      .catch((err) => console.error("Error updating status:", err));
   };
+  
 
   // Delete Confirmation Dialog
   const deleteEmployee = (id) => {
     const confirmDelete = window.confirm("Are you sure you want to remove this employee from payroll?");
-    if (confirmDelete) {
-      setEmployees(employees.filter((employee) => employee.id !== id));
-    }
+    if (!confirmDelete) return;
+  
+    fetch(`http://localhost:8080/salary/${id}`, {
+      method: "DELETE",
+    })
+      .then(() => setEmployees(employees.filter((e) => e.id !== id)))
+      .catch((err) => console.error("Error deleting employee:", err));
   };
+  
 
   return (
     <div className="bg-gray-100 min-h-screen relative">

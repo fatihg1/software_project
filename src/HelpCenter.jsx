@@ -45,16 +45,41 @@ const HelpCenter = () => {
     ).join('');
   };
 
-  const handleSubmitAppeal = (e) => {
+  const handleSubmitAppeal = async (e) => {
     e.preventDefault();
-    const newAppealNumber = generateAppealNumber();
-    setSubmissionConfirmation(newAppealNumber);
-    // Reset form
-    setAppealType('');
-    setContactInfo({ name: '', surname: '', phoneNumber: '', email: '' });
-    setTravelInfo({ ticketId: '', departureStation: '', arrivalStation: '' });
-    setAppealContext('');
+  
+    const newAppeal = {
+      user: `${contactInfo.name} ${contactInfo.surname}`,
+      subject: appealType,
+      message: appealContext,
+      date: new Date().toISOString()
+    };
+  
+    try {
+      const response = await fetch("http://localhost:8080/appeals", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newAppeal),
+      });
+  
+      if (response.ok) {
+        const newAppealNumber = generateAppealNumber();
+        setSubmissionConfirmation(newAppealNumber);
+        // Formu sıfırla
+        setAppealType('');
+        setContactInfo({ name: '', surname: '', phoneNumber: '', email: '' });
+        setTravelInfo({ ticketId: '', departureStation: '', arrivalStation: '' });
+        setAppealContext('');
+      } else {
+        console.error("Başvuru gönderilemedi.");
+      }
+    } catch (err) {
+      console.error("Hata:", err.message);
+    }
   };
+  
 
   return (
     <motion.div

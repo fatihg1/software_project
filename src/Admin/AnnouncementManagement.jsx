@@ -4,14 +4,8 @@ import { useNavigate } from "react-router-dom";
 
 const AnnouncementManagement = () => {
   const navigate = useNavigate();
-  const [announcements, setAnnouncements] = useState([
-    { id: 1, title: "System Maintenance", content: "System maintenance will be carried out on March 10, 2024." },
-    { id: 2, title: "New Routes", content: "New trains have been added to the Istanbul - Ankara route!" },
-    { id: 3, title: "Holiday Discount", content: "Special discounts for the holiday season are now available!" },
-    { id: 4, title: "COVID-19 Measures", content: "Updated safety measures for all passengers." },
-    { id: 5, title: "Schedule Update", content: "Train schedules have been updated for summer 2024." },
-    { id: 6, title: "New VIP Lounges", content: "VIP lounges are now available at select stations!" },
-  ]);
+  const [announcements, setAnnouncements] = useState([]);
+
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -27,6 +21,12 @@ const AnnouncementManagement = () => {
   
   // Detect mobile screen and handle sidebar accordingly
   useEffect(() => {
+
+    fetch("http://localhost:8080/announcements")
+    .then((res) => res.json())
+    .then((data) => setAnnouncements(data))
+    .catch((err) => console.error("Fetch error:", err));
+
     const handleResize = () => {
       const mobile = window.innerWidth < 768;
       setIsMobile(mobile);
@@ -68,30 +68,48 @@ const AnnouncementManagement = () => {
   // Function to add or edit an announcement
   const saveAnnouncement = () => {
     if (title.trim() === "" || content.trim() === "") return;
-
-    if (editingId) {
-      // Edit existing announcement
-      setAnnouncements(announcements.map((announcement) =>
-        announcement.id === editingId ? { id: editingId, title, content } : announcement
-      ));
-      setEditingId(null);
-    } else {
-      // Add new announcement
-      const newAnnouncement = { id: announcements.length + 1, title, content };
-      setAnnouncements([...announcements, newAnnouncement]);
-    }
-    
-    setTitle("");
-    setContent("");
+  
+    const method = editingId ? "PUT" : "POST";
+    const url = editingId 
+      ? `http://localhost:8080/announcements/${editingId}` 
+      : "http://localhost:8080/announcements";
+  
+    const payload = { title, content };
+    if (editingId) payload.id = editingId;
+  
+    fetch(url, {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (editingId) {
+          setAnnouncements((prev) =>
+            prev.map((a) => (a.id === editingId ? data : a))
+          );
+        } else {
+          setAnnouncements((prev) => [...prev, data]);
+        }
+        setTitle("");
+        setContent("");
+        setEditingId(null);
+      });
   };
+  
 
   // Delete Confirmation Dialog
   const deleteAnnouncement = (id) => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this announcement?");
-    if (confirmDelete) {
-      setAnnouncements(announcements.filter((announcement) => announcement.id !== id));
-    }
+    const confirmDelete = window.confirm("Are you sure?");
+    if (!confirmDelete) return;
+  
+    fetch(`http://localhost:8080/announcements/${id}`, {
+      method: "DELETE",
+    }).then(() => {
+      setAnnouncements((prev) => prev.filter((a) => a.id !== id));
+    });
   };
+  
 
   // Edit Announcement
   const editAnnouncement = (announcement) => {

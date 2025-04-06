@@ -63,7 +63,7 @@ const router=createBrowserRouter([
     },
     {
       path:'/admin', // Admin Paneli
-      element:<AdminRoute/>,
+      // element:<AdminRoute/>,
       children:[
         {
           index:true,
@@ -102,7 +102,7 @@ const router=createBrowserRouter([
     },
     {
       path:"/manager",
-      element:<ManagerRoute/>,
+      // element:<ManagerRoute/>,
       children:[
         {
           index:true,

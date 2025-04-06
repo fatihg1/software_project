@@ -45,7 +45,7 @@ const translations = {
         bookTickets: "Book Tickets",
         myTickets: "My Tickets",
         oneWay: "One Way",
-        
+        roundTrip: "Round Trip",
         departure: "From",
         arrival: "To",
         departureStation: "Departure Station",
