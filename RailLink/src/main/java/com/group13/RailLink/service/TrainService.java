@@ -155,6 +155,7 @@ public class TrainService {
        
         for(int j = 0;j<TrainIdOfTheTrain.size();j++){
             JourneyDTO temporary = new JourneyDTO();
+            temporary.id=j+1;
             temporary.setDepartureStation(departure);
             temporary.setArrivalStation(arrival);
             for(int i = 0;i<stations.size()-1;i++){
