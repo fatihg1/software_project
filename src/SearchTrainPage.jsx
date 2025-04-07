@@ -9,7 +9,9 @@ function SearchTrainPage(){
         <div>
             <ScrollToTop/>
             <Navbar/>
-            <TrainTicketSearch/>
+            <div className="pt-12">
+                <TrainTicketSearch/>
+            </div>
             <Footer/>
         </div>
     )

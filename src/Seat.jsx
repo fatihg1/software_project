@@ -13,6 +13,11 @@ const TrainSeatSelection = () => {
     outbound: [],
     return: []
   });
+  // Add state for tracking selected seat prices
+  const [selectedSeatPrices, setSelectedSeatPrices] = useState({
+    outbound: [],
+    return: []
+  });
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -29,182 +34,134 @@ const TrainSeatSelection = () => {
   // Extract train information from previous page
   const { train, returnTrain, tripType } = location.state || {};
 
+  const parseWagonSeats = (wagonSeatsStr) => {
+    try {
+      // Handle binary string of 0s and 1s where 0 = available, 1 = taken
+      if (typeof wagonSeatsStr === 'string' && /^[01]+$/.test(wagonSeatsStr)) {
+        // Convert binary string to array of seat objects
+        return wagonSeatsStr.split('').map((status, index) => ({
+          number: index + 1,  // Seat numbers typically start at 1
+          taken: status === '1'
+        }));
+      } 
+      // Fallback to JSON parsing if it's not a binary string
+      else if (typeof wagonSeatsStr === 'string') {
+        return JSON.parse(wagonSeatsStr);
+      }
+      // If it's already an array, return it
+      else if (Array.isArray(wagonSeatsStr)) {
+        return wagonSeatsStr;
+      }
+      
+      return [];
+    } catch (error) {
+      console.error("Error parsing wagon seats:", error);
+      return [];
+    }
+  };
+
   const createWagons = (isReturn = false) => {
     const baseTrain = isReturn ? returnTrain : train;
-    const checkNumber = (num) => {
-        return num > 3 ? 1 : 0;
-      };
-    const numberforbeds = (num,num2) => {
-      return num > num2 ? 0 : 0 ;
-    };
-    return [
-      // Business Class Wagon
-      {
-        id: 1,
-        name: "Business",
-        type: 'business',
-        seats: [
-          ...Array(8).fill().map((_, columnIndex) => [
-            {
-              id: `0-${columnIndex * 6 + 1 +checkNumber(columnIndex)}`,
-              number: columnIndex%4 * 6 +1 +checkNumber(columnIndex) ,
-              position: 'business-window',
-              taken: [3, 5].includes(columnIndex * 6 + 1 +checkNumber(columnIndex)),
-              price: 250 // Higher price for business class
-            },
-            {
-              id: `0-${columnIndex * 6 + 4 +checkNumber(columnIndex)}`,
-              number: columnIndex%4 * 6 + 4 + checkNumber(columnIndex),
-              position: 'business-aisle',
-              taken: [2, 6].includes(columnIndex * 6 + 4 +checkNumber(columnIndex)),
-              price: 250
-            }
-          ]).flat(),
-          ...Array(4).fill().map((_, columnIndex) => [
-            {
-              id: `0-${columnIndex * 6 + 3}`,
-              number: columnIndex * 6 + 3,
-              position: 'bottom-window',
-              taken: [17,18 ].includes(columnIndex * 6 + 3),
-              price: 250
-            },
-            {
-              id: `0-${columnIndex * 6 + 6}`,
-              number: columnIndex * 6 + 6,
-              position: 'bottom-aisle',
-              taken: [18, 72].includes(columnIndex * 6 + 6),
-              price: 250
-            }
-          ]).flat()
-        ]
-      },
-      // Existing Economy Wagons
-      {
-        id: 2,
-        name: "Economy",
-        type: "economy",
-        seats: [
-          // Top side seats (window)
-          ...Array(16).fill().map((_, columnIndex) => [
-            {
-              id: `1-${columnIndex * 4 + 1}`,
-              number: columnIndex * 4 + 1,
-              position: 'top-window',
-              taken: [3, 7].includes(columnIndex * 4 + 1),
-              price: 100
-            },
-            {
-              id: `1-${columnIndex * 4 + 2}`,
-              number: columnIndex * 4 + 2,
-              position: 'top-aisle',
-              taken: [18, 24].includes(columnIndex * 4 + 2),
-              price: 100
-            },
-            {
-              id: `1-${columnIndex * 4 + 3}`,
-              number: columnIndex * 4 + 3,
-              position: 'bottom-aisle',
-              taken: [35, 39].includes(columnIndex * 4 + 3),
-              price: 100
-            },
-            {
-              id: `1-${columnIndex * 4 + 4}`,
-              number: columnIndex * 4 + 4,
-              position: 'bottom-window',
-              taken: [52, 56].includes(columnIndex * 4 + 4),
-              price: 100
-            }
-          ]).flat()
-        ]
-      },
-      {
-        id: 3,
-        name: "Economy",
-        type: "economy",
-        seats: [
-          ...Array(16).fill().map((_, columnIndex) => [
-            {
-              id: `2-${columnIndex * 4 + 1}`,
-              number: columnIndex * 4 + 1,
-              position: 'top-window',
-              taken: [1,5].includes(columnIndex * 4 + 1),
-              price: 100
-            },
-            {
-              id: `2-${columnIndex * 4 + 2}`,
-              number: columnIndex * 4 + 2,
-              position: 'top-aisle',
-              taken: [18, 24].includes(columnIndex * 4 + 2),
-              price: 100
-            },
-            {
-              id: `2-${columnIndex * 4 + 3}`,
-              number: columnIndex * 4 + 3,
-              position: 'bottom-aisle',
-              taken: [31].includes(columnIndex * 4 + 3),
-              price: 100
-            },
-            {
-              id: `2-${columnIndex * 4 + 4}`,
-              number: columnIndex * 4 + 4,
-              position: 'bottom-window',
-              taken: [60,64 ].includes(columnIndex * 4 + 4),
-              price: 100
-            }
-          ]).flat()
-        ]
-      },
-      {
-        id: 4,
-        name: "Sleeper",
-        type: 'sleeper',
-        seats: [
-          // Top berths - keep the same IDs and internal numbers, display numbers will be changed in the UI
-          ...Array(7).fill().map((_, index) => ({
-            id: `3-${index * 2 + 1 - numberforbeds(index*2+1,10)}`,
-            number: index * 2 + 1 - numberforbeds(index*2+1,10),
-            position: 'top-berth',
-            taken: [3, 7].includes(index * 2 + 1 - numberforbeds(index*2+1,10)),
-            price: 180
-          })),
-          // Bottom berths - keep the same IDs and internal numbers, display numbers will be changed in the UI
-          ...Array(7).fill().map((_, index) => ({
-            id: `3-${index * 2 + 1 - numberforbeds(index*2+1,10)+1}`,
-            number: index * 2 + 1 - numberforbeds(index*2+1,10)+1,
-            position: 'bottom-berth',
-            taken: [2, 8].includes(index * 2 + 1 - numberforbeds(index*2+1,10)+1),
-            price: 200 // Bottom berths usually cost more
-          })),
+    const wagons = [];
+    
+    // Loop through the wagon count and create wagon objects based on backend data
+    for (let i = 0; i < baseTrain.wagonsCount; i++) {
+      const wagonType = baseTrain.mergedWagonTypes[i];
+      const wagonSeatsData = parseWagonSeats(baseTrain.mergedWagonSeats[i]);
+      const basePrice = baseTrain.mergedWagonPrices[i];
+      
+      let seats = [];
+      
+      // Generate seats based on wagon type
+      switch (wagonType.toLowerCase()) {
+        case 'business':
+          seats = wagonSeatsData.map(seat => ({
+            id: `${i}-${seat.number}`,
+            number: seat.number,
+            position: seat.position || 'business-' + (seat.number % 2 === 0 ? 'aisle' : 'window'),
+            taken: seat.taken || false,
+            price: basePrice
+          }));
+          break;
           
-        ]
-      },
-      // Lodge Wagon - using seats array instead of compartments
-      {
-        id: 5,
-        name: "Lodge",
-        type: 'lodge',
-        seats: [
-          ...Array(7).fill().map((_, index) => {
-            const lodgeLetter = String.fromCharCode(65 + index); // A, B, C, D, E, F
-            const lodgeNumber = index; // 0 for A, 1 for B, etc.
+        case 'economy':
+          seats = wagonSeatsData.map(seat => ({
+            id: `${i}-${seat.number}`,
+            number: seat.number,
+            position: seat.position || getEconomyPosition(seat.number),
+            taken: seat.taken || false,
+            price: basePrice
+          }));
+          break;
+          
+        case 'sleeper':
+          seats = wagonSeatsData.map(seat => ({
+            id: `${i}-${seat.number}`,
+            number: seat.number,
+            position: seat.position || (seat.number % 2 === 0 ? 'bottom-berth' : 'top-berth'),
+            taken: seat.taken || false,
+            price: basePrice * (seat.number % 2 === 0 ? 1.1 : 1) // Bottom berths slightly more expensive
+          }));
+          break;
+          
+        case 'lodge':
+          // For lodge type, we need to handle compartments differently
+          // Let's assume we have a fixed number of compartments and seats per compartment
+          const numberOfCompartments = Math.ceil(wagonSeatsData.length / 4);
+          seats = Array.from({ length: numberOfCompartments }, (_, compartmentIndex) => {
+            const lodgeLetter = String.fromCharCode(65 + compartmentIndex);
+            const compartmentSeats = wagonSeatsData.slice(compartmentIndex * 4, (compartmentIndex + 1) * 4);
             
             return {
               id: lodgeLetter,
-              number: lodgeLetter, // A, B, C, D, E, F
+              number: lodgeLetter,
               position: 'compartment',
               capacity: 4,
-              // Instead of marking the whole compartment as taken
-              // takenSeats: which individual seats are taken (1, 2, 3, or 4)
-              
-              takenSeats: [2].includes(index + 1) ? [1, 3] : [], // Example: compartments B and E have seats 1 and 3 taken
-              taken: [2, 5].includes(index + 1),
-              price: 350, // Price per compartment
-              seatNumbers: [1, 2, 3, 4].map(seatIndex => lodgeNumber * 4 + seatIndex)
+              takenSeats: compartmentSeats
+                .map((seat, idx) => seat.taken ? idx + 1 : null)
+                .filter(seat => seat !== null),
+              taken: false, // The whole compartment is never fully taken
+              price: basePrice,
+              seatNumbers: [1, 2, 3, 4].map(seatIndex => (compartmentIndex * 4) + seatIndex)
             };
-          })
-        ]
+          });
+          break;
+          
+        default:
+          // Default to economy if type is not recognized
+          seats = wagonSeatsData.map(seat => ({
+            id: `${i}-${seat.number}`,
+            number: seat.number,
+            position: seat.position || getEconomyPosition(seat.number),
+            taken: seat.taken || false,
+            price: basePrice
+          }));
       }
-    ];
+      
+      wagons.push({
+        id: i + 1, // Wagon IDs start from 1
+        name: capitalizeFirstLetter(wagonType),
+        type: wagonType.toLowerCase(),
+        seats: seats,
+        price: basePrice // Add base price to wagon object for display in WagonSelector
+      });
+    }
+    
+    return wagons;
+  };
+  
+  // Helper function to determine economy seat position based on seat number
+  const getEconomyPosition = (seatNumber) => {
+    const modulo = seatNumber % 4;
+    if (modulo === 1) return 'top-window';
+    if (modulo === 2) return 'top-aisle';
+    if (modulo === 3) return 'bottom-aisle';
+    return 'bottom-window';
+  };
+  
+  // Helper function to capitalize first letter
+  const capitalizeFirstLetter = (string) => {
+    return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
   };
   
   // Mock train data with top/bottom layout (you would replace this with actual train data)
@@ -236,6 +193,38 @@ const TrainSeatSelection = () => {
       : { outbound: 0 }
   );
 
+  // Calculate total price based on selected seats
+  const calculateTotalPrice = () => {
+    let totalPrice = 0;
+    
+    // Calculate outbound price
+    trains.forEach(train => {
+      const trainType = train.type;
+      selectedSeats[trainType].forEach(selectedSeat => {
+        const wagonIndex = selectedSeat.wagon - 1;
+        const seatNumber = selectedSeat.number;
+        
+        const wagon = train.wagons[wagonIndex];
+        let seatPrice = 0;
+        
+        if (wagon.type === 'lodge') {
+          // For lodge, use the base price
+          seatPrice = wagon.price;
+        } else {
+          // For other wagon types, find the specific seat
+          const seat = wagon.seats.find(s => s.number === seatNumber);
+          if (seat) {
+            seatPrice = seat.price;
+          }
+        }
+        
+        totalPrice += seatPrice;
+      });
+    });
+    
+    return totalPrice;
+  };
+
   // Handle seat selection
   const toggleSeatSelection = (trainType, wagonId, compartmentNumber, isTaken, seatNum) => {
     // Return early if the seat is already taken
@@ -246,6 +235,7 @@ const TrainSeatSelection = () => {
     
     // Create a copy of the current selected seats
     const updatedSelectedSeats = {...selectedSeats};
+    const updatedSelectedSeatPrices = {...selectedSeatPrices};
     
     // Check if seat is already selected
     const existingSeatIndex = updatedSelectedSeats[trainType].findIndex(
@@ -255,17 +245,32 @@ const TrainSeatSelection = () => {
     if (existingSeatIndex !== -1) {
       // Remove seat if already selected
       updatedSelectedSeats[trainType].splice(existingSeatIndex, 1);
+      updatedSelectedSeatPrices[trainType].splice(existingSeatIndex, 1);
     } else {
       // Add seat if not selected
+      const wagonIndex = wagonId - 1;
+      const wagon = trains.find(t => t.type === trainType).wagons[wagonIndex];
+      
+      let seatPrice = 0;
+      if (wagon.type === 'lodge') {
+        seatPrice = wagon.price;
+      } else {
+        const seat = wagon.seats.find(s => s.number === (seatNum || compartmentNumber));
+        seatPrice = seat ? seat.price : wagon.price;
+      }
+      
       updatedSelectedSeats[trainType].push({
         id: seatId,
         wagon: wagonId,
         compartment: compartmentNumber,
         number: seatNum || compartmentNumber
       });
+      
+      updatedSelectedSeatPrices[trainType].push(seatPrice);
     }
     
     setSelectedSeats(updatedSelectedSeats);
+    setSelectedSeatPrices(updatedSelectedSeatPrices);
   };
 
   // Check if seat is selected
@@ -340,9 +345,11 @@ const TrainSeatSelection = () => {
     // Create payment data
     const paymentData = {
       selectedSeats: selectedSeats,
+      selectedSeatPrices: selectedSeatPrices,
       outboundTrain: train,
       returnTrain: returnTrain,
-      tripType: tripType
+      tripType: tripType,
+      totalPrice: calculateTotalPrice() // Include total price in payment data
     };
     
     // Navigate to payment page
@@ -359,7 +366,7 @@ const TrainSeatSelection = () => {
     const currentWagonIndex = currentWagons[trainType];
     const currentWagon = train.wagons[currentWagonIndex];
     const groupedSeats = getSeatsGroupedByPosition(trainType, currentWagonIndex);
-  
+    
     return (
       <div className="mb-8">
         <h2 className="text-xl font-bold mb-4">
@@ -372,218 +379,235 @@ const TrainSeatSelection = () => {
           trainType={trainType}
           currentWagonIndex={currentWagonIndex}
           onWagonSelect={selectWagon}
+          showPrices={true} // Add this prop to indicate we want to show prices
         />
         
+        {/* Apply fixed dimensions to the train display container */}
         <div className="border-2 border-gray-400 rounded-lg bg-gray-100 p-2 pl-5">
-          {/* Business Class Wagon */}
-          {currentWagon.type === 'business' && (
-            <div>
-              {/* First Row */}
-              <div className="grid grid-cols-8 gap-1 mb-2 pl-8">
-                {groupedSeats.business.slice(0, 16).map((seat) => (
-                  <div key={seat.id} className="flex items-center justify-center">
-                  <SeatIcon 
-                    number={seat.number}
-                    taken={seat.taken}
-                    selected={isSeatSelected(trainType, currentWagon.id, seat.number)}
-                    onClick={() => toggleSeatSelection(trainType, currentWagon.id, seat.number, seat.taken)}
-                    type="business"
-                  />
+          {/* Fixed height and width container for all wagon types */}
+          <div className="h-64 w-full overflow-auto relative">
+            {/* Business Class Wagon */}
+            {currentWagon.type === 'business' && (
+              <div className="min-w-full">
+                {/* First Row */}
+                <div className="grid grid-cols-8 gap-1 mb-2 pl-8">
+                  {groupedSeats.business.slice(0, 16).map((seat) => (
+                    <div key={seat.id} className="flex items-center justify-center">
+                    <SeatIcon 
+                      number={seat.number}
+                      taken={seat.taken}
+                      selected={isSeatSelected(trainType, currentWagon.id, seat.number)}
+                      onClick={() => toggleSeatSelection(trainType, currentWagon.id, seat.number, seat.taken)}
+                      type="business"
+                      price={seat.price} // Pass the seat price to SeatIcon
+                    />
+                  </div>
+                  ))}
                 </div>
+    
+                {/* Aisle space */}
+                <div className="w-full h-8 flex items-center justify-center my-2">
+                  <div className="h-full w-full flex items-center justify-center text-sm font-medium rounded">
+                  </div>
+                </div>
+    
+                {/* Second Row */}
+                <div className="grid grid-cols-8 gap-1 pl-8">
+                {groupedSeats.business.slice(16).map((seat) => (
+                  <div key={seat.id} className="flex items-center justify-center">
+                    <SeatIcon
+                      number={seat.number}
+                      taken={seat.taken}
+                      selected={isSeatSelected(trainType, currentWagon.id, seat.number)}
+                      onClick={() => toggleSeatSelection(trainType, currentWagon.id, seat.number, seat.taken)}
+                      type="business"
+                      price={seat.price} // Pass the seat price to SeatIcon
+                    />
+                  </div>
                 ))}
               </div>
-  
-              {/* Aisle space */}
-              <div className="w-full h-17 flex items-center justify-center my-2">
-                <div className="h-full w-full flex items-center justify-center text-sm font-medium rounded">
-                </div>
               </div>
-  
-              {/* Second Row */}
-              <div className="grid grid-cols-8 gap-1 pl-8">
-              {groupedSeats.business.slice(16).map((seat) => (
-                <div key={seat.id} className="flex items-center justify-center">
-                  <SeatIcon
-                    number={seat.number}
-                    taken={seat.taken}
-                    selected={isSeatSelected(trainType, currentWagon.id, seat.number)}
-                    onClick={() => toggleSeatSelection(trainType, currentWagon.id, seat.number, seat.taken)}
-                    type="business"
-                  />
-                </div>
-              ))}
-            </div>
-            </div>
-          )}
-  
-          {/* Economy Wagon */}
-          {(!currentWagon.type || currentWagon.type === 'economy') && (
-            <div className="space-y-2">
-              <div className="overflow-x-auto pb-4">
-                <div className="min-w-max space-y-2">
-                  <div className="flex mb-2 justify-between">
-                    {groupedSeats.topWindow.map((seat) => (
-                      <div key={seat.id} className="mx-0.5">
-                        <SeatIcon
-                          number={seat.number}
-                          taken={seat.taken}
-                          selected={isSeatSelected(trainType, currentWagon.id, seat.number)}
-                          onClick={() => toggleSeatSelection(trainType, currentWagon.id, seat.number, seat.taken)}
-                          type="economy"
-                        />
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="flex mb-2 justify-between">
-                    {groupedSeats.topAisle.map((seat) => (
-                      <div key={seat.id} className="mx-0.5">
-                        <SeatIcon
-                          number={seat.number}
-                          taken={seat.taken}
-                          selected={isSeatSelected(trainType, currentWagon.id, seat.number)}
-                          onClick={() => toggleSeatSelection(trainType, currentWagon.id, seat.number, seat.taken)}
-                          type="economy"
-                        />
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="w-full h-6" />
-
-                  <div className="flex mb-2 justify-between">
-                    {groupedSeats.bottomAisle.map((seat) => (
-                      <div key={seat.id} className="mx-0.5">
-                        <SeatIcon
-                          number={seat.number}
-                          taken={seat.taken}
-                          selected={isSeatSelected(trainType, currentWagon.id, seat.number)}
-                          onClick={() => toggleSeatSelection(trainType, currentWagon.id, seat.number, seat.taken)}
-                          type="economy"
-                        />
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="flex justify-between">
-                    {groupedSeats.bottomWindow.map((seat) => (
-                      <div key={seat.id} className="mx-0.5">
-                        <SeatIcon
-                          number={seat.number}
-                          taken={seat.taken}
-                          selected={isSeatSelected(trainType, currentWagon.id, seat.number)}
-                          onClick={() => toggleSeatSelection(trainType, currentWagon.id, seat.number, seat.taken)}
-                          type="economy"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Sleeper Wagon */}
-          {currentWagon.type === 'sleeper' && (
-            <div className="flex flex-col">
-              <div className="flex overflow-x-auto pb-4 w-full">
-                <div className="flex gap-2 min-w-max">
-                  {Array.from({ length: 7 }, (_, roomIndex) => {
-                    const topBed = currentWagon.seats.find(
-                      seat => seat.position === 'top-berth' && Math.floor((seat.number - 1) / 2) === roomIndex
-                    );
-                    const bottomBed = currentWagon.seats.find(
-                      seat => seat.position === 'bottom-berth' && Math.floor((seat.number - 1) / 2) === roomIndex
-                    );
-
-                    return (
-                      <div key={roomIndex} className="border border-gray-400 rounded p-2 w-28">
-                        <div className="text-xs text-center font-medium mb-1">{roomIndex + 1}</div>
-                        <div className="flex h-24">
-                          <div className="w-1/3 flex flex-col space-y-2 border-r border-gray-300 pr-1">
-                            {topBed && (
-                              <SeatIcon
-                                number={topBed.number}
-                                taken={topBed.taken}
-                                selected={isSeatSelected(trainType, currentWagon.id, topBed.number)}
-                                onClick={() => toggleSeatSelection(trainType, currentWagon.id, topBed.number, topBed.taken)}
-                                type="sleeper"
-                              />
-                            )}
-                            {bottomBed && (
-                              <SeatIcon
-                                number={bottomBed.number}
-                                taken={bottomBed.taken}
-                                selected={isSeatSelected(trainType, currentWagon.id, bottomBed.number)}
-                                onClick={() => toggleSeatSelection(trainType, currentWagon.id, bottomBed.number, bottomBed.taken)}
-                                type="sleeper"
-                              />
-                            )}
-                          </div>
-                          <div className="w-2/3 pl-1 flex items-center justify-center" />
+            )}
+    
+            {/* Economy Wagon */}
+            {(!currentWagon.type || currentWagon.type === 'economy') && (
+              <div className="space-y-2 min-w-full">
+                <div className="w-full pb-4">
+                  <div className="min-w-full space-y-2">
+                    <div className="flex mb-2 justify-between">
+                      {groupedSeats.topWindow.map((seat) => (
+                        <div key={seat.id} className="mx-0.5">
+                          <SeatIcon
+                            number={seat.number}
+                            taken={seat.taken}
+                            selected={isSeatSelected(trainType, currentWagon.id, seat.number)}
+                            onClick={() => toggleSeatSelection(trainType, currentWagon.id, seat.number, seat.taken)}
+                            type="economy"
+                            price={seat.price} // Pass the seat price to SeatIcon
+                          />
                         </div>
-                      </div>
-                    );
-                  })}
+                      ))}
+                    </div>
+
+                    <div className="flex mb-2 justify-between">
+                      {groupedSeats.topAisle.map((seat) => (
+                        <div key={seat.id} className="mx-0.5">
+                          <SeatIcon
+                            number={seat.number}
+                            taken={seat.taken}
+                            selected={isSeatSelected(trainType, currentWagon.id, seat.number)}
+                            onClick={() => toggleSeatSelection(trainType, currentWagon.id, seat.number, seat.taken)}
+                            type="economy"
+                            price={seat.price} // Pass the seat price to SeatIcon
+                          />
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="w-full h-6" />
+
+                    <div className="flex mb-2 justify-between">
+                      {groupedSeats.bottomAisle.map((seat) => (
+                        <div key={seat.id} className="mx-0.5">
+                          <SeatIcon
+                            number={seat.number}
+                            taken={seat.taken}
+                            selected={isSeatSelected(trainType, currentWagon.id, seat.number)}
+                            onClick={() => toggleSeatSelection(trainType, currentWagon.id, seat.number, seat.taken)}
+                            type="economy"
+                            price={seat.price} // Pass the seat price to SeatIcon
+                          />
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="flex justify-between">
+                      {groupedSeats.bottomWindow.map((seat) => (
+                        <div key={seat.id} className="mx-0.5">
+                          <SeatIcon
+                            number={seat.number}
+                            taken={seat.taken}
+                            selected={isSeatSelected(trainType, currentWagon.id, seat.number)}
+                            onClick={() => toggleSeatSelection(trainType, currentWagon.id, seat.number, seat.taken)}
+                            type="economy"
+                            price={seat.price} // Pass the seat price to SeatIcon
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Lodge Wagon */}
-          {currentWagon.type === 'lodge' && (
-            <div className="flex flex-col">
-              <div className="pl-3 relative">
-                <div className="overflow-x-auto pb-4">
-                  <div className="flex gap-4 min-w-max">
-                    {currentWagon.seats.map((compartment) => (
-                      <div
-                        key={compartment.id}
-                        className="flex flex-col min-w-24 items-center m-2 p-2 rounded-md border-2 border-gray-300 bg-gray-50"
-                      >
-                        <span className="text-sm font-bold mb-1">
-                          {compartment.number.charCodeAt(0) - 64}
-                        </span>
-                        <div className="grid grid-cols-2 gap-2 w-full">
-                          {[0, 1, 2, 3].map((index) => {
-                            const seatNumber = compartment.seatNumbers[index];
-                            const originalSeatIndex = index + 1;
-                            const isTaken = compartment.takenSeats?.includes(originalSeatIndex);
+            {/* Sleeper Wagon */}
+            {currentWagon.type === 'sleeper' && (
+              <div className="flex flex-col w-full">
+                <div className="flex w-full overflow-x-auto">
+                  <div className="flex gap-2 min-w-full">
+                    {Array.from({ length: Math.ceil(currentWagon.seats.length / 2) }, (_, roomIndex) => {
+                      const topBed = currentWagon.seats.find(
+                        seat => seat.position === 'top-berth' && Math.floor((seat.number - 1) / 2) === roomIndex
+                      );
+                      const bottomBed = currentWagon.seats.find(
+                        seat => seat.position === 'bottom-berth' && Math.floor((seat.number - 1) / 2) === roomIndex
+                      );
 
-                            return (
-                              <div key={`${compartment.number}-${seatNumber}`} className="w-full">
+                      return (
+                        <div key={roomIndex} className="border border-gray-400 rounded p-2 w-28">
+                          <div className="text-xs text-center font-medium mb-1">{roomIndex + 1}</div>
+                          <div className="flex h-24">
+                            <div className="w-1/3 flex flex-col space-y-2 border-r border-gray-300 pr-1">
+                              {topBed && (
                                 <SeatIcon
-                                  number={seatNumber}
-                                  taken={isTaken}
-                                  selected={isSeatSelected(trainType, currentWagon.id, compartment.number, seatNumber)}
-                                  onClick={() => !isTaken && toggleSeatSelection(
-                                    trainType,
-                                    currentWagon.id,
-                                    compartment.number,
-                                    isTaken,
-                                    seatNumber
-                                  )}
-                                  type="lodge"
+                                  number={topBed.number}
+                                  taken={topBed.taken}
+                                  selected={isSeatSelected(trainType, currentWagon.id, topBed.number)}
+                                  onClick={() => toggleSeatSelection(trainType, currentWagon.id, topBed.number, topBed.taken)}
+                                  type="sleeper"
+                                  price={topBed.price} // Pass the seat price to SeatIcon
                                 />
-                              </div>
-                            );
-                          })}
+                              )}
+                              {bottomBed && (
+                                <SeatIcon
+                                  number={bottomBed.number}
+                                  taken={bottomBed.taken}
+                                  selected={isSeatSelected(trainType, currentWagon.id, bottomBed.number)}
+                                  onClick={() => toggleSeatSelection(trainType, currentWagon.id, bottomBed.number, bottomBed.taken)}
+                                  type="sleeper"
+                                  price={bottomBed.price} // Pass the seat price to SeatIcon
+                                />
+                              )}
+                            </div>
+                            <div className="w-2/3 pl-1 flex items-center justify-center" />
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+
+            {/* Lodge Wagon */}
+            {currentWagon.type === 'lodge' && (
+              <div className="flex flex-col w-full">
+                <div className="pl-3 relative">
+                  <div className="flex overflow-x-auto w-full">
+                    <div className="flex gap-4 min-w-full">
+                      {currentWagon.seats.map((compartment) => (
+                        <div
+                          key={compartment.id}
+                          className="flex flex-col min-w-24 items-center m-2 p-2 rounded-md border-2 border-gray-300 bg-gray-50"
+                        >
+                          <span className="text-sm font-bold mb-1">
+                            {compartment.number.charCodeAt(0) - 64}
+                          </span>
+                          <div className="grid grid-cols-2 gap-2 w-full">
+                            {[0, 1, 2, 3].map((index) => {
+                              const seatNumber = compartment.seatNumbers[index];
+                              const originalSeatIndex = index + 1;
+                              const isTaken = compartment.takenSeats?.includes(originalSeatIndex);
+
+                              return (
+                                <div key={`${compartment.number}-${seatNumber}`} className="w-full">
+                                  <SeatIcon
+                                    number={seatNumber}
+                                    taken={isTaken}
+                                    selected={isSeatSelected(trainType, currentWagon.id, compartment.number, seatNumber)}
+                                    onClick={() => !isTaken && toggleSeatSelection(
+                                      trainType,
+                                      currentWagon.id,
+                                      compartment.number,
+                                      isTaken,
+                                      seatNumber
+                                    )}
+                                    type="lodge"
+                                    price={compartment.price} // Pass the seat price to SeatIcon
+                                  />
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     );
   };
 
+  // Calculate the total price
+  const totalPrice = calculateTotalPrice();
+
   return (
-    <div className="flex flex-col md:flex-row gap-8 sm:p-6 sm:pt-15 max-w-6xl mx-auto">
-    <div className="max-w-4xl pt-30 mx-auto p-4">
+    <div className="flex flex-col md:flex-row gap-8 sm:p-6 sm:pt-15 max-w-6xl ml-30">
+    <div className="w-full pt-30 mx-auto p-4">
         <h1 className="text-2xl font-bold mb-6">
           {tripType === 'round-trip' 
             ? translations[language].selectSeatsRoundTrip 
@@ -611,11 +635,12 @@ const TrainSeatSelection = () => {
                 <p className="text-gray-500">{translations[language].noSeatsSelected}</p>
               ) : (
                 <div className="flex flex-wrap gap-2">
-                  {selectedSeats.outbound.map(seat => (
+                  {selectedSeats.outbound.map((seat, index) => (
                     <div key={seat.id} className="bg-green-100 text-green-800 px-3 py-2 rounded-md">
                       {translations[language].wagonSeat
                           .replace('{wagon}', seat.wagon)
                           .replace('{seat}', seat.number)}
+                      
                     </div>
                   ))}
                 </div>
@@ -627,11 +652,12 @@ const TrainSeatSelection = () => {
                 <p className="text-gray-500">{translations[language].noSeatsSelected}</p>
               ) : (
                 <div className="flex flex-wrap gap-2">
-                  {selectedSeats.return.map(seat => (
+                  {selectedSeats.return.map((seat, index) => (
                     <div key={seat.id} className="bg-green-100 text-green-800 px-3 py-2 rounded-md">
                       {translations[language].wagonSeat
                           .replace('{wagon}', seat.wagon)
                           .replace('{seat}', seat.number)}
+                      
                     </div>
                   ))}
                 </div>
@@ -643,15 +669,26 @@ const TrainSeatSelection = () => {
             <p className="text-gray-500">{translations[language].noSeatsSelected}</p>
           ) : (
             <div className="flex flex-wrap gap-2">
-              {selectedSeats.outbound.map(seat => (
+              {selectedSeats.outbound.map((seat, index) => (
                 <div key={seat.id} className="bg-green-100 text-green-800 px-3 py-2 rounded-md">
                   {translations[language].wagonSeat
                       .replace('{wagon}', seat.wagon)
                       .replace('{seat}', seat.number)}
+                  
                 </div>
               ))}
             </div>
           )
+        )}
+
+        {/* Display total price */}
+        {(selectedSeats.outbound.length > 0 || selectedSeats.return.length > 0) && (
+          <div className="mt-4 pt-4 border-t border-gray-300">
+            <h4 className="font-bold text-lg flex justify-between">
+              <span>{translations[language]?.totalPrice || 'Total Price'}:</span>
+              <span>{totalPrice.toFixed(2)}</span>
+            </h4>
+          </div>
         )}
       </div>
       
@@ -683,7 +720,9 @@ const TrainSeatSelection = () => {
       </div>
     </div>
       <div className="md:sticky md:top-6 md:h-fit pt-12">
-        <ProgressSteps currentStep="seat-selection" />
+        
+          <ProgressSteps currentStep="seat-selection" />
+        
       </div>
     </div>
   );

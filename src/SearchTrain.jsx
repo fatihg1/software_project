@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
-import { Calendar, Search, MapPin, Clock, ArrowRight, RefreshCw, Filter, Info, ChevronDown, Sun, Sunrise, Sunset, Repeat } from "lucide-react";
+import { Calendar, Search, MapPin, Clock, ArrowRight, RefreshCw, Info, ChevronDown, Repeat } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import ProgressSteps from "./ProgressSteps.jsx"
 import { motion } from "framer-motion";
-import {useLanguage} from "./LanguageContext.jsx";
+import { useLanguage } from "./LanguageContext.jsx";
 import translations from "./translations.jsx";
+import trainService from "./services/trainService"; // Import the trainService
+
 const slideUp = {
   hidden: { opacity: 0, y: 50 },
   visible: { 
@@ -14,7 +16,7 @@ const slideUp = {
       type: "spring", 
       stiffness: 100, 
       damping: 10,
-      delay: 0,
+      delay: 0.2
     }
   }
 };
@@ -32,22 +34,9 @@ const slideFromRight = {
     }
   }
 };
-// Sample data - in a real app this would come from an API
-const trains = [
-  { id: 1, departure: "Istanbul", arrival: "Ankara", date: "2025-04-30", time: "10:00", duration: "4h 30m", price: 250, seats: 42 },
-  { id: 2, departure: "Ankara", arrival: "Izmir", date: "2025-04-25", time: "12:00", duration: "6h 15m", price: 250, seats: 18 },
-  { id: 3, departure: "Istanbul", arrival: "Izmir", date: "2025-04-26", time: "14:00", duration: "8h 45m", price: 250, seats: 25 },
-  { id: 4, departure: "Ankara", arrival: "Istanbul", date: "2025-04-17", time: "16:00", duration: "4h 30m", price: 300, seats: 32 },
-  { id: 5, departure: "Ankara", arrival: "Istanbul", date: "2025-04-27", time: "18:30", duration: "4h 15m", price: 350, seats: 8 },
-  { id: 6, departure: "Izmir", arrival: "Istanbul", date: "2025-04-28", time: "09:00", duration: "8h 30m", price: 280, seats: 56 },
-  { id: 7, departure: "Istanbul", arrival: "Ankara", date: "2025-04-28", time: "07:30", duration: "4h 45m", price: 220, seats: 15 },
-  { id: 8, departure: "Izmir", arrival: "Ankara", date: "2025-04-29", time: "11:15", duration: "6h 00m", price: 270, seats: 22 }
-];
-
-const cities = ["Istanbul", "Ankara", "Izmir", "Antalya", "Konya", "Eskişehir"];
 
 export default function TrainTicketSearch() {
-  const {language} = useLanguage();
+  const { language } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
   const [tripType, setTripType] = useState("one-way");
@@ -60,19 +49,39 @@ export default function TrainTicketSearch() {
   const [selectedTrain, setSelectedTrain] = useState(null);
   const [selectedReturnTrain, setSelectedReturnTrain] = useState(null);
   const [isSearching, setIsSearching] = useState(false);
-  const [showFilters, setShowFilters] = useState(false);
-  const [priceRange, setPriceRange] = useState([0, 500]);
-  const [timeOfDay, setTimeOfDay] = useState("all");
-  const [minPrice, maxPrice] = [0, 500]; // Range limits
   const [validationError, setValidationError] = useState(null);
   const [initialSearchDone, setInitialSearchDone] = useState(false);
+  const [cities, setCities] = useState([]);
+  const [searchPerformed, setSearchPerformed] = useState(false);
   const today = new Date().toISOString().split('T')[0];
+  
+  // Load available stations from API
+  useEffect(() => {
+    const fetchStations = async () => {
+      try {
+        const stationsData = await trainService.getAllStations();
+        setCities(stationsData);
+      } catch (error) {
+        console.error("Failed to load stations:", error);
+        // Fallback to sample cities if API fails
+        setCities(["Istanbul", "Ankara", "Izmir", "Antalya", "Konya", "Eskişehir"]);
+      }
+    };
+    
+    fetchStations();
+  }, []);
   
   // Duration localization
   const translateDuration = (duration) => {
-    return duration
-      .replace('h', translations[language].hoursAbbr)
-      .replace('m', translations[language].minutesAbbr);
+    if (typeof duration !== "number" || isNaN(duration)) return "";
+  
+    const hours = Math.floor(duration / 60);
+    const minutes = duration % 60;
+  
+    const hourPart = hours > 0 ? `${hours}${translations[language].hoursAbbr}` : "";
+    const minutePart = minutes > 0 ? `${minutes}${translations[language].minutesAbbr}` : "";
+  
+    return `${hourPart} ${minutePart}`.trim();
   };
 
   // Initialize dates and handle incoming navigation state
@@ -93,9 +102,6 @@ export default function TrainTicketSearch() {
       } else {
         setTripType("one-way");
       }
-      
-      // We'll trigger search with the provided parameters after state updates
-      // This will be handled by a separate useEffect
     } else {
       // Default initialization if no state is passed
       setDate(today);
@@ -121,82 +127,62 @@ export default function TrainTicketSearch() {
         setTimeout(() => {
           search();
           setInitialSearchDone(true);
+          setSearchPerformed(true);
         }, 300);
       }
     }
   }, [departure, arrival, date, returnDate, location.state, initialSearchDone]);
 
-  // Search functionality
-  const search = () => {
-    // Validate station selection - check current state values not the initial ones
-    if (!departure && !arrival) {
-      setValidationError("Please select at least a departure or arrival station");
+  // Reset results when departure or arrival changes
+  useEffect(() => {
+    // Clear results when filters change
+    setResults([]);
+    setReturnResults([]);
+    setSelectedTrain(null);
+    setSelectedReturnTrain(null);
+    setSearchPerformed(false);
+  }, [departure, arrival, date, returnDate, tripType]);
+
+  // Convert minutes to HH:MM format
+  const formatTimeFromMinutes = (minutes) => {
+    if (minutes === null || minutes === undefined) return "--:--";
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
+  };
+
+  // Search functionality - now using the API service
+  const search = async () => {
+    // Validate station selection
+    if (!departure || !arrival) {
+      setValidationError(translations[language].selectStationsError || "Please select a departure and arrival station");
+      setResults([]);
+      setReturnResults([]);
+      setSelectedTrain(null);
+      setSelectedReturnTrain(null);
       return;
     }
     
     setValidationError(null);
     setIsSearching(true);
+    setSearchPerformed(true);
     
-    // Simulate API call with a slight delay
-    setTimeout(() => {
-      if (!departure && !arrival && !date) {
-        setResults([]);
-        if (tripType === "round-trip") setReturnResults([]);
-      } else {
-        let filteredResults = trains.filter(
-          (train) =>
-            (!departure || train.departure === departure) &&
-            (!arrival || train.arrival === arrival) &&
-            (!date || train.date === date)
-        );
-        
-        // Apply price filter
-        filteredResults = filteredResults.filter(
-          train => train.price >= priceRange[0] && train.price <= priceRange[1]
-        );
-        
-        // Apply time of day filter
-        if (timeOfDay !== "all") {
-          filteredResults = filteredResults.filter(train => {
-            const hour = parseInt(train.time.split(":")[0]);
-            if (timeOfDay === "morning") return hour >= 5 && hour < 12;
-            if (timeOfDay === "afternoon") return hour >= 12 && hour < 18;
-            if (timeOfDay === "evening") return hour >= 18 || hour < 5;
-            return true;
-          });
-        }
-        
-        setResults(filteredResults);
+    try {
+      // Call API to search for outbound trains
+      const trainsData = await trainService.searchTrains(departure, arrival, date);
+      setResults(trainsData);
 
-        // If round trip, search for return trains
-        if (tripType === "round-trip" && departure && arrival) {
-          let returnTrips = trains.filter(
-            (train) =>
-              train.departure === arrival &&
-              train.arrival === departure &&
-              (!returnDate || train.date === returnDate)
-          );
-
-          // Apply same filters for return trips
-          returnTrips = returnTrips.filter(
-            train => train.price >= priceRange[0] && train.price <= priceRange[1]
-          );
-
-          if (timeOfDay !== "all") {
-            returnTrips = returnTrips.filter(train => {
-              const hour = parseInt(train.time.split(":")[0]);
-              if (timeOfDay === "morning") return hour >= 5 && hour < 12;
-              if (timeOfDay === "afternoon") return hour >= 12 && hour < 18;
-              if (timeOfDay === "evening") return hour >= 18 || hour < 5;
-              return true;
-            });
-          }
-
-          setReturnResults(returnTrips);
-        }
+      // If round trip, search for return trains
+      if (tripType === "round-trip" && departure && arrival) {
+        const returnTrainsData = await trainService.searchTrains(arrival, departure, returnDate);
+        setReturnResults(returnTrainsData);
       }
+    } catch (error) {
+      console.error("Error searching for trains:", error);
+      setValidationError("Failed to load train data. Please try again.");
+    } finally {
       setIsSearching(false);
-    }, 800);
+    }
   };
 
   // Date localization
@@ -212,13 +198,16 @@ export default function TrainTicketSearch() {
   };
 
   // Check if a seat count is low (for showing warning)
-  const isLowSeats = (seats) => seats <= 10;
+  const isLowSeats = (seats) => {
+    if (seats === null || seats === undefined) return false;
+    return seats <= 10;
+  };
 
   // Proceed to next page
   const proceedToNextPage = () => {
-    const selectedTrainDetails = trains.find(train => train.id === selectedTrain);
+    const selectedTrainDetails = results.find(train => train.id === selectedTrain);
     const selectedReturnTrainDetails = tripType === "round-trip" 
-      ? trains.find(train => train.id === selectedReturnTrain)
+      ? returnResults.find(train => train.id === selectedReturnTrain)
       : null;
 
     navigate("/select-seats", { 
@@ -228,6 +217,18 @@ export default function TrainTicketSearch() {
         tripType: tripType 
       } 
     });
+  };
+
+  // Format time from datetime
+  const formatTime = (dateTime) => {
+    if (!dateTime) return "--:--";
+    try {
+      const date = new Date(dateTime);
+      return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+    } catch (error) {
+      console.error("Error formatting time:", error);
+      return "--:--";
+    }
   };
 
   const renderTrainResultItem = (train, isSelected, onSelect, isReturn = false) => (
@@ -248,9 +249,9 @@ export default function TrainTicketSearch() {
           
           <div className="flex justify-between mb-3">
             <div>
-              <p className="text-xl font-semibold">{train.time}</p>
-              <p className="text-sm text-gray-600">{train.departure}</p>
-              <p className="text-xs text-gray-500">{formatDate(train.date)}</p>
+              <p className="text-xl font-semibold">{formatTime(train.departureDateTime)}</p>
+              <p className="text-sm text-gray-600">{train.departureStation}</p>
+              <p className="text-xs text-gray-500">{formatDate(train.departureDateTime)}</p>
             </div>
             
             <div className="flex flex-col items-center">
@@ -262,13 +263,9 @@ export default function TrainTicketSearch() {
             </div>
             
             <div className="text-right">
-              <p className="text-xl font-semibold">
-                {train.time.split(':')
-                  .map((part, i) => parseInt(part) + (i === 0 ? parseInt(train.duration) : 0))
-                  .join(':')}
-              </p>
-              <p className="text-sm text-gray-600">{train.arrival}</p>
-              <p className="text-xs text-gray-500">{formatDate(train.date)}</p>
+              <p className="text-xl font-semibold">{formatTime(train.arrivalDateTime)}</p>
+              <p className="text-sm text-gray-600">{train.arrivalStation}</p>
+              <p className="text-xs text-gray-500">{formatDate(train.arrivalDateTime)}</p>
             </div>
           </div>
         </div>
@@ -276,7 +273,11 @@ export default function TrainTicketSearch() {
         <div className="md:w-48 flex flex-row md:flex-col justify-between items-center md:items-end md:text-right">
           <div className="md:mb-3">
             <p className="text-2xl font-bold text-blue-700">
-              {train.price} {translations[language].currencySymbol}
+            {train.minPrice !== null && train.maxPrice !== null ? (
+              train.minPrice === train.maxPrice
+                ? `${train.minPrice} ${translations[language].currencySymbol}`
+                : `${train.minPrice} ${translations[language].currencySymbol} - ${train.maxPrice} ${translations[language].currencySymbol}`
+            ) : "--"}
             </p>
             <div className="flex items-center text-sm">
               <Clock className="h-4 w-4 text-gray-500 mr-1" />
@@ -285,7 +286,11 @@ export default function TrainTicketSearch() {
           </div>
           
           <div>
-            {isLowSeats(train.seats) ? (
+            {train.seats === null ? (
+              <div className="text-sm text-gray-600">
+                {translations[language].seatsUnknown}
+              </div>
+            ) : isLowSeats(train.seats) ? (
               <div className="text-sm text-red-600 flex items-center">
                 <Info className="h-4 w-4 mr-1" />
                 {translations[language].seatsLeft.replace('{count}', train.seats)}
@@ -301,27 +306,36 @@ export default function TrainTicketSearch() {
     </div>
   );
 
+  // Check if continue button should be enabled
+  const isContinueEnabled = () => {
+    if (tripType === "one-way") {
+      return selectedTrain !== null;
+    } else {
+      return selectedTrain !== null && selectedReturnTrain !== null;
+    }
+  };
+
   return (
-    <motion.div
-      key={location.pathname} 
+    <motion.div 
       initial="hidden"
       whileInView={"visible"}
-      viewport={{ once: true}}
+      viewport={{ once: true, amount:0.3 }}
       variants={slideUp}
-      className="flex flex-col md:flex-row gap-8 sm:p-6 sm:pt-15 max-w-6xl mx-auto"
+      className="flex flex-col md:flex-row gap-4 md:gap-8 p-3 sm:p-6 sm:pt-15 max-w-8xl mx-auto -ml-0.5"
     >
-      <div className="sm:p-6 sm:pt-30 max-w-6xl w-7xl mx-auto bg-gradient-to-r from-blue-50 to-white rounded-xl shadow-xl relative">
-        <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
+      {/* Main content area */}
+      <div className="flex-1 p-3 sm:p-6 pt-4 sm:pt-8 max-w-full w-full mx-auto bg-gradient-to-r from-blue-50 to-white rounded-xl shadow-xl relative">
+        <div className="mb-4 sm:mb-8">
+          <h1 className="text-xl sm:text-3xl font-bold text-gray-800">
             {translations[language].findTrain}
           </h1>
-          <p className="text-gray-600">{translations[language].findTrainText}</p>
+          <p className="text-sm sm:text-base text-gray-600">{translations[language].findTrainText}</p>
         </div>
         
         {/* Trip Type Selection */}
-        <div className="mb-6 flex justify-center space-x-4">
+        <div className="mb-4 sm:mb-6 flex justify-center space-x-2 sm:space-x-4">
           <button
-            className={`px-6 py-2 rounded-lg flex items-center transition ${
+            className={`px-3 sm:px-6 py-2 rounded-lg flex items-center transition text-sm sm:text-base ${
               tripType === "one-way" 
                 ? "bg-blue-600 text-white shadow-md" 
                 : "bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -333,109 +347,115 @@ export default function TrainTicketSearch() {
               setReturnResults([]);
             }}
           >
-            <span className="mr-2">{translations[language].oneWay}</span>
+            <span className="mr-1 sm:mr-2">{translations[language].oneWay}</span>
           </button>
           <button
-            className={`px-6 py-2 rounded-lg flex items-center transition ${
+            className={`px-3 sm:px-6 py-2 rounded-lg flex items-center transition text-sm sm:text-base ${
               tripType === "round-trip" 
                 ? "bg-blue-600 text-white shadow-md" 
                 : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             }`}
             onClick={() => setTripType("round-trip")}
           >
-            <Repeat className="h-5 w-5 mr-2" />
+            <Repeat className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
             {translations[language].roundTrip}
           </button>
         </div>
         
         {/* Search Form */}
-        <div className="bg-white p-4 sm:p-6 rounded-xl shadow-lg space-y-6 sm:space-y-8">
-          <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
-              <div className="flex-1 relative">
-                <label className="block text-lg font-medium text-gray-700 mb-2">
-                  <MapPin className="inline-block mr-2 h-5 w-5 text-blue-500" />
-                  {translations[language].departure}
-                </label>
-                <select
-                  className="w-full p-3 h-12 bg-gray-100 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
-                  onChange={(e) => setDeparture(e.target.value)}
-                  value={departure}
-                >
-                  <option value="">{translations[language].selectDeparture}</option>
-                  {cities.map(city => (
-                    <option key={`from-${city}`} value={city}>{city}</option>
-                  ))}
-                </select>
+        <div className="bg-white p-3 sm:p-6 rounded-xl shadow-lg space-y-4 sm:space-y-8">
+          <div className="space-y-4 sm:space-y-6">
+            <div className="flex flex-col space-y-4">
+              {/* Departure and Arrival fields - stacked on mobile, side by side on tablet+ */}
+              <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
+                <div className="flex-1 relative">
+                  <label className="block text-base sm:text-lg font-medium text-gray-700 mb-1 sm:mb-2">
+                    <MapPin className="inline-block mr-1 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5 text-blue-500" />
+                    {translations[language].departure}
+                  </label>
+                  <select
+                    className="w-full p-2 sm:p-3 h-10 sm:h-12 bg-gray-100 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+                    onChange={(e) => setDeparture(e.target.value)}
+                    value={departure}
+                  >
+                    <option value="">{translations[language].selectDeparture}</option>
+                    {cities.map(city => (
+                      <option key={`from-${city}`} value={city}>{city}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="flex-1 relative">
+                  <label className="block text-base sm:text-lg font-medium text-gray-700 mb-1 sm:mb-2">
+                    <MapPin className="inline-block mr-1 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5 text-blue-500" />
+                    {translations[language].arrival}
+                  </label>
+                  <select
+                    className="w-full p-2 sm:p-3 h-10 sm:h-12 bg-gray-100 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+                    onChange={(e) => setArrival(e.target.value)}
+                    value={arrival}
+                  >
+                    <option value="">{translations[language].selectReturn}</option>
+                    {cities.map(city => (
+                      <option key={`to-${city}`} value={city}>{city}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
-              <div className="flex-1 relative">
-                <label className="block text-lg font-medium text-gray-700 mb-2">
-                  <MapPin className="inline-block mr-2 h-5 w-5 text-blue-500" />
-                  {translations[language].arrival}
-                </label>
-                <select
-                  className="w-full p-3 h-12 bg-gray-100 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
-                  onChange={(e) => setArrival(e.target.value)}
-                  value={arrival}
-                >
-                  <option value="">{translations[language].selectReturn}</option>
-                  {cities.map(city => (
-                    <option key={`to-${city}`} value={city}>{city}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="flex-1">
-                <label className="block text-lg font-medium text-gray-700 mb-2">
-                  <Calendar className="inline-block mr-2 h-5 w-5 text-blue-500" />
-                  {translations[language].outboundDate}
-                </label>
-                <input
-                  type="date"
-                  className="w-full p-3 h-12 bg-gray-100 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
-                  onChange={(e) => { setDate(e.target.value); setReturnDate(e.target.value); }}
-                  value={date}
-                  min={today}
-                />
-              </div>
-
-              {tripType === "round-trip" && (
+              {/* Date fields - stacked on mobile, side by side on larger screens */}
+              <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
                 <div className="flex-1">
-                  <label className="block text-lg font-medium text-gray-700 mb-2">
-                    <Calendar className="inline-block mr-2 h-5 w-5 text-blue-500" />
-                    {translations[language].returnDate}
+                  <label className="block text-base sm:text-lg font-medium text-gray-700 mb-1 sm:mb-2">
+                    <Calendar className="inline-block mr-1 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5 text-blue-500" />
+                    {translations[language].outboundDate}
                   </label>
                   <input
                     type="date"
-                    className="w-full p-3 h-12 bg-gray-100 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-base"
-                    onChange={(e) => setReturnDate(e.target.value)}
-                    value={returnDate}
-                    min={date || today}
+                    className="w-full p-2 sm:p-3 h-10 sm:h-12 bg-gray-100 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+                    onChange={(e) => { setDate(e.target.value); setReturnDate(e.target.value); }}
+                    value={date}
+                    min={today}
                   />
                 </div>
-              )}
+
+                {tripType === "round-trip" && (
+                  <div className="flex-1">
+                    <label className="block text-base sm:text-lg font-medium text-gray-700 mb-1 sm:mb-2">
+                      <Calendar className="inline-block mr-1 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5 text-blue-500" />
+                      {translations[language].returnDate}
+                    </label>
+                    <input
+                      type="date"
+                      className="w-full p-2 sm:p-3 h-10 sm:h-12 bg-gray-100 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+                      onChange={(e) => setReturnDate(e.target.value)}
+                      value={returnDate}
+                      min={date || today}
+                    />
+                  </div>
+                )}
+              </div>
             </div>
             
             {validationError && (
-              <div className="text-red-600 text-center p-2 bg-red-50 rounded-lg">
+              <div className="text-red-600 text-center p-2 bg-red-50 rounded-lg text-sm sm:text-base">
                 {validationError}
               </div>
             )}
             
             <button
-              className="w-full bg-blue-600 text-white py-3 rounded-xl shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-center transition"
+              className="w-full bg-blue-600 text-white py-2 sm:py-3 rounded-xl shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-center transition text-sm sm:text-base"
               onClick={search}
               disabled={isSearching}
             >
               {isSearching ? (
                 <>
-                  <RefreshCw className="animate-spin h-5 w-5 mr-2" />
+                  <RefreshCw className="animate-spin h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
                   {translations[language].searching}
                 </>
               ) : (
                 <>
-                  <Search className="h-5 w-5 mr-2" />
+                  <Search className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
                   {translations[language].searchTrains}
                 </>
               )}
@@ -444,52 +464,64 @@ export default function TrainTicketSearch() {
         </div>
 
         {/* Results Sections */}
-        <div className="mt-8 space-y-4">
-          {results.length > 0 && (
+        <div className="mt-6 sm:mt-8 space-y-3 sm:space-y-4">
+          {searchPerformed && results.length > 0 && !validationError && (
             <div className="flex justify-between items-center">
-              <h2 className="text-xl font-bold text-gray-800">
+              <h2 className="text-lg sm:text-xl font-bold text-gray-800">
                 {results.length} {translations[language].outboundFound}
-                {departure && arrival && ` ${translations[language].from} ${departure} ${translations[language].to} ${arrival}`}
-                {date && ` ${translations[language].on} ${formatDate(date)}`}
+                <span className="hidden sm:inline">
+                  {departure && arrival && ` ${translations[language].from} ${departure} ${translations[language].to} ${arrival}`}
+                  {date && ` ${translations[language].on} ${formatDate(date)}`}
+                </span>
               </h2>
             </div>
           )}
           
-          {results.length > 0 ? (
-            <div className="space-y-4">
-              {results.map((train) => 
-                renderTrainResultItem(train, selectedTrain === train.id, setSelectedTrain)
-              )}
-            </div>
+          {searchPerformed && !validationError ? (
+            results.length > 0 ? (
+              <div className="space-y-3 sm:space-y-4">
+                {results.map((train) => 
+                  renderTrainResultItem(train, selectedTrain === train.id, setSelectedTrain)
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-6 sm:py-10">
+                {isSearching ? (
+                  <div className="flex flex-col items-center">
+                    <RefreshCw className="animate-spin h-8 w-8 sm:h-10 sm:w-10 text-blue-500 mb-3 sm:mb-4" />
+                    <p className="text-lg sm:text-xl text-gray-600">{translations[language].searchForTrains}</p>
+                  </div>
+                ) : (
+                  <div className="bg-white p-4 sm:p-8 rounded-xl shadow-md">
+                    <p className="text-lg sm:text-xl text-gray-700 font-medium">{translations[language].noOutboundFound}</p>
+                    <p className="text-sm sm:text-base text-gray-500 mt-2">{translations[language].tryAdjusting}</p>
+                  </div>
+                )}
+              </div>
+            )
           ) : (
-            <div className="text-center py-10">
-              {isSearching ? (
-                <div className="flex flex-col items-center">
-                  <RefreshCw className="animate-spin h-10 w-10 text-blue-500 mb-4" />
-                  <p className="text-xl text-gray-600">{translations[language].searchForTrains}</p>
-                </div>
-              ) : (
-                <div className="bg-white p-6 sm:p-8 rounded-xl shadow-md">
-                  <p className="text-xl text-gray-700 font-medium">{translations[language].noOutboundFound}</p>
-                  <p className="text-gray-500 mt-2">{translations[language].tryAdjusting}</p>
-                </div>
-              )}
+            <div className="text-center py-6 sm:py-10">
+              <div className="bg-white p-4 sm:p-8 rounded-xl shadow-md">
+                <p className="text-lg sm:text-xl text-gray-700 font-medium">{translations[language].searchTrainsPrompt}</p>
+              </div>
             </div>
           )}
         </div>
 
         {/* Return Trains Results Section (for Round Trip) */}
-        {tripType === "round-trip" && returnResults.length > 0 && (
-          <div className="mt-8 space-y-4">
+        {searchPerformed && !validationError && tripType === "round-trip" && returnResults.length > 0 && (
+          <div className="mt-6 sm:mt-8 space-y-3 sm:space-y-4">
             <div className="flex justify-between items-center">
-              <h2 className="text-xl font-bold text-gray-800">
+              <h2 className="text-lg sm:text-xl font-bold text-gray-800">
                 {returnResults.length} {translations[language].returnFound}
-                {arrival && departure && ` from ${arrival} to ${departure}`}
-                {returnDate && ` on ${formatDate(returnDate)}`}
+                <span className="hidden sm:inline">
+                  {arrival && departure && ` from ${arrival} to ${departure}`}
+                  {returnDate && ` on ${formatDate(returnDate)}`}
+                </span>
               </h2>
             </div>
             
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {returnResults.map((train) => 
                 renderTrainResultItem(train, selectedReturnTrain === train.id, setSelectedReturnTrain, true)
               )}
@@ -498,31 +530,26 @@ export default function TrainTicketSearch() {
         )}
 
         {/* Next Button */}
-        <div className="bottom-6 right-6 mt-5">
+        <div className="mt-4 sm:mt-5 flex justify-end">
           <button
-            className={`bg-green-500 text-white px-4 sm:px-6 py-3 rounded-xl shadow-md transition flex items-center ${
-              (tripType === "one-way" && selectedTrain) || 
-              (tripType === "round-trip" && selectedTrain && selectedReturnTrain) 
-                ? "hover:bg-green-600" 
-                : "opacity-50 cursor-not-allowed"
+            className={`bg-green-500 text-white px-3 sm:px-6 py-2 sm:py-3 rounded-xl shadow-md transition flex items-center text-sm sm:text-base ${
+              isContinueEnabled() ? "hover:bg-green-600" : "opacity-50 cursor-not-allowed"
             }`}
-            disabled={
-              tripType === "one-way" 
-                ? !selectedTrain 
-                : !(selectedTrain && selectedReturnTrain)
-            }
+            disabled={!isContinueEnabled()}
             onClick={proceedToNextPage}
           >
             {translations[language].continueBooking}
-            <ArrowRight className="ml-2 h-5 w-5" />
+            <ArrowRight className="ml-1 sm:ml-2 h-4 w-4 sm:h-5 sm:w-5" />
           </button>
         </div>
       </div>
-      <motion.div 
-      variants={slideFromRight}
-      className="md:sticky md:top-6 md:h-fit pt-12">  {/* Adds sticky positioning */}
-        <ProgressSteps currentStep="train-selection" />
-      </motion.div>
-  </motion.div>
+
+      {/* Progress steps - shown below on mobile, to the side on desktop */}
+      <div className="md:w-64 lg:w-72">
+        <motion.div variants={slideFromRight} className="md:sticky md:top-6 md:h-fit pt-4 md:pt-12">
+          <ProgressSteps currentStep="train-selection" />
+        </motion.div>
+      </div>
+    </motion.div>
   );
 }
