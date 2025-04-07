@@ -1,12 +1,10 @@
-import { h6 } from 'framer-motion/client';
 import React, { useState,  useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import Navbar from "./Navbar"
 import TermsAndConditionsPopup from './TermsConditions';
 import ProgressSteps from "./ProgressSteps.jsx"
 import { useLanguage } from './LanguageContext.jsx';
 import translations from './translations.jsx';
-  
+import axios from 'axios';
 const PaymentModal = ({ 
   isOpen, 
   onClose, 
@@ -373,19 +371,71 @@ if (cleanedBirthDate.length !== 8) {
   };
   
   // Handle final submission
-  const handleFinalSubmit = (paymentData) => {
-    // In a real application, you would process the payment here
-    // For this demo, we'll just show success and navigate
-    alert('Payment successful! Your tickets have been booked.');
-    navigate('/', { 
-      state: { 
-        bookingConfirmation: {
-          ...bookingData,
-          ...paymentData,
-          confirmationNumber: 'TKT' + Math.floor(100000 + Math.random() * 900000)
+  const handleFinalSubmit = async (paymentData) => {
+    // In a real application, you would process the payment here.
+    // For demo, we assume the payment is successful.
+  
+    // 1. Create the ticket first (example: POST to /api/tickets)
+    try {
+      const ticketPayload = {
+        // populate the ticket fields as required, for example:
+        name: passengers[0].firstName,
+        surname: passengers[0].surname,
+        governmentId: passengers[0].governmentId,
+        phone: passengers[0].phoneNumber,
+        email: passengers[0].email,
+        birthDate: passengers[0].birthDate, // format as needed
+        price: priceDetails.grandTotal,
+        seat: selectedSeats.outbound[0].number, // adapt as needed
+        wagonId: selectedSeats.outbound[0].wagon,
+        seferId: 123, // set appropriate id from booking data
+        userId: 456,  // set user id as applicable
+        ticketId: null  // let backend generate if needed
+      };
+  
+      const ticketResponse = await axios.post('http://localhost:8080/Tickets', ticketPayload);
+      const ticket = ticketResponse.data;
+  
+      // 2. Create the invoice
+      const invoicePayload = {
+        cardNumber: paymentData.cardNumber,
+        cardHolder: paymentData.cardHolder,
+        expiryDate: paymentData.expiryDate,
+        cvv: paymentData.cvv,
+        ticketId: ticket.ticketId  // match with the created ticket
+      };
+  
+      await axios.post('http://localhost:8080/invoices', invoicePayload);
+  
+      // 3. Download the PDF invoice by calling the backend endpoint
+      const pdfResponse = await axios.get(`http://localhost:8080/invoices/${ticket.ticketId}/pdf`, {
+        responseType: 'blob'
+      });
+  
+      // Create a blob link to download the PDF
+      const url = window.URL.createObjectURL(new Blob([pdfResponse.data], { type: 'application/pdf' }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `invoice_${ticket.ticketId}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+  
+      // Show success message and navigate or update UI
+      alert(translations[language].paymentSuccess);
+      navigate('/', { 
+        state: { 
+          bookingConfirmation: {
+            ...bookingData,
+            ...paymentData,
+            confirmationNumber: ticket.ticketId
+          }
         }
-      }
-    });
+      });
+    } catch (error) {
+      console.error("Payment or invoice processing error:", error);
+      alert("An error occurred while processing your payment. Please try again.");
+    }
   };
   
   // Go back to seat selection

@@ -1,5 +1,6 @@
 const translations = {
     en: {
+      paymentSuccess: "Payment successful! Your tickets have been booked.",
       //errorpage
       errorPage:{
         notFound: "Page Not Found",
@@ -127,7 +128,7 @@ const translations = {
         continueBooking:"Continue to Booking",
         
         seatsAvailable: "{count} seats available",
-        currencySymbol: "$",
+        currencySymbol: "₺",
         hoursAbbr: "h",
         minutesAbbr: "m",
         from: "from",
@@ -202,7 +203,6 @@ const translations = {
     outboundLabel: "Outbound",
     returnLabel: "Return",
     // Trip Types
-    roundTrip: "Round Trip",
     oneWayTrip: "One Way Trip",
     passenger: "Passenger {number}",
     
@@ -1309,6 +1309,7 @@ const translations = {
         ]
       }
     },
+    paymentSuccess: "Ödeme Başarılı! Biletiniz alındı.",
     }
 }
 

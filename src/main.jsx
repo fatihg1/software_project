@@ -32,6 +32,12 @@ import ManagerRoute from './ManagerRoute.jsx'
 import TicketSignedIn from './TicketSignedIn.jsx'
 import TicketsPage from './MyTicketsPage.jsx'
 import {LanguageProvider} from './LanguageContext.jsx'
+//import { enUS, trTR } from '@clerk/localizations';
+
+/* const localizationMap = {
+  'en-US': enUS,
+  'tr-TR': trTR,
+}; */
 const router=createBrowserRouter([
     {
       path:'/',
@@ -138,11 +144,11 @@ const router=createBrowserRouter([
   if (!PUBLISHABLE_KEY) {
     throw new Error("Missing Publishable Key")
   }
-  
+  //const currentLocalization = localizationMap[window.navigator.language] || localizationMap['en-US'];
   createRoot(document.getElementById('root')).render(
     <StrictMode>
       <LanguageProvider>
-      <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
+      <ClerkProvider /* localization={currentLocalization} */ publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
         <RouterProvider router={router} />
       </ClerkProvider>
       </LanguageProvider>
