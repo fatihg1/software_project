@@ -26,24 +26,7 @@ public class UserService {
 
     // 👇 Kullanıcı eklenince çalışan ise maaş da ekleniyor
     public User addUser(User user) {
-        // Kullanıcı zaten varsa, tekrar ekleme
-        if (repo.findByName(user.getName()).isPresent()) {
-            return null;
-        }
-    
-        User savedUser = repo.save(user);
-    
-        // Sadece admin veya manager için maaş kaydı oluştur
-        if (user.getRole().equalsIgnoreCase("manager") || user.getRole().equalsIgnoreCase("admin")) {
-            Salary salary = new Salary();
-            salary.setName(user.getName());
-            salary.setRole(user.getRole());
-            salary.setSalary(0); // Default maaş
-            salary.setStatus("Unpaid");
-            salaryService.addSalary(salary);
-        }
-    
-        return savedUser;
+        return repo.save(user);
     }
     
 
