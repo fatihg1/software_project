@@ -32,6 +32,7 @@ import ManagerRoute from './ManagerRoute.jsx'
 import TicketSignedIn from './TicketSignedIn.jsx'
 import TicketsPage from './MyTicketsPage.jsx'
 import {LanguageProvider} from './LanguageContext.jsx'
+import AppealManagement from './Admin/AppealManagement.jsx'
 const router=createBrowserRouter([
     {
       path:'/',
@@ -80,6 +81,10 @@ const router=createBrowserRouter([
         { 
           path:'/admin/announcements',
           element:<AnnouncementManagement/> 
+        },
+        { 
+          path:'/admin/appeals',
+          element:<AppealManagement/> 
         },
       ]
       
