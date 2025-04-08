@@ -4,6 +4,10 @@ import { motion } from 'framer-motion';
 import { useLanguage } from './LanguageContext.jsx';
 import translations from './translations.jsx';
 
+// Import your API client or method
+// Assuming it's defined in a file like api.js
+import trainService from "./services/trainService"; // Adjust the import path as needed
+
 const slideUp = {
   hidden: { opacity: 0, y: 50 },
   visible: { 
@@ -13,12 +17,12 @@ const slideUp = {
       type: "spring", 
       stiffness: 100, 
       damping: 10,
-      delay: 0 // Try removing or reducing the delay
+      delay: 0
     }
   }
 };
 
-
+// Keep this for initial testing and fallback
 const trainRoutes = [
   {
     id: 'TR001',
@@ -26,36 +30,9 @@ const trainRoutes = [
     stations: ['Istanbul', 'Ankara', 'Konya', 'Izmir'],
     departureTime: '08:30',
     arrivalTime: '16:45',
-    duration: '8h 15m',
     price: 240
   },
-  {
-    id: 'TR002',
-    name: 'Coastal Route',
-    stations: ['Istanbul', 'Bursa', 'Balikesir', 'Izmir'],
-    departureTime: '09:15',
-    arrivalTime: '18:00',
-    duration: '8h 45m',
-    price: 220
-  },
-  {
-    id: 'TR003',
-    name: 'Eastern Express',
-    stations: ['Ankara', 'Kayseri', 'Sivas', 'Erzurum', 'Kars'],
-    departureTime: '10:00',
-    arrivalTime: '08:30',
-    duration: '22h 30m',
-    price: 320
-  },
-  {
-    id: 'TR004',
-    name: 'Southern Line',
-    stations: ['Ankara', 'Konya', 'Antalya', 'Mersin', 'Adana'],
-    departureTime: '07:45',
-    arrivalTime: '16:30',
-    duration: '8h 45m',
-    price: 270
-  }
+  // ... other routes
 ];
 
 const StationCenter = () => {
@@ -65,8 +42,77 @@ const StationCenter = () => {
   const [suggestions, setSuggestions] = useState([]);
   const [results, setResults] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [allStations, setAllStations] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const getAllStations = () => {
+  // Function to parse the string list from backend
+  const parseTrainRoutes = (routeStrings) => {
+    return routeStrings.map((routeString, index) => {
+      const stations = routeString.split('-');
+      return {
+        id: `TR${(index + 1).toString().padStart(3, '0')}`,
+        name: `${stations[0]} to ${stations[stations.length - 1]} Line`,
+        stations: stations,
+        departureTime: '08:00', // Default values since they're not provided by the API
+        arrivalTime: '16:00',
+        price: 200
+      };
+    });
+  };
+
+  // Function to fetch train routes containing a station
+  const fetchTrainRoutes = async (station) => {
+    if (!station) return;
+    
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const trainLineData = await trainService.getTrainLines(station);
+      // Parse the string list format: "station-station-station"
+      const parsedRoutes = parseTrainRoutes(trainLineData);
+      setResults(parsedRoutes);
+    } catch (err) {
+      console.error('Failed to fetch train routes:', err);
+      setError(t.fetchError || 'Failed to fetch train routes');
+      // Fallback to static data if API fails
+      const matchingRoutes = trainRoutes.filter(route => 
+        route.stations.some(s => 
+          s.toLowerCase().includes(station.toLowerCase())
+        )
+      );
+      setResults(matchingRoutes);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Initial load of all stations
+  useEffect(() => {
+    const loadAllStations = async () => {
+      try {
+        // We'll attempt to get all stations from all routes
+        const allRoutesData = await trainService.getTrainLines('');
+        const parsedRoutes = parseTrainRoutes(allRoutesData);
+        
+        // Extract all unique stations
+        const stationSet = new Set();
+        parsedRoutes.forEach(route => {
+          route.stations.forEach(station => stationSet.add(station));
+        });
+        setAllStations(Array.from(stationSet));
+      } catch (err) {
+        console.error('Failed to load all stations:', err);
+        // Fall back to static data
+        setAllStations(getAllStationsFromStatic());
+      }
+    };
+    
+    loadAllStations();
+  }, []);
+
+  const getAllStationsFromStatic = () => {
     const stationSet = new Set();
     trainRoutes.forEach(route => {
       route.stations.forEach(station => stationSet.add(station));
@@ -80,36 +126,22 @@ const StationCenter = () => {
       return;
     }
     
-    const filteredStations = getAllStations().filter(station => 
+    const filteredStations = allStations.filter(station => 
       station.toLowerCase().includes(searchQuery.toLowerCase())
     );
     setSuggestions(filteredStations);
-  }, [searchQuery]);
-
-  const searchRoutes = (query) => {
-    if (!query) {
-      setResults([]);
-      return;
-    }
-    
-    const matchingRoutes = trainRoutes.filter(route => 
-      route.stations.some(station => 
-        station.toLowerCase().includes(query.toLowerCase())
-      )
-    );
-    setResults(matchingRoutes);
-  };
+  }, [searchQuery, allStations]);
 
   const handleSearch = (e) => {
     e.preventDefault();
-    searchRoutes(searchQuery);
+    fetchTrainRoutes(searchQuery);
     setShowSuggestions(false);
   };
 
   const selectSuggestion = (suggestion) => {
     setSearchQuery(suggestion);
     setShowSuggestions(false);
-    searchRoutes(suggestion);
+    fetchTrainRoutes(suggestion);
   };
 
   return (
@@ -164,8 +196,26 @@ const StationCenter = () => {
         </form>
       </div>
 
+      {isLoading && (
+        <div className="flex justify-center py-8">
+          <div className="loader">Loading...</div> {/* You might want to add a proper loader component */}
+        </div>
+      )}
+
+      {error && (
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.3 }}
+          variants={slideUp}
+          className="text-center p-6 bg-red-50 text-red-800 rounded-lg mb-4"
+        >
+          {error}
+        </motion.div>
+      )}
+
       <div>
-        {searchQuery && results.length === 0 ? (
+        {searchQuery && results.length === 0 && !isLoading ? (
           <motion.div
             initial="hidden"
             whileInView="visible"
@@ -209,9 +259,7 @@ const StationCenter = () => {
                     <span className="font-medium">{train.name}</span>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm text-gray-500">
-                      {t.durationLabel}: {train.duration}
-                    </p>
+                    
                   </div>
                 </div>
 

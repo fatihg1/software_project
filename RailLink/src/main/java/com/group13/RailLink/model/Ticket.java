@@ -3,9 +3,10 @@ package com.group13.RailLink.model;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Date;
 
 @Entity
-@Table(name = "Tickets")
+@Table(name = "tickets")
 public class Ticket {
 
     @Id
@@ -24,6 +25,7 @@ public class Ticket {
     private Long wagonId;
     private Long seferId;
     private Long userId;
+    private Date date = new Date();
     
     // A unique ticket id to distinguish each ticket
     @Column(unique = true)
@@ -46,10 +48,16 @@ public class Ticket {
         this.seferId = seferId;
         this.userId = userId;
         this.ticketId = ticketId;
+        this.date = new Date(); // Set the current date
     }
 
     // Getters and Setters
-
+    public String getDate() {
+        return date.toString();
+    }
+    public void setDate(Date date) {
+        this.date = date;
+    }
     public Long getId() {
         return id;
     }

@@ -4,6 +4,7 @@ import TermsAndConditionsPopup from './TermsConditions';
 import ProgressSteps from "./ProgressSteps.jsx"
 import { useLanguage } from './LanguageContext.jsx';
 import translations from './translations.jsx';
+import trainService from "./services/trainService";
 import axios from 'axios';
 const PaymentModal = ({ 
   isOpen, 
@@ -207,19 +208,17 @@ const PassengerInfoPage = () => {
   const [error, setError] = useState("");
   const [showTerms, setShowTerms] = useState(false);
   const [termsRead, setTermsRead] = useState(false);
-    //Block direct access to payment page
-    useEffect(() => {
-      if (!location.state || !location.state.bookingData) {
-        navigate(translations[language].errorPagePath, { replace: true }); 
-      }
-    }, [location, navigate, language]);
   
-
+  //Block direct access to payment page
+  useEffect(() => {
     if (!location.state || !location.state.bookingData) {
-      return null; 
+      navigate(translations[language].errorPagePath, { replace: true }); 
     }
+  }, [location, navigate, language]);
   
-
+  if (!location.state || !location.state.bookingData) {
+    return null; 
+  }
   
   const handlePayment = () => {
     if (!userAgreement) {
@@ -235,9 +234,14 @@ const PassengerInfoPage = () => {
       outbound: [],
       return: []
     }, 
+    selectedSeatPrices = {  // This will be used to display seat prices
+      outbound: [],
+      return: []
+    },
     outboundTrain = {}, 
     returnTrain = {}, 
-    tripType 
+    tripType,
+    totalPrice 
   } = bookingData;
   
   // Passenger information state
@@ -258,8 +262,18 @@ const PassengerInfoPage = () => {
   // Validation state for passenger info
   const [errors, setErrors] = useState({});
   
-  // Calculate total price
+  // Use the passed total price if available, otherwise calculate it
   const calculateTotalPrice = () => {
+    // Use the totalPrice from bookingData if available
+    if (totalPrice !== undefined) {
+      return {
+        outboundTotal: tripType === 'round-trip' ? totalPrice / 2 : totalPrice,
+        returnTotal: tripType === 'round-trip' ? totalPrice / 2 : 0,
+        grandTotal: totalPrice
+      };
+    }
+    
+    // Fall back to the original calculation if totalPrice is not provided
     if (tripType === 'round-trip') {
       const outboundPrice = outboundTrain.price || 0;
       const returnPrice = returnTrain.price || 0;
@@ -281,6 +295,24 @@ const PassengerInfoPage = () => {
     }
   };
 
+  // Function to calculate individual passenger's price
+  const calculatePassengerPrice = (passengerIndex) => {
+    const outboundSeatIndex = passengerIndex % selectedSeats.outbound.length;
+    const outboundPrice = selectedSeatPrices.outbound[outboundSeatIndex] || 0;
+    
+    let returnPrice = 0;
+    if (tripType === 'round-trip' && selectedSeatPrices.return && selectedSeatPrices.return.length > 0) {
+      const returnSeatIndex = passengerIndex % selectedSeats.return.length;
+      returnPrice = selectedSeatPrices.return[returnSeatIndex] || 0;
+    }
+    
+    return {
+      outboundPrice,
+      returnPrice,
+      totalPrice: outboundPrice + returnPrice
+    };
+  };
+
   const priceDetails = calculateTotalPrice();
   
   // Handle passenger info input changes
@@ -300,6 +332,7 @@ const PassengerInfoPage = () => {
       setErrors(newErrors);
     }
   };
+
   
   // Validate passenger information
   const validatePassengers = () => {
@@ -331,38 +364,52 @@ const PassengerInfoPage = () => {
       }
       
       // Birth date validation
-const cleanedBirthDate = passenger.birthDate.replace(/\D/g, '');
-if (cleanedBirthDate.length !== 8) {
-  newErrors[`${index}-birthDate`] = 'Birth date must be 8 digits';
-} else {
-  const day = parseInt(cleanedBirthDate.slice(0, 2), 10);
-  const month = parseInt(cleanedBirthDate.slice(2, 4), 10);
-  const year = parseInt(cleanedBirthDate.slice(4), 10);
+      const cleanedBirthDate = passenger.birthDate.replace(/\D/g, '');
+      if (cleanedBirthDate.length !== 8) {
+        newErrors[`${index}-birthDate`] = 'Birth date must be 8 digits';
+      } else {
+        const day = parseInt(cleanedBirthDate.slice(0, 2), 10);
+        const month = parseInt(cleanedBirthDate.slice(2, 4), 10);
+        const year = parseInt(cleanedBirthDate.slice(4), 10);
 
-  // Check month is between 1 and 12
-  if (month < 1 || month > 12) {
-    newErrors[`${index}-birthDate`] = 'Invalid month';
-  }
+        // Check month is between 1 and 12
+        if (month < 1 || month > 12) {
+          newErrors[`${index}-birthDate`] = 'Invalid month';
+        }
 
-  // Check day is valid for the month
-  const daysInMonth = new Date(year, month, 0).getDate();
-  if (day < 1 || day > daysInMonth) {
-    newErrors[`${index}-birthDate`] = 'Invalid day for the month';
-  }
+        // Check day is valid for the month
+        const daysInMonth = new Date(year, month, 0).getDate();
+        if (day < 1 || day > daysInMonth) {
+          newErrors[`${index}-birthDate`] = 'Invalid day for the month';
+        }
 
-  // Check date is not in the future
-  const inputDate = new Date(year, month - 1, day);
-  const today = new Date();
-  if (inputDate > today) {
-    newErrors[`${index}-birthDate`] = 'Invalid year';
-  }
-}
+        // Check date is not in the future
+        const inputDate = new Date(year, month - 1, day);
+        const today = new Date();
+        if (inputDate > today) {
+          newErrors[`${index}-birthDate`] = 'Invalid year';
+        }
+      }
     });
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-  
+  const handleGoBack = () => {
+    navigate(-1);
+  };
+
+  const formatBirthDate = (dateStr) => {
+    // Remove non-digit characters
+    const digits = dateStr.replace(/\D/g, '');
+    if (digits.length === 8) {
+      const day = digits.substring(0, 2);
+      const month = digits.substring(2, 4);
+      const year = digits.substring(4);
+      return `${year}-${month}-${day}`;
+    }
+    return dateStr; // fallback in case format is unexpected
+  };
   // Handle proceed to payment
   const handleProceedToPayment = () => {
     if (validatePassengers() && handlePayment()) {
@@ -372,76 +419,92 @@ if (cleanedBirthDate.length !== 8) {
   
   // Handle final submission
   const handleFinalSubmit = async (paymentData) => {
-    // In a real application, you would process the payment here.
-    // For demo, we assume the payment is successful.
-  
-    // 1. Create the ticket first (example: POST to /api/tickets)
     try {
-      const ticketPayload = {
-        // populate the ticket fields as required, for example:
-        name: passengers[0].firstName,
-        surname: passengers[0].surname,
-        governmentId: passengers[0].governmentId,
-        phone: passengers[0].phoneNumber,
-        email: passengers[0].email,
-        birthDate: passengers[0].birthDate, // format as needed
-        price: priceDetails.grandTotal,
-        seat: selectedSeats.outbound[0].number, // adapt as needed
-        wagonId: selectedSeats.outbound[0].wagon,
-        seferId: 123, // set appropriate id from booking data
-        userId: 456,  // set user id as applicable
-        ticketId: null  // let backend generate if needed
+  
+      const seferId = outboundTrain?.seferId || bookingData?.seferId;
+      if (!seferId) throw new Error('Sefer ID missing');
+      const finalSeatUpdate = {
+        outboundSeats: selectedSeats.outbound.map(seat => ({
+          wagon: typeof seat.wagon === 'string' ? parseInt(seat.wagon) : seat.wagon,
+          number: typeof seat.number === 'string' ? parseInt(seat.number) : seat.number
+        })),
+        returnSeats: tripType === 'round-trip' ? selectedSeats.return.map(seat => ({
+          wagon: typeof seat.wagon === 'string' ? parseInt(seat.wagon) : seat.wagon,
+          number: typeof seat.number === 'string' ? parseInt(seat.number) : seat.number
+        })) : [],
+        outboundTrainIds: outboundTrain.trainPrimaryIds,
+        returnTrainIds: tripType === 'round-trip' ? returnTrain.trainPrimaryIds : [],
       };
   
-      const ticketResponse = await axios.post('http://localhost:8080/Tickets', ticketPayload);
-      const ticket = ticketResponse.data;
+      // 2. Generate a temp ticket ID to use for invoice
+      const tempTicketId = `TKT-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
   
-      // 2. Create the invoice
+      // 3. Create the invoice
       const invoicePayload = {
         cardNumber: paymentData.cardNumber,
         cardHolder: paymentData.cardHolder,
         expiryDate: paymentData.expiryDate,
         cvv: paymentData.cvv,
-        ticketId: ticket.ticketId  // match with the created ticket
+        ticketId: tempTicketId,
       };
+      // 5. Now create the ticket in DB
+      const ticketPayload = {
+        name: passengers[0].firstName,
+        surname: passengers[0].surname,
+        governmentId: passengers[0].governmentId,
+        phone: passengers[0].phoneNumber,
+        email: passengers[0].email,
+        birthDate: formatBirthDate(passengers[0].birthDate),
+        price: priceDetails.grandTotal,
+        seat: selectedSeats.outbound[0].number.toString(),
+        wagonId: Number(selectedSeats.outbound[0].wagon),
+        seferId: seferId,  // ✅ pulled from actual data
+        ticketId: tempTicketId,
+        date: new Date().toISOString(),
+      };
+      await axios.post('http://localhost:8080/bookings', {
+        seatUpdate: finalSeatUpdate,
+        ticket: ticketPayload,
+        invoice: invoicePayload
+      });
   
-      await axios.post('http://localhost:8080/invoices', invoicePayload);
-  
-      // 3. Download the PDF invoice by calling the backend endpoint
-      const pdfResponse = await axios.get(`http://localhost:8080/invoices/${ticket.ticketId}/pdf`, {
+      // 4. Download the invoice
+      const pdfResponse = await axios.get(`http://localhost:8080/api/invoices/${tempTicketId}/pdf`, {
         responseType: 'blob'
       });
   
-      // Create a blob link to download the PDF
       const url = window.URL.createObjectURL(new Blob([pdfResponse.data], { type: 'application/pdf' }));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `invoice_${ticket.ticketId}.pdf`);
+      link.setAttribute('download', `invoice_${tempTicketId}.pdf`);
       document.body.appendChild(link);
       link.click();
       link.parentNode.removeChild(link);
   
-      // Show success message and navigate or update UI
+      // 6. Show confirmation and navigate
       alert(translations[language].paymentSuccess);
-      navigate('/', { 
-        state: { 
+      navigate('/', {
+        state: {
           bookingConfirmation: {
             ...bookingData,
             ...paymentData,
-            confirmationNumber: ticket.ticketId
+            confirmationNumber: tempTicketId
           }
         }
       });
+  
     } catch (error) {
-      console.error("Payment or invoice processing error:", error);
-      alert("An error occurred while processing your payment. Please try again.");
-    }
+      if (!navigator.onLine) {
+        alert(translations[language].networkError || 'Network connection lost. Please check your internet connection and try again.');
+      } else {
+        alert(error.message || translations[language].bookingError || 'An error occurred while booking your tickets. Please try again.');
+      }
+  
+      setIsPaymentModalOpen(false);
+      console.error('Booking error:', error);
+    } 
   };
   
-  // Go back to seat selection
-  const handleGoBack = () => {
-    navigate(-1);
-  };
   
   return (
     <div className="flex flex-col md:flex-row gap-8 sm:p-6 sm:pt-15 max-w-6xl mx-auto">
@@ -454,19 +517,19 @@ if (cleanedBirthDate.length !== 8) {
                 ? translations[language].roundTrip 
                 : translations[language].oneWayTrip}
             </h2>
-          {outboundTrain.departure && outboundTrain.arrival && (
+          {outboundTrain.departureStation && outboundTrain.arrivalStation && (
             <div>
               <p className="text-blue-600">
-                {translations[language].outboundLabel}: {outboundTrain.departure} {translations[language].to} {outboundTrain.arrival}
-                {outboundTrain.date && ` • ${outboundTrain.date}`}
-                {outboundTrain.time && ` • ${outboundTrain.time}`}
+                {translations[language].outboundLabel}: {outboundTrain.departureStation} {translations[language].to} {outboundTrain.arrivalStation}
+                {outboundTrain.departureDateTime && ` • ${outboundTrain.departureDateTime.slice(0,10)}`}
+                {outboundTrain.departureDateTime && ` • ${outboundTrain.departureDateTime.slice(11,16)}`}
               </p>
 
               {tripType === 'round-trip' && returnTrain.departure && (
                 <p className="text-blue-600">
-                  {translations[language].returnLabel}: {returnTrain.departure} {translations[language].to} {returnTrain.arrival}
-                  {returnTrain.date && ` • ${returnTrain.date}`}
-                  {returnTrain.time && ` • ${returnTrain.time}`}
+                  {translations[language].returnLabel}: {returnTrain.departureStation} {translations[language].to} {returnTrain.arrivalStation}
+                  {returnTrain.departureDateTime && ` • ${returnTrain.departureDateTime.slice(0,10)}`}
+                  {returnTrain.departureDateTime && ` • ${returnTrain.departureDateTime.slice(11,16)}`}
                 </p>
               )}
             </div>
@@ -477,171 +540,193 @@ if (cleanedBirthDate.length !== 8) {
         <h3 className="text-2xl font-bold mb-6">{translations[language].passengerInformation}</h3>
           
           <form>
-            {passengers.map((passenger, index) => (
-              <div key={index} className="border-b pb-6 mb-6">
-                <h4 className="text-lg font-semibold mb-4">
-                  {translations[language].passenger.replace('{number}', index % selectedSeats.outbound.length + 1)}
-                </h4>
+            {passengers.map((passenger, index) => {
+              // Calculate price for this passenger
+              const passengerPrice = calculatePassengerPrice(index);
+              
+              return (
+                <div key={index} className="border-b pb-6 mb-6">
+                  <h4 className="text-lg font-semibold mb-4">
+                    {translations[language].passenger.replace('{number}', index % selectedSeats.outbound.length + 1)}
+                  </h4>
 
-                <h5 className="text-lg font-semibold mb-4">
-                  {tripType === 'round-trip' ? translations[language].outboundTrain + ' ' : ''}
-                  {translations[language].wagon} {selectedSeats.outbound[index % selectedSeats.outbound.length].wagon}, {" "}
-                  {translations[language].seat} {selectedSeats.outbound[index % selectedSeats.outbound.length].number}
-                </h5>
+                  <div className="mb-4 p-3 bg-gray-50 rounded-md">
+                    <div className="flex justify-between items-center mb-2">
+                      <h5 className="text-md font-semibold">
+                        {tripType === 'round-trip' ? translations[language].outboundTrain + ' ' : ''}
+                        {translations[language].wagon} {selectedSeats.outbound[index % selectedSeats.outbound.length].wagon}, {" "}
+                        {translations[language].seat} {selectedSeats.outbound[index % selectedSeats.outbound.length].number}
+                      </h5>
+                      <span className="font-medium text-green-700">
+                        {translations[language].currencySymbol}{passengerPrice.outboundPrice.toFixed(2)}
+                      </span>
+                    </div>
 
-                {tripType === 'round-trip' && (
-                  <h6 className="text-lg font-semibold mb-4">
-                    {translations[language].returnTrain}: {translations[language].wagon} {selectedSeats.return[index % selectedSeats.return.length].wagon}, 
-                    {translations[language].seat} {selectedSeats.return[index % selectedSeats.return.length].number}
-                  </h6>
-                )}
-                
-                <div className="grid grid-cols-2 gap-4">
+                    {tripType === 'round-trip' && (
+                      <div className="flex justify-between items-center">
+                        <h6 className="text-md font-semibold">
+                          {translations[language].returnTrain}: {translations[language].wagon} {selectedSeats.return[index % selectedSeats.return.length].wagon}, {" "}
+                          {translations[language].seat} {selectedSeats.return[index % selectedSeats.return.length].number}
+                        </h6>
+                        <span className="font-medium text-green-700">
+                          {translations[language].currencySymbol}{passengerPrice.returnPrice.toFixed(2)}
+                        </span>
+                      </div>
+                    )}
+                    
+                    {/* Total for this passenger */}
+                    <div className="flex justify-between items-center mt-2 pt-2 border-t border-gray-200">
+                      <span className="font-medium">{translations[language].totalForPassenger}:</span>
+                      <span className="font-bold text-green-700">
+                        {translations[language].currencySymbol}{passengerPrice.totalPrice.toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
                   
-                
-                  <div>
-                  <label className="block text-gray-700 mb-1">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-gray-700 mb-1">
                         {translations[language].firstName}
                       </label>
-                    <input
-                      type="text"
-                      name="firstName"
-                      value={passenger.firstName}
-                      onChange={(e) => handlePassengerInputChange(index, e)}
-                      className={`w-full px-3 py-2 border rounded-md ${errors[`${index}-firstName`] ? 'border-red-500' : 'border-gray-300'}`}
-                    />
-                    {errors[`${index}-firstName`] && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {translations[language].firstNameRequired}
-                      </p>
-                    )}
-                  </div>
-                  
-                  <div>
-                    <label className="block text-gray-700 mb-1">{translations[language].surname}</label>
-                    <input
-                      type="text"
-                      name="surname"
-                      value={passenger.surname}
-                      onChange={(e) => handlePassengerInputChange(index, e)}
-                      className={`w-full px-3 py-2 border rounded-md ${errors[`${index}-surname`] ? 'border-red-500' : 'border-gray-300'}`}
-                    />
-                    {errors[`${index}-surname`] && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {translations[language].surnameRequired}
-                      </p>
-                    )}
-                  </div>
-                  
-                  <div>
-                    <label className="block text-gray-700 mb-1">{translations[language].governmentId}</label>
-                    <input
-                      type="text"
-                      name="governmentId"
-                      value={passenger.governmentId}
-                      onChange={(e) => handlePassengerInputChange(index, e)}
-                      placeholder="11-digit ID number"
-                      className={`w-full px-3 py-2 border rounded-md ${errors[`${index}-governmentId`] ? 'border-red-500' : 'border-gray-300'}`}
-                    />
-                    {errors[`${index}-governmentId`] && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {translations[language].governmentIdRequired}
-                      </p>
-                    )}
-                  </div>
-                  
-                  <div>
-                    <label className="block text-gray-700 mb-1">{translations[language].phoneNumber}</label>
-                    <input
-                      type="tel"
-                      name="phoneNumber"
-                      value={passenger.phoneNumber}
-                      onChange={(e) => handlePassengerInputChange(index, e)}
-                      placeholder="+1234567890"
-                      className={`w-full px-3 py-2 border rounded-md ${errors[`${index}-phoneNumber`] ? 'border-red-500' : 'border-gray-300'}`}
-                    />
-                    {errors[`${index}-phoneNumber`] && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {translations[language].phoneNumberRequired}
-                      </p>
-                    )}
-                  </div>
-                  
-                  <div>
-                    <label className="block text-gray-700 mb-1">{translations[language].email}</label>
-                    <input
-                      type="email"
-                      name="email"
-                      value={passenger.email}
-                      onChange={(e) => handlePassengerInputChange(index, e)}
-                      placeholder="your@email.com"
-                      className={`w-full px-3 py-2 border rounded-md ${errors[`${index}-email`] ? 'border-red-500' : 'border-gray-300'}`}
-                    />
-                    {errors[`${index}-email`] && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {translations[language].emailRequired}
-                      </p>
-                    )}
-                  </div>
-                  
-                  <div>
+                      <input
+                        type="text"
+                        name="firstName"
+                        value={passenger.firstName}
+                        onChange={(e) => handlePassengerInputChange(index, e)}
+                        className={`w-full px-3 py-2 border rounded-md ${errors[`${index}-firstName`] ? 'border-red-500' : 'border-gray-300'}`}
+                      />
+                      {errors[`${index}-firstName`] && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {translations[language].firstNameRequired}
+                        </p>
+                      )}
+                    </div>
+                    
+                    <div>
+                      <label className="block text-gray-700 mb-1">{translations[language].surname}</label>
+                      <input
+                        type="text"
+                        name="surname"
+                        value={passenger.surname}
+                        onChange={(e) => handlePassengerInputChange(index, e)}
+                        className={`w-full px-3 py-2 border rounded-md ${errors[`${index}-surname`] ? 'border-red-500' : 'border-gray-300'}`}
+                      />
+                      {errors[`${index}-surname`] && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {translations[language].surnameRequired}
+                        </p>
+                      )}
+                    </div>
+                    
+                    <div>
+                      <label className="block text-gray-700 mb-1">{translations[language].governmentId}</label>
+                      <input
+                        type="text"
+                        name="governmentId"
+                        value={passenger.governmentId}
+                        onChange={(e) => handlePassengerInputChange(index, e)}
+                        placeholder="11-digit ID number"
+                        className={`w-full px-3 py-2 border rounded-md ${errors[`${index}-governmentId`] ? 'border-red-500' : 'border-gray-300'}`}
+                      />
+                      {errors[`${index}-governmentId`] && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {translations[language].governmentIdRequired}
+                        </p>
+                      )}
+                    </div>
+                    
+                    <div>
+                      <label className="block text-gray-700 mb-1">{translations[language].phoneNumber}</label>
+                      <input
+                        type="tel"
+                        name="phoneNumber"
+                        value={passenger.phoneNumber}
+                        onChange={(e) => handlePassengerInputChange(index, e)}
+                        placeholder="+1234567890"
+                        className={`w-full px-3 py-2 border rounded-md ${errors[`${index}-phoneNumber`] ? 'border-red-500' : 'border-gray-300'}`}
+                      />
+                      {errors[`${index}-phoneNumber`] && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {translations[language].phoneNumberRequired}
+                        </p>
+                      )}
+                    </div>
+                    
+                    <div>
+                      <label className="block text-gray-700 mb-1">{translations[language].email}</label>
+                      <input
+                        type="email"
+                        name="email"
+                        value={passenger.email}
+                        onChange={(e) => handlePassengerInputChange(index, e)}
+                        placeholder="your@email.com"
+                        className={`w-full px-3 py-2 border rounded-md ${errors[`${index}-email`] ? 'border-red-500' : 'border-gray-300'}`}
+                      />
+                      {errors[`${index}-email`] && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {translations[language].emailRequired}
+                        </p>
+                      )}
+                    </div>
+                    
+                    <div>
                       <label className="block text-gray-700 mb-1">{translations[language].birthDate}</label>
                       <input
-                          type="text"
-                          name="birthDate"
-                          value={passenger.birthDate.replace(/(\d{2})(\d{2})(\d{4})/, '$1/$2/$3')}
-                          onChange={(e) => {
+                        type="text"
+                        name="birthDate"
+                        value={passenger.birthDate.replace(/(\d{2})(\d{2})(\d{4})/, '$1/$2/$3')}
+                        onChange={(e) => {
                           // Remove any non-digit characters
                           const value = e.target.value.replace(/\D/g, '').slice(0, 8);
                           handlePassengerInputChange(index, { 
-                              target: { 
+                            target: { 
                               name: 'birthDate', 
                               value: value 
-                              } 
+                            } 
                           });
-                          }}
-                          placeholder="DD/MM/YYYY"
-                          maxLength="10"
-                          className={`w-full px-3 py-2 border rounded-md ${errors[`${index}-birthDate`] ? 'border-red-500' : 'border-gray-300'}`}
+                        }}
+                        placeholder="DD/MM/YYYY"
+                        maxLength="10"
+                        className={`w-full px-3 py-2 border rounded-md ${errors[`${index}-birthDate`] ? 'border-red-500' : 'border-gray-300'}`}
                       />
                       {errors[`${index}-birthDate`] && (
-                          <p className="text-red-500 text-sm mt-1">
+                        <p className="text-red-500 text-sm mt-1">
                           {translations[language].birthDateRequired}
-                          </p>
+                        </p>
                       )}
-                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
             <div className="flex items-center mb-4">
-            <input
-              type="checkbox"
-              id="agreement"
-              className="mr-2"
-              checked={userAgreement}
-              onChange={() => {
-                if (!termsRead) {
-                  setShowTerms(true);
-                }
-                setTermsRead(true);
-                setUserAgreement(!userAgreement);
-                setError("");
-              }}
-            />
-            <label htmlFor="agreement" className="block text-gray-800 font-medium text-sm cursor-pointer transition-colors duration-200">
-            {translations[language].termsAgreement} 
-              
-            </label>
-            <button
-            onClick={() => {setShowTerms(true); setTermsRead(true);}}
-            className="text-blue-600 hover:text-blue-800 text-sm underline pl-1"
-            type="button"
-            >
-             {translations[language].termsAndConditions}
-            </button>
-
-          </div>
-          {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
+              <input
+                type="checkbox"
+                id="agreement"
+                className="mr-2"
+                checked={userAgreement}
+                onChange={() => {
+                  if (!termsRead) {
+                    setShowTerms(true);
+                  }
+                  setTermsRead(true);
+                  setUserAgreement(!userAgreement);
+                  setError("");
+                }}
+              />
+              <label htmlFor="agreement" className="block text-gray-800 font-medium text-sm cursor-pointer transition-colors duration-200">
+                {translations[language].termsAgreement} 
+              </label>
+              <button
+                onClick={() => {setShowTerms(true); setTermsRead(true);}}
+                className="text-blue-600 hover:text-blue-800 text-sm underline pl-1"
+                type="button"
+              >
+                {translations[language].termsAndConditions}
+              </button>
+            </div>
+            {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
+            
             {/* Booking Summary and Total */}
             <div className="mt-6 border-t pt-6">
               <div className="flex justify-between mb-4">
@@ -673,23 +758,23 @@ if (cleanedBirthDate.length !== 8) {
           </form>
         </div>
       </div>
-      </div>
-      {/* Payment Modal */}
-      <PaymentModal
-        isOpen={isPaymentModalOpen}
-        onClose={() => setIsPaymentModalOpen(false)}
-        onSubmit={handleFinalSubmit}
-        priceDetails={priceDetails}
-        passengers={passengers}
-      />
-       <TermsAndConditionsPopup
-        isOpen={showTerms}
-        onClose={() => setShowTerms(false)}
-      />
-      <div className="md:sticky md:top-6 md:h-fit pt-12">
-        <ProgressSteps currentStep="payment" />
-      </div>
     </div>
+    {/* Payment Modal */}
+    <PaymentModal
+      isOpen={isPaymentModalOpen}
+      onClose={() => setIsPaymentModalOpen(false)}
+      onSubmit={handleFinalSubmit}
+      priceDetails={priceDetails}
+      passengers={passengers}
+    />
+    <TermsAndConditionsPopup
+      isOpen={showTerms}
+      onClose={() => setShowTerms(false)}
+    />
+    <div className="md:sticky md:top-6 md:h-fit pt-12">
+      <ProgressSteps currentStep="payment" />
+    </div>
+  </div>
   );
 };
 

@@ -5,7 +5,7 @@ import com.group13.RailLink.model.Salary;
 import com.group13.RailLink.repository.UserRepository;
 import com.group13.RailLink.service.SalaryService;
 import org.springframework.stereotype.Service;
-
+import jakarta.transaction.Transactional;
 import java.util.List;
 
 @Service
@@ -26,33 +26,30 @@ public class UserService {
 
     // 👇 Kullanıcı eklenince çalışan ise maaş da ekleniyor
     public User addUser(User user) {
-        // Kullanıcı zaten varsa, tekrar ekleme
-        if (repo.findByName(user.getName()).isPresent()) {
-            return null;
-        }
-    
-        User savedUser = repo.save(user);
-    
-        // Sadece admin veya manager için maaş kaydı oluştur
-        if (user.getRole().equalsIgnoreCase("manager") || user.getRole().equalsIgnoreCase("admin")) {
-            Salary salary = new Salary();
-            salary.setName(user.getName());
-            salary.setRole(user.getRole());
-            salary.setSalary(0); // Default maaş
-            salary.setStatus("Unpaid");
-            salaryService.addSalary(salary);
-        }
-    
-        return savedUser;
+        return repo.save(user);
     }
     
 
     public void deleteUser(int id) {
         repo.deleteById(id);
     }
+    
+    @Transactional
+    public User findOrCreateUser(String name, String surname) {
+        // Check if user exists by name and surname
+        User existingUser = repo.findByNameAndSurname(name, surname).orElse(null);
+        if (existingUser != null) {
+            return existingUser;
+        }
 
+        // Create new user if not found
+        User newUser = new User();
+        newUser.setName(name);
+        newUser.setSurname(surname);
+        return repo.save(newUser);
+    }
     public User updateUser(int id, User updatedUser) {
-        updatedUser.setId(id);
+        updatedUser.setId(Long.valueOf(id));
         return repo.save(updatedUser);
     }
 }
