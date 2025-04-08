@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaTrain, FaClipboardList, FaBullhorn, FaSearch, FaBars, FaSignOutAlt, FaTrash, FaPlus, FaEdit, FaSave, FaTimes, FaFilter, FaArrowLeft, FaArrowRight } from "react-icons/fa";
+import { FaTrain, FaClipboardList, FaBullhorn, FaSearch, FaBars, FaSignOutAlt, FaTrash, FaPlus, FaEdit, FaSave, FaTimes, FaFilter, FaArrowLeft, FaArrowRight, FaInbox } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
 const TrainManagement = () => {
@@ -132,6 +132,15 @@ const TrainManagement = () => {
           >
             <FaBullhorn /> <span>Announcements</span>
           </button>
+                    <button 
+                      className="flex items-center space-x-2 p-3 rounded-md hover:bg-purple-700 transition" 
+                      onClick={() => {
+                        navigate("/admin/appeals");
+                        if (isMobile) setSidebarOpen(false);
+                      }}
+                    >
+                    <FaInbox /> <span>Appeal Management</span>
+                    </button>
         </nav>
       </div>
 

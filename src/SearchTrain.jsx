@@ -46,6 +46,7 @@ export default function TrainTicketSearch() {
   const [returnDate, setReturnDate] = useState("");
   const [results, setResults] = useState([]);
   const [returnResults, setReturnResults] = useState([]);
+  const [originalReturnResults, setOriginalReturnResults] = useState([]); // Store original return results
   const [selectedTrain, setSelectedTrain] = useState(null);
   const [selectedReturnTrain, setSelectedReturnTrain] = useState(null);
   const [isSearching, setIsSearching] = useState(false);
@@ -138,10 +139,38 @@ export default function TrainTicketSearch() {
     // Clear results when filters change
     setResults([]);
     setReturnResults([]);
+    setOriginalReturnResults([]); // Clear original results too
     setSelectedTrain(null);
     setSelectedReturnTrain(null);
     setSearchPerformed(false);
   }, [departure, arrival, date, returnDate, tripType]);
+
+  // Filter return trains based on selected outbound train for same-day round trips
+  useEffect(() => {
+    if (tripType === "round-trip" && date === returnDate && selectedTrain && originalReturnResults.length > 0) {
+      const selectedOutboundTrain = results.find(train => train.id === selectedTrain);
+      
+      if (selectedOutboundTrain) {
+        // Filter return results based on outbound arrival time
+        const filteredReturnResults = originalReturnResults.filter(returnTrain => {
+          const outboundArrivalTime = new Date(selectedOutboundTrain.arrivalDateTime).getTime();
+          const returnDepartureTime = new Date(returnTrain.departureDateTime).getTime();
+          
+          return returnDepartureTime > outboundArrivalTime;
+        });
+        
+        setReturnResults(filteredReturnResults);
+        
+        // If currently selected return train is now filtered out, deselect it
+        if (selectedReturnTrain && !filteredReturnResults.some(train => train.id === selectedReturnTrain)) {
+          setSelectedReturnTrain(null);
+        }
+      }
+    } else if (originalReturnResults.length > 0 && (!selectedTrain || date !== returnDate)) {
+      // Reset to original results when conditions change
+      setReturnResults(originalReturnResults);
+    }
+  }, [selectedTrain, tripType, date, returnDate, originalReturnResults]);
 
   // Convert minutes to HH:MM format
   const formatTimeFromMinutes = (minutes) => {
@@ -158,6 +187,7 @@ export default function TrainTicketSearch() {
       setValidationError(translations[language].selectStationsError || "Please select a departure and arrival station");
       setResults([]);
       setReturnResults([]);
+      setOriginalReturnResults([]); // Clear original results too
       setSelectedTrain(null);
       setSelectedReturnTrain(null);
       return;
@@ -171,11 +201,14 @@ export default function TrainTicketSearch() {
       // Call API to search for outbound trains
       const trainsData = await trainService.searchTrains(departure, arrival, date);
       setResults(trainsData);
+      setSelectedTrain(null); // Reset selection when new search is performed
 
       // If round trip, search for return trains
       if (tripType === "round-trip" && departure && arrival) {
         const returnTrainsData = await trainService.searchTrains(arrival, departure, returnDate);
+        setOriginalReturnResults(returnTrainsData); // Store original results
         setReturnResults(returnTrainsData);
+        setSelectedReturnTrain(null); // Reset selection when new search is performed
       }
     } catch (error) {
       console.error("Error searching for trains:", error);
@@ -231,13 +264,24 @@ export default function TrainTicketSearch() {
     }
   };
 
-  const renderTrainResultItem = (train, isSelected, onSelect, isReturn = false) => (
+  // Handles selection of a train
+  const handleTrainSelection = (trainId, isReturn = false) => {
+    if (isReturn) {
+      // Toggle selection for return trains
+      setSelectedReturnTrain(selectedReturnTrain === trainId ? null : trainId);
+    } else {
+      // Toggle selection for outbound trains
+      setSelectedTrain(selectedTrain === trainId ? null : trainId);
+    }
+  };
+
+  const renderTrainResultItem = (train, isSelected, isReturn = false) => (
     <div
       key={train.id}
       className={`bg-white p-4 sm:p-5 rounded-xl shadow-lg border-2 transition cursor-pointer ${
         isSelected ? "border-blue-500 bg-blue-50" : "border-transparent hover:border-blue-300"
       }`}
-      onClick={() => onSelect(train.id)}
+      onClick={() => handleTrainSelection(train.id, isReturn)}
     >
       <div className="flex flex-col md:flex-row md:justify-between gap-4">
         <div className="flex-1">
@@ -345,6 +389,7 @@ export default function TrainTicketSearch() {
               setReturnDate("");
               setSelectedReturnTrain(null);
               setReturnResults([]);
+              setOriginalReturnResults([]);
             }}
           >
             <span className="mr-1 sm:mr-2">{translations[language].oneWay}</span>
@@ -413,7 +458,7 @@ export default function TrainTicketSearch() {
                   <input
                     type="date"
                     className="w-full p-2 sm:p-3 h-10 sm:h-12 bg-gray-100 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
-                    onChange={(e) => { setDate(e.target.value); setReturnDate(e.target.value); }}
+                    onChange={(e) => setDate(e.target.value)}
                     value={date}
                     min={today}
                   />
@@ -481,7 +526,7 @@ export default function TrainTicketSearch() {
             results.length > 0 ? (
               <div className="space-y-3 sm:space-y-4">
                 {results.map((train) => 
-                  renderTrainResultItem(train, selectedTrain === train.id, setSelectedTrain)
+                  renderTrainResultItem(train, selectedTrain === train.id)
                 )}
               </div>
             ) : (
@@ -523,7 +568,7 @@ export default function TrainTicketSearch() {
             
             <div className="space-y-3 sm:space-y-4">
               {returnResults.map((train) => 
-                renderTrainResultItem(train, selectedReturnTrain === train.id, setSelectedReturnTrain, true)
+                renderTrainResultItem(train, selectedReturnTrain === train.id, true)
               )}
             </div>
           </div>

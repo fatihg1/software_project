@@ -38,6 +38,7 @@ import {LanguageProvider} from './LanguageContext.jsx'
   'en-US': enUS,
   'tr-TR': trTR,
 }; */
+import AppealManagement from './Admin/AppealManagement.jsx'
 const router=createBrowserRouter([
     {
       path:'/',
@@ -86,6 +87,10 @@ const router=createBrowserRouter([
         { 
           path:'/admin/announcements',
           element:<AnnouncementManagement/> 
+        },
+        { 
+          path:'/admin/appeals',
+          element:<AppealManagement/> 
         },
       ]
       

@@ -8,6 +8,7 @@ import com.group13.RailLink.model.Train;
 import com.group13.RailLink.model.Wagons;
 
 public class JourneyDTO {
+    public int id;
     private String departureStation;
     private String arrivalStation;
     private int duration;

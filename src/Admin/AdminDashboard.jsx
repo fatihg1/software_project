@@ -1,6 +1,6 @@
 import { useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
-import { FaTrain, FaClipboardList, FaBullhorn, FaBars, FaSignOutAlt, FaChartBar, FaTicketAlt, FaMoneyBillWave, FaTimes } from "react-icons/fa";
+import { FaTrain, FaClipboardList, FaBullhorn, FaBars, FaSignOutAlt, FaChartBar, FaTicketAlt, FaMoneyBillWave, FaTimes, FaInbox } from "react-icons/fa";
 import { useState, useEffect } from "react";
 
 const AdminDashboard = () => {
@@ -96,6 +96,15 @@ const AdminDashboard = () => {
             }}
           >
             <FaBullhorn /> <span>Announcements</span>
+          </button>
+          <button 
+            className="flex items-center space-x-2 p-3 rounded-md hover:bg-purple-700 transition" 
+            onClick={() => {
+              navigate("/admin/appeals");
+              if (isMobile) setSidebarOpen(false);
+            }}
+          >
+            <FaInbox /> <span>Appeal Management</span>
           </button>
         </nav>
       </div>

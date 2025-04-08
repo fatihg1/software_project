@@ -24,4 +24,14 @@ public class AppealController {
     public Appeal submitAppeal(@RequestBody Appeal appeal) {
         return service.addAppeal(appeal);
     }
-}
+
+    @DeleteMapping("/{id}")
+    public void deleteAppeal(@PathVariable int id) {
+        service.deleteAppeal(id);
+    }
+
+    @PutMapping("/{id}/viewed")
+    public Appeal markAsViewed(@PathVariable int id) {
+        return service.markAsViewed(id);
+    }
+} 

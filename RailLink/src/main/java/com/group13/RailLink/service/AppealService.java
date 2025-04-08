@@ -22,4 +22,14 @@ public class AppealService {
     public Appeal addAppeal(Appeal appeal) {
         return repo.save(appeal);
     }
-}
+
+    public void deleteAppeal(int id) {
+        repo.deleteById(id);
+    }
+
+    public Appeal markAsViewed(int id) {
+        Appeal appeal = repo.findById(id).orElseThrow(() -> new RuntimeException("Appeal not found"));
+        appeal.setViewed(true);
+        return repo.save(appeal);
+    }
+} 

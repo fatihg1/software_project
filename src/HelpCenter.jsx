@@ -52,6 +52,9 @@ const HelpCenter = () => {
       user: `${contactInfo.name} ${contactInfo.surname}`,
       subject: appealType,
       message: appealContext,
+      content: appealContext,
+      email: contactInfo.email,
+      phone: contactInfo.phoneNumber,
       date: new Date().toISOString()
     };
   
@@ -67,7 +70,6 @@ const HelpCenter = () => {
       if (response.ok) {
         const newAppealNumber = generateAppealNumber();
         setSubmissionConfirmation(newAppealNumber);
-        // Formu sıfırla
         setAppealType('');
         setContactInfo({ name: '', surname: '', phoneNumber: '', email: '' });
         setTravelInfo({ ticketId: '', departureStation: '', arrivalStation: '' });
