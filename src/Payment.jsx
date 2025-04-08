@@ -1,11 +1,13 @@
+import { h6 } from 'framer-motion/client';
 import React, { useState,  useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import Navbar from "./Navbar"
 import TermsAndConditionsPopup from './TermsConditions';
 import ProgressSteps from "./ProgressSteps.jsx"
 import { useLanguage } from './LanguageContext.jsx';
 import translations from './translations.jsx';
 import trainService from "./services/trainService";
-import axios from 'axios';
+  
 const PaymentModal = ({ 
   isOpen, 
   onClose, 
@@ -398,18 +400,7 @@ const PassengerInfoPage = () => {
   const handleGoBack = () => {
     navigate(-1);
   };
-
-  const formatBirthDate = (dateStr) => {
-    // Remove non-digit characters
-    const digits = dateStr.replace(/\D/g, '');
-    if (digits.length === 8) {
-      const day = digits.substring(0, 2);
-      const month = digits.substring(2, 4);
-      const year = digits.substring(4);
-      return `${year}-${month}-${day}`;
-    }
-    return dateStr; // fallback in case format is unexpected
-  };
+  
   // Handle proceed to payment
   const handleProceedToPayment = () => {
     if (validatePassengers() && handlePayment()) {
@@ -420,91 +411,46 @@ const PassengerInfoPage = () => {
   // Handle final submission
   const handleFinalSubmit = async (paymentData) => {
     try {
-  
-      const seferId = outboundTrain?.seferId || bookingData?.seferId;
-      if (!seferId) throw new Error('Sefer ID missing');
+      // Extract the required booking data from bookingData
       const finalSeatUpdate = {
-        outboundSeats: selectedSeats.outbound.map(seat => ({
-          wagon: typeof seat.wagon === 'string' ? parseInt(seat.wagon) : seat.wagon,
-          number: typeof seat.number === 'string' ? parseInt(seat.number) : seat.number
-        })),
-        returnSeats: tripType === 'round-trip' ? selectedSeats.return.map(seat => ({
-          wagon: typeof seat.wagon === 'string' ? parseInt(seat.wagon) : seat.wagon,
-          number: typeof seat.number === 'string' ? parseInt(seat.number) : seat.number
-        })) : [],
+        selectedSeats: {
+          // Make sure wagon and number are integers
+          outbound: selectedSeats.outbound.map(seat => ({
+            wagon: typeof seat.wagon === 'string' ? parseInt(seat.wagon) : seat.wagon,
+            number: typeof seat.number === 'string' ? parseInt(seat.number) : seat.number
+          })),
+          return: tripType === 'round-trip' ? selectedSeats.return.map(seat => ({
+            wagon: typeof seat.wagon === 'string' ? parseInt(seat.wagon) : seat.wagon,
+            number: typeof seat.number === 'string' ? parseInt(seat.number) : seat.number
+          })) : []
+        },
+        tripType: tripType,
         outboundTrainIds: outboundTrain.trainPrimaryIds,
         returnTrainIds: tripType === 'round-trip' ? returnTrain.trainPrimaryIds : [],
       };
   
-      // 2. Generate a temp ticket ID to use for invoice
-      const tempTicketId = `TKT-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
-  
-      // 3. Create the invoice
-      const invoicePayload = {
-        cardNumber: paymentData.cardNumber,
-        cardHolder: paymentData.cardHolder,
-        expiryDate: paymentData.expiryDate,
-        cvv: paymentData.cvv,
-        ticketId: tempTicketId,
-      };
-      // 5. Now create the ticket in DB
-      const ticketPayload = {
-        name: passengers[0].firstName,
-        surname: passengers[0].surname,
-        governmentId: passengers[0].governmentId,
-        phone: passengers[0].phoneNumber,
-        email: passengers[0].email,
-        birthDate: formatBirthDate(passengers[0].birthDate),
-        price: priceDetails.grandTotal,
-        seat: selectedSeats.outbound[0].number.toString(),
-        wagonId: Number(selectedSeats.outbound[0].wagon),
-        seferId: seferId,  // ✅ pulled from actual data
-        ticketId: tempTicketId,
-        date: new Date().toISOString(),
-      };
-      await axios.post('http://localhost:8080/bookings', {
-        seatUpdate: finalSeatUpdate,
-        ticket: ticketPayload,
-        invoice: invoicePayload
-      });
-  
-      // 4. Download the invoice
-      const pdfResponse = await axios.get(`http://localhost:8080/api/invoices/${tempTicketId}/pdf`, {
-        responseType: 'blob'
-      });
-  
-      const url = window.URL.createObjectURL(new Blob([pdfResponse.data], { type: 'application/pdf' }));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `invoice_${tempTicketId}.pdf`);
-      document.body.appendChild(link);
-      link.click();
-      link.parentNode.removeChild(link);
-  
-      // 6. Show confirmation and navigate
-      alert(translations[language].paymentSuccess);
-      navigate('/', {
-        state: {
-          bookingConfirmation: {
-            ...bookingData,
-            ...paymentData,
-            confirmationNumber: tempTicketId
-          }
-        }
-      });
-  
+      // Call the bookSeats method from trainService
+      const response = await trainService.bookSeats(finalSeatUpdate);
+      
+      // If successful, show success message and navigate to home
+      alert('Payment successful! Your tickets have been booked.');
+      navigate('/');
+      
     } catch (error) {
+      // Handle different types of errors
       if (!navigator.onLine) {
         alert(translations[language].networkError || 'Network connection lost. Please check your internet connection and try again.');
       } else {
         alert(error.message || translations[language].bookingError || 'An error occurred while booking your tickets. Please try again.');
       }
-  
+      
+      // Close the payment modal and let the user try again
       setIsPaymentModalOpen(false);
+      
+      // Log the error for debugging
       console.error('Booking error:', error);
-    } 
+    }
   };
-  
   
   return (
     <div className="flex flex-col md:flex-row gap-8 sm:p-6 sm:pt-15 max-w-6xl mx-auto">

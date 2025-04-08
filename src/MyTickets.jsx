@@ -1,27 +1,51 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState } from 'react';
 import { AlertCircle, ArrowRight, RefreshCcw, CheckCircle } from 'lucide-react';
 
 const TicketDisplayPage = () => {
-  const [tickets, setTickets] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // Sample ticket data - would be fetched from your API in a real implementation
+  const [tickets, setTickets] = useState([
+    {
+      id: "TKT-1234123123",
+      lastName: "Murat Alkaptan",
+      route: {
+        from: "İstanbul",
+        to: "Ankara"
+      },
+      date: "2025-03-15",
+      time: "14:30",
+      seat: "Wagon 2, seat 12",
+      refundRequested: false
+    },
+    {
+      id: "TKT-5678123123",
+      lastName: "Yağız Karhan Kökgül",
+      route: {
+        from: "İzmir",
+        to: "İstanbul"
+      },
+      date: "2025-03-20",
+      time: "09:15",
+      seat: "Wagon 1, Seat 2",
+      refundRequested: false
+    },
+    {
+      id: "TKT-9012444888",
+      lastName: "Umut Kutlu",
+      route: {
+        from: "Ankara",
+        to: "İstanbul"
+      },
+      date: "2025-03-25",
+      time: "16:45",
+      seat: "Wagon 3, Seat 40",
+      refundRequested: false
+    }
+  ]);
+
   const [refundingTickets, setRefundingTickets] = useState({});
   const [confirmModal, setConfirmModal] = useState(null);
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
-
-  // Fetch tickets from backend on component mount
-  useEffect(() => {
-    axios.get('http://localhost:8080/api/tickets')
-      .then(response => {
-        setTickets(response.data);
-        setLoading(false);
-      })
-      .catch(error => {
-        console.error("Error fetching tickets:", error);
-        setLoading(false);
-      });
-  }, []);
 
   // Format date to be more readable
   const formatDate = (dateString) => {
@@ -34,28 +58,34 @@ const TicketDisplayPage = () => {
     setConfirmModal(ticketId);
   };
 
-  // Confirm refund: calls the backend API to update the ticket's refund status
   const confirmRefund = (ticketId) => {
+    // Set processing state
     setRefundingTickets({ ...refundingTickets, [ticketId]: true });
+    
+    // Close the modal
     setConfirmModal(null);
-
-    axios.put(`http://localhost:8080/api/tickets/${ticketId}/refund`, null, {
-      params: { refundRequested: true }
-    })
-      .then(response => {
-        // Update local ticket data with the response from backend
-        setTickets(tickets.map(ticket =>
-          ticket.id === ticketId ? { ...ticket, refundRequested: true } : ticket
-        ));
-        setRefundingTickets({ ...refundingTickets, [ticketId]: false });
-        setAlertMessage(`Refund request for ticket ${ticketId} has been received.`);
-        setShowAlert(true);
-        setTimeout(() => setShowAlert(false), 5000);
-      })
-      .catch(error => {
-        console.error("Error updating refund status:", error);
-        setRefundingTickets({ ...refundingTickets, [ticketId]: false });
-      });
+    
+    // Simulate API call with a timeout
+    setTimeout(() => {
+      // Update the ticket status to refund requested
+      setTickets(tickets.map(ticket => 
+        ticket.id === ticketId 
+          ? { ...ticket, refundRequested: true } 
+          : ticket
+      ));
+      
+      // Remove the processing state
+      setRefundingTickets({ ...refundingTickets, [ticketId]: false });
+      
+      // Show alert message
+      setAlertMessage(`Refund request for ticket ${ticketId} has been received.`);
+      setShowAlert(true);
+      
+      // Hide alert after 5 seconds
+      setTimeout(() => {
+        setShowAlert(false);
+      }, 5000);
+    }, 1000); // Simulate 1 second processing time
   };
 
   const cancelRefund = () => {
@@ -69,10 +99,6 @@ const TicketDisplayPage = () => {
     ticketDate.setHours(hours, minutes);
     return ticketDate < new Date();
   };
-
-  if (loading) {
-    return <div className="max-w-6xl mx-auto p-6 pt-30">Loading tickets...</div>;
-  }
 
   return (
     <div className="max-w-6xl mx-auto p-6 pt-30">
@@ -137,6 +163,8 @@ const TicketDisplayPage = () => {
                     </div>
                     
                     <div className="mt-4 sm:mt-0">
+                      
+                      
                       {isPast ? (
                         <div className="mt-2 flex items-center text-amber-600 text-sm">
                           <AlertCircle className="h-4 w-4 mr-1" />
@@ -149,7 +177,11 @@ const TicketDisplayPage = () => {
                         </div>
                       ) : (
                         <button
-                          className={`mt-2 px-4 py-2 rounded-md text-sm font-medium ${isProcessing ? 'bg-gray-200 text-gray-600 cursor-not-allowed' : 'bg-red-50 text-red-600 hover:bg-red-100 transition-colors'}`}
+                          className={`mt-2 px-4 py-2 rounded-md text-sm font-medium ${
+                            isProcessing 
+                              ? 'bg-gray-200 text-gray-600 cursor-not-allowed' 
+                              : 'bg-red-50 text-red-600 hover:bg-red-100 transition-colors'
+                          }`}
                           onClick={() => handleRefund(ticket.id)}
                           disabled={isProcessing}
                         >

@@ -10,9 +10,7 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    private String user;
     private String train;
     private String date;
     private String status; // Confirmed / Pending / Canceled
@@ -23,8 +21,8 @@ public class Booking {
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
-    public User getUser() { return user; }
-    public void setUser(User user) { this.user = user; }
+    public String getUser() { return user; }
+    public void setUser(String user) { this.user = user; }
 
     public String getTrain() { return train; }
     public void setTrain(String train) { this.train = train; }
