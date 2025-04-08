@@ -662,6 +662,7 @@ const translations = {
       manager: "Manager Dashboard",
       admin: "Admin Panel"
     },
+    paymentSuccess: "Payment Successful!",
     },
     tr: {
       //errorpage

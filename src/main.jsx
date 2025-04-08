@@ -30,6 +30,7 @@ import FAQsPage from './FAQsPage.jsx'
 import AdminRoute from './AdminRoute.jsx'
 import ManagerRoute from './ManagerRoute.jsx'
 import TicketSignedIn from './TicketSignedIn.jsx'
+import AppealManagement from './Admin/AppealManagement.jsx'
 import TicketsPage from './MyTicketsPage.jsx'
 import {LanguageProvider} from './LanguageContext.jsx'
 const router=createBrowserRouter([
