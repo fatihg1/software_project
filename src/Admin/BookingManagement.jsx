@@ -45,10 +45,11 @@ const BookingManagement = () => {
   }, []);
 
   const filteredBookings = bookings.filter((booking) =>
-    (booking.user.toLowerCase().includes(searchQuery.toLowerCase()) || 
-     booking.train.toLowerCase().includes(searchQuery.toLowerCase())) &&
+    ((booking.user && booking.user.toLowerCase().includes(searchQuery.toLowerCase())) ||
+     (booking.train && booking.train.toLowerCase().includes(searchQuery.toLowerCase()))) &&
     (statusFilter === "All" || booking.status === statusFilter)
   );
+  
 
   const indexOfLastBooking = currentPage * bookingsPerPage;
   const indexOfFirstBooking = indexOfLastBooking - bookingsPerPage;
