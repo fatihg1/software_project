@@ -13,6 +13,7 @@ import com.group13.RailLink.model.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
 import java.util.List;
 
 @Service
@@ -23,15 +24,17 @@ public class BookingService {
     private final InvoiceService invoiceService;
     private final TicketService ticketService;
     private final UserService userService;
+    private final FinanceService financeService;
 
     public BookingService(BookingRepository repo, TrainService trainService,
                           InvoiceService invoiceService, TicketService ticketService,
-                          UserService userService) {
+                          UserService userService,FinanceService financeService) {
         this.repo = repo;
         this.trainService = trainService;
         this.invoiceService = invoiceService;
         this.ticketService = ticketService;
         this.userService = userService;
+        this.financeService = financeService;
     }
 
     public List<Booking> getAllBookings() {
@@ -97,6 +100,9 @@ public class BookingService {
         booking.setTrain(ticket.getWagonId().toString());
 
         repo.save(booking);
+
+        //  Finance kaydı oluşturuluyor
+        financeService.addSaleFromTicket(createdTicket);
 
         return createdTicket;
     }
