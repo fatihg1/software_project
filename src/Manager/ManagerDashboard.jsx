@@ -9,6 +9,12 @@ const ManagerDashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [totalReservations, setTotalReservations] = useState(0);
+  const [monthlyRevenue, setMonthlyRevenue] = useState(0);
+  const [recentReservations, setRecentReservations] = useState([]);
+  const [newUsers, setNewUsers] = useState([]);
+
   
   // Close sidebar by default on mobile
   useEffect(() => {
@@ -31,6 +37,41 @@ const ManagerDashboard = () => {
     // Cleanup
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  useEffect(() => {
+      // Toplam kullanıcı sayısı
+      fetch("http://localhost:8080/users")
+      .then(res => res.json())
+      .then(data => {
+        setTotalUsers(data.length);
+        // En son eklenen 3 kullanıcıyı al
+        const sorted = [...data].sort((a, b) => b.id - a.id).slice(0, 3);
+        setNewUsers(sorted);
+      });
+  
+      // Toplam bilet sayısı
+      fetch("http://localhost:8080/api/tickets")
+      .then(res => res.json())
+      .then(data => {
+        setTotalReservations(data.length);
+        const sorted = [...data].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 3);
+        setRecentReservations(sorted);
+      });
+  
+      // Aylık gelir
+      fetch("http://localhost:8080/finance")
+      .then(res => res.json())
+      .then(data => {
+        const now = new Date();
+        const monthRevenue = data
+          .filter(d => d.type === "Sale" && new Date(d.date).getMonth() === now.getMonth())
+          .reduce((sum, d) => sum + d.amount, 0);
+        setMonthlyRevenue(monthRevenue);
+      });
+  }, []);
+
+
+
 
   return (
     <div className="bg-gray-100 min-h-screen relative">
@@ -140,21 +181,24 @@ const ManagerDashboard = () => {
           <div className="bg-white p-4 md:p-6 rounded-lg shadow-md flex items-center space-x-4">
             <FaUsers className="text-blue-500 text-2xl md:text-3xl" />
             <div>
-              <h3 className="text-lg md:text-xl font-bold">1,200</h3>
+            <h3 className="text-lg md:text-xl font-bold">{totalUsers.toLocaleString()}</h3>
+
               <p className="text-gray-500 text-sm md:text-base">Total Users</p>
             </div>
           </div>
           <div className="bg-white p-4 md:p-6 rounded-lg shadow-md flex items-center space-x-4">
             <FaTicketAlt className="text-green-500 text-2xl md:text-3xl" />
             <div>
-              <h3 className="text-lg md:text-xl font-bold">5,420</h3>
+            <h3 className="text-lg md:text-xl font-bold">{totalReservations.toLocaleString()}</h3>
+
               <p className="text-gray-500 text-sm md:text-base">Total Reservations</p>
             </div>
           </div>
           <div className="bg-white p-4 md:p-6 rounded-lg shadow-md flex items-center space-x-4 sm:col-span-2 md:col-span-1">
             <FaMoneyBillWave className="text-yellow-500 text-2xl md:text-3xl" />
             <div>
-              <h3 className="text-lg md:text-xl font-bold">₺254,000</h3>
+            <h3 className="text-lg md:text-xl font-bold">₺{monthlyRevenue.toLocaleString()}</h3>
+
               <p className="text-gray-500 text-sm md:text-base">Monthly Revenue</p>
             </div>
           </div>
@@ -165,17 +209,21 @@ const ManagerDashboard = () => {
           <div className="bg-white p-4 md:p-6 rounded-lg shadow-md">
             <h2 className="text-lg md:text-xl font-semibold mb-3">📌 Recent Reservations</h2>
             <ul>
-              <li className="p-2 border-b">Ali Yılmaz - Istanbul - Ankara (March 10, 2024)</li>
-              <li className="p-2 border-b">Ayşe Kaya - Izmir - Istanbul (March 12, 2024)</li>
-              <li className="p-2 border-b">Mehmet Demir - Ankara - Izmir (March 15, 2024)</li>
+              {recentReservations.map((r, index) => (
+                <li key={index} className="p-2 border-b">
+                  {r.name} - {r.departureStation || "?"} - {r.arrivalStation || "?"} ({new Date(r.date).toLocaleDateString()})
+                </li>
+              ))}
             </ul>
           </div>
           <div className="bg-white p-4 md:p-6 rounded-lg shadow-md">
             <h2 className="text-lg md:text-xl font-semibold mb-3">🆕 New Users</h2>
             <ul>
-              <li className="p-2 border-b">Fatma Demir - Joined: March 5, 2024</li>
-              <li className="p-2 border-b">Burak Çelik - Joined: March 7, 2024</li>
-              <li className="p-2 border-b">Zeynep Arslan - Joined: March 9, 2024</li>
+              {newUsers.map((u, index) => (
+                <li key={index} className="p-2 border-b">
+                  {u.name} {u.surname} - Joined: #{u.id}
+                </li>
+              ))}
             </ul>
           </div>
         </div>
