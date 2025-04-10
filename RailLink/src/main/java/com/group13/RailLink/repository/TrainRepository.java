@@ -45,5 +45,8 @@ public interface TrainRepository extends JpaRepository<Train, Integer> {
          @Param("departureStation") String departureStation,
          @Param("date") LocalDate date
      );
+
+     @Query("SELECT MAX(t.trainId) FROM Train t")
+    Integer findMaxTrainId();
 }
 
