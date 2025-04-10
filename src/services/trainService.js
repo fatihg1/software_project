@@ -109,7 +109,75 @@ const trainService = {
       console.error('Error fetching seat availability:', error);
       throw error;
     }
+  },
+
+  getAllSeferler: async () => {
+    try{
+      const response = await apiClient.get(`/seferler`);
+      return response.data;
+    }
+    catch (error){
+      console.error('Error fetching trainlines:', error);
+      throw error;
+    }
+  },
+
+  getAllTrains: async () => {
+    try{
+      const response = await apiClient.get(`/seferler`);
+      return response.data;
+    }
+    catch (error){
+      console.error('Error fetching trains:', error);
+      throw error;
+    }
+  },
+
+  createSefer: async (trainLine) => {
+    try{
+      const response = await apiClient.post(`/seferler`,trainLine);
+      return response.data;
+    }
+    catch (error){
+      console.error('Error creating trainline:', error);
+      throw error;
+    }
+  },
+
+  getMaxTrainId: async () => {
+    try{
+      const response = await apiClient.get(`/trains/maxTrainId`);
+      return response.data;
+    }
+    catch (error){
+      console.error('Error fetching max train id:', error);
+      throw error;
+    }
+  },
+
+  createTrain: async (trainData) => {
+    try{
+      const response = await apiClient.post(`/trains`,trainData);
+      return response.data;
+    }
+    catch (error){
+      console.error('Error creating train:', error);
+      throw error;
+    }
+  },
+  createWagons: async (wagonData) => {
+    try{
+      const response = await apiClient.post(`/wagons`,wagonData);
+      return response.data;
+    }
+    catch (error){
+      console.error('Error creating train:', error);
+      throw error;
+    }
   }
+
+
+
 };
 
 export default trainService;
