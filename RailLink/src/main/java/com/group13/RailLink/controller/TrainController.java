@@ -90,6 +90,11 @@ public class TrainController {
         return ResponseEntity.ok(journeyDetails);
     }
 
+    @GetMapping("/maxTrainId")
+    public ResponseEntity<Integer> getMaxTrainId(){
+        return ResponseEntity.ok(trainService.getMaxTrainId());
+    }
+
     @GetMapping("/search")
     public ResponseEntity<List<JourneyDTO>> searchTrains(
         @RequestParam String departureStation,
