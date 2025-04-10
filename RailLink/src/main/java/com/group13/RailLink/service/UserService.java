@@ -4,9 +4,13 @@ import com.group13.RailLink.model.User;
 import com.group13.RailLink.model.Salary;
 import com.group13.RailLink.repository.UserRepository;
 import com.group13.RailLink.service.SalaryService;
+
+
 import org.springframework.stereotype.Service;
 import jakarta.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
+
 
 @Service
 public class UserService {
@@ -26,13 +30,33 @@ public class UserService {
 
     // 👇 Kullanıcı eklenince çalışan ise maaş da ekleniyor
     public User addUser(User user) {
-        return repo.save(user);
+        User savedUser = repo.save(user);
+    
+        if (user.getRole() != null && (user.getRole().equalsIgnoreCase("admin") || user.getRole().equalsIgnoreCase("manager"))) {
+            Salary salary = new Salary();
+            salary.setName(user.getName());
+            salary.setRole(user.getRole());
+            salary.setSalary(0.0); // Varsayılan maaş
+            salary.setStatus("Unpaid"); // Varsayılan durum
+            salaryService.addSalary(salary);
+        }
+    
+        return savedUser;
     }
     
+    
 
-    public void deleteUser(int id) {
-        repo.deleteById(id);
+    public boolean deleteUser(Integer id) {
+        Optional<User> user = repo.findById(id);
+        if (user.isPresent()) {
+            String name = user.get().getName(); // name'e göre eşleştiriyoruz
+            repo.deleteById(id);
+            salaryService.deleteByName(name); // eşleşen salary kaydını da sil
+            return true;
+        }
+        return false;
     }
+    
     
     @Transactional
     public User findOrCreateUser(String name, String surname) {
