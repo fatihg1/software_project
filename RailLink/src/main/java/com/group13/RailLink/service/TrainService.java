@@ -131,6 +131,10 @@ public class TrainService {
         return count;
     }
 
+    public Integer getMaxTrainId(){
+        return trainRepository.findMaxTrainId();
+    }
+
     public List<JourneyDTO> searchTrainsForThreeInputs(String departure, String arrival,LocalDate date) {
 
         // 1. Seferi bul
@@ -203,6 +207,8 @@ public class TrainService {
 
         return fullJourney;
     }
+
+
 
     
         public List<Wagons> updateSeatBookings(
