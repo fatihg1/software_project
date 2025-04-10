@@ -5,8 +5,10 @@ import com.group13.RailLink.service.TicketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import com.group13.RailLink.service.UserService;
 import java.util.List;
+import com.group13.RailLink.model.User; // Import the User class
+import java.util.Map; // Import the Map class
 
 @RestController
 @RequestMapping("/api/tickets")
@@ -14,9 +16,10 @@ import java.util.List;
 public class TicketController {
 
     private final TicketService ticketService;
-    
+    private final UserService userService; 
     @Autowired
-    public TicketController(TicketService ticketService){
+    public TicketController(TicketService ticketService, UserService userService) {
+        this.userService = userService; // Initialize UserService
         this.ticketService = ticketService;
     }
     
@@ -46,7 +49,44 @@ public class TicketController {
         Ticket savedTicket = ticketService.saveTicket(ticket);
         return ResponseEntity.ok(savedTicket);
     }
+
+    @GetMapping("/by-ticket-and-surname")
+    public ResponseEntity<Ticket> getTicketByTicketIdAndSurname(
+        @RequestParam String ticketId,
+        @RequestParam String surname) {
+        
+        Ticket ticket = ticketService.getTicketByTicketIdAndSurname(ticketId, surname);
+        if (ticket != null) {
+            return ResponseEntity.ok(ticket);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
     
+    @GetMapping("/me")
+    public ResponseEntity<List<Ticket>> getCurrentUserTickets(
+        @RequestHeader("X-User-Email") String userEmail // Get email from header
+    ) {
+        // Fetch user by email (assuming your User entity has an email field)
+        User user = userService.getUserByEmail(userEmail);
+        
+        // Get tickets for this user
+        List<Ticket> tickets = ticketService.getTicketsByUserId(user.getId());
+        return ResponseEntity.ok(tickets);
+    }
+
+    @GetMapping("/me/enhanced")
+    public ResponseEntity<List<Map<String, Object>>> getCurrentUserEnhancedTickets(
+        @RequestHeader("X-User-Email") String userEmail
+    ) {
+        // Fetch user by email
+        User user = userService.getUserByEmail(userEmail);
+        
+        // Get enhanced tickets data for this user
+        List<Map<String, Object>> enhancedTickets = ticketService.getEnhancedTicketsByUserId(user.getId());
+        return ResponseEntity.ok(enhancedTickets);
+    }
+
     // PUT: Update an existing ticket. This can be used for editing details.
     @PutMapping("/{id}")
     public ResponseEntity<Ticket> updateTicket(@PathVariable("id") Long id, @RequestBody Ticket ticketDetails){
@@ -60,9 +100,12 @@ public class TicketController {
                     ticket.setBirthDate(ticketDetails.getBirthDate());
                     ticket.setPrice(ticketDetails.getPrice());
                     ticket.setSeat(ticketDetails.getSeat());
-                    ticket.setWagonId(ticketDetails.getWagonId());
+                    ticket.setWagonNumber(ticketDetails.getWagonNumber());
                     ticket.setSeferId(ticketDetails.getSeferId());
                     ticket.setUserId(ticketDetails.getUserId());
+                    ticket.setDepartureDateTime(ticketDetails.getDepartureDateTime());
+                    ticket.setWagonType(ticketDetails.getWagonType());
+                    ticket.setTicketId(ticketDetails.getTicketId()); // Update ticketId if needed
                     // Optionally update ticketId if needed
                     Ticket updatedTicket = ticketService.saveTicket(ticket);
                     return ResponseEntity.ok(updatedTicket);

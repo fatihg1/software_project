@@ -37,10 +37,10 @@ function SideNavigation() {
   }, [location.pathname]);
 
   // Scroll to top and navigate
-  const handleNavigation = (path) => {
-    navigate(path);
-    window.scrollTo(0, 0);
-    setIsMenuOpen(false);
+  const handleNavigation = (path, options) => {
+    navigate(path, options);
+  window.scrollTo(0, 0);
+  setIsMenuOpen(false);
   };
 
   const isActive = (path) => location.pathname === path;
@@ -154,7 +154,7 @@ function SideNavigation() {
                       ? "bg-blue-700 ring-2 ring-blue-300"
                       : "hover:bg-blue-700 hover:cursor-pointer"
                   }`}
-                  onClick={() => handleNavigation("/my-tickets")}
+                  onClick={() => handleNavigation("/my-tickets", { state: { fromMyTickets: true } })}
                 >
                   <span className="text-white">{t.myTickets}</span>
                 </button>

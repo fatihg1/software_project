@@ -51,12 +51,12 @@ const routeCard = {
 };
 
 const routes = [
-  { img: img1, info: 'Ankara - Istanbul' },
-  { img: img2, info: 'Istanbul - Izmir' },
-  { img: img3, info: 'Izmir - Bursa' },
-  { img: img4, info: 'Antalya - Konya' },
-  { img: img5, info: 'Konya - Antalya' },
-  { img: img6, info: 'Eskişehir - Ankara' },
+  { img: img1, info: 'Ankara - İstanbul' },
+  { img: img2, info: 'İstanbul - İzmir' },
+  { img: img3, info: 'İzmir - Bursa' },
+  { img: img4, info: 'Muğla - Balıkesir' },
+  { img: img5, info: 'Konya - Adana' },
+  { img: img6, info: 'Bursa - Muğla' },
 ];
 
 function Routes() {

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {useLanguage} from './LanguageContext.jsx';
 import translations from './translations.jsx';
+import trainService from './services/trainService.js';
 export default function HomePage() {
   const {language} = useLanguage();
   const navigate = useNavigate();
@@ -12,14 +13,13 @@ export default function HomePage() {
   const [selectedSection, setSelectedSection] = useState('selectTicket');
   
   // Add station selection state
-  const allStations = ["Istanbul", "Ankara", "Izmir", "Antalya", "Konya", "Eskişehir"];
   const [departureStation, setDepartureStation] = useState('');
   const [arrivalStation, setArrivalStation] = useState('');
   const [showDepartureDropdown, setShowDepartureDropdown] = useState(false);
   const [showArrivalDropdown, setShowArrivalDropdown] = useState(false);
   const [filteredDepartureStations, setFilteredDepartureStations] = useState([]);
   const [filteredArrivalStations, setFilteredArrivalStations] = useState([]);
-  
+  const [allStations, setAllStations] = useState([]);
   const departureInputRef = useRef(null);
   const arrivalInputRef = useRef(null);
   const departureDropdownRef = useRef(null);
@@ -32,6 +32,19 @@ export default function HomePage() {
     tomorrow.setDate(tomorrow.getDate() + 1);
     return tomorrow.toISOString().split('T')[0];
   };
+
+  useEffect(() => {
+    const fetchStations = async () => {
+      try {
+        const stations = await trainService.getAllStations();
+        setAllStations(stations);
+      } catch (error) {
+        console.error("Error fetching stations:", error);
+        setAllStations(["İstanbul","Ankara"]); // Set to empty array on error
+      }
+    };
+    fetchStations();
+  }, []);
 
   useEffect(() => {
     const today = getTodayDate();
@@ -58,6 +71,7 @@ export default function HomePage() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  
   // Function to update filtered departure stations (excluding arrival station)
   const updateFilteredDepartureStations = (searchText) => {
     const filtered = allStations
@@ -175,6 +189,12 @@ export default function HomePage() {
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     
+    // Validate stations against current station list
+    if (!allStations.includes(departureStation) || !allStations.includes(arrivalStation)) {
+      alert(translations[language].invalidStationsError);
+      return;
+    }
+
     // Validate essential inputs
     if (!departureStation || !arrivalStation || !departureDate) {
       alert("Please select departure, arrival stations and date");
@@ -197,12 +217,18 @@ export default function HomePage() {
   // Handle ticket lookup form submission
   const handleTicketLookup = (e) => {
     e.preventDefault();
+    
     const ticketId = e.target.elements.ticketId.value;
     const lastName = e.target.elements.lastName.value;
+    
+    localStorage.removeItem('ticketId');
+    localStorage.removeItem('lastName');
+    localStorage.removeItem('isLookup');
     
     // Navigate to the my-tickets page with ticket ID and last name
     navigate('/my-tickets', { 
       state: { 
+        isLookup: true,
         ticketId: ticketId,
         lastName: lastName
       } 
@@ -549,6 +575,6 @@ export default function HomePage() {
           </form>
         )}
       </div>
-    </div>
+    </div> 
   );
 }

@@ -35,7 +35,7 @@ public class UserService {
     }
     
     @Transactional
-    public User findOrCreateUser(String name, String surname) {
+    public User findOrCreateUser(String name, String surname, String email, String phone) {
         // Check if user exists by name and surname
         User existingUser = repo.findByNameAndSurname(name, surname).orElse(null);
         if (existingUser != null) {
@@ -46,10 +46,17 @@ public class UserService {
         User newUser = new User();
         newUser.setName(name);
         newUser.setSurname(surname);
+        newUser.setEmail(email);
+        newUser.setPhone(phone);
         return repo.save(newUser);
     }
     public User updateUser(int id, User updatedUser) {
         updatedUser.setId(Long.valueOf(id));
         return repo.save(updatedUser);
+    }
+
+    public User getUserByEmail(String email) {
+        return repo.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("User not found"));
     }
 }

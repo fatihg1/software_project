@@ -6,22 +6,36 @@ import com.group13.RailLink.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.group13.RailLink.model.User;
+import com.group13.RailLink.model.Train; // Import Train class
+import com.group13.RailLink.repository.TrainRepository; // Import TrainRepository
+import com.group13.RailLink.model.Wagons; // Import Wagons class
+import com.group13.RailLink.repository.WagonsRepository; // Import WagonRepository
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
 public class TicketService {
 
     private final UserRepository userRepository;
+    private final TrainRepository trainRepository; // Add TrainRepository dependency
+    private final WagonsRepository wagonRepository; // Add WagonRepository dependency
     private final TicketRepository ticketRepository;
-    
     @Autowired
-    public TicketService(TicketRepository ticketRepository, UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public TicketService(TicketRepository ticketRepository, UserRepository userRepository, TrainRepository trainRepository, WagonsRepository wagonRepository) {
+        this.userRepository = userRepository; // Initialize UserRepository
+        this.wagonRepository = wagonRepository; // Initialize WagonRepository
         this.ticketRepository = ticketRepository;
+        this.trainRepository = trainRepository; // Initialize TrainRepository
     }
-    
+
+    public List<Ticket> getTicketsByUserId(Long userId) {
+        return ticketRepository.findByUserId(userId);
+    }
+
     // TicketService.java (Updated)
 public Ticket createTicket(Ticket ticket) {
     // Find or create the user
@@ -68,4 +82,49 @@ public Ticket createTicket(Ticket ticket) {
     public void deleteTicket(Long id) {
         ticketRepository.deleteById(id);
     }
+
+    public Ticket getTicketByTicketIdAndSurname(String ticketId, String surname) {
+        return ticketRepository.findByTicketIdAndSurname(ticketId, surname);
+    }
+    
+    // In TicketService.java
+public List<Map<String, Object>> getEnhancedTicketsByUserId(Long userId) {
+    List<Ticket> tickets = ticketRepository.findByUserId(userId);
+    List<Map<String, Object>> enhancedTickets = new ArrayList<>();
+    
+    for (Ticket ticket : tickets) {
+        Map<String, Object> enhancedTicket = new HashMap<>();
+        
+        // Add basic ticket information
+        enhancedTicket.put("id", ticket.getId());
+        enhancedTicket.put("ticketId", ticket.getTicketId());
+        enhancedTicket.put("name", ticket.getName());
+        enhancedTicket.put("surname", ticket.getSurname());
+        enhancedTicket.put("seat", ticket.getSeat());
+        enhancedTicket.put("date", ticket.getDate());
+        enhancedTicket.put("refundRequested", ticket.isRefundRequested());
+        enhancedTicket.put("departureStation", ticket.getDepartureStation());
+        enhancedTicket.put("arrivalStation", ticket.getArrivalStation());
+        enhancedTicket.put("departureDateTime", ticket.getDepartureDateTime());
+        enhancedTicket.put("wagonType", ticket.getWagonType());
+        enhancedTicket.put("wagonNumber", ticket.getWagonNumber());
+        // Get wagon details using trainId and wagonNumber
+        if (ticket.getTrainId() != null && ticket.getWagonNumber() != null) {
+            List<Wagons> wagons = wagonRepository.findByTrainIdAndWagonNumber(
+                ticket.getTrainId().intValue(),
+                ticket.getWagonNumber()
+            );
+            if (!wagons.isEmpty()) {
+                Wagons wagon = wagons.get(0);
+                enhancedTicket.put("wagonType", wagon.getType());
+                enhancedTicket.put("wagonNumber", ticket.getWagonNumber());
+            }
+        }
+        enhancedTicket.put("id", ticket.getId());
+        enhancedTicket.put("ticketId", ticket.getTicketId());
+        enhancedTickets.add(enhancedTicket);
+    }
+    
+    return enhancedTickets;
+}
 }

@@ -663,8 +663,27 @@ const translations = {
       admin: "Admin Panel"
     },
     paymentSuccess: "Payment Successful!",
+    selectStationsErrorDefault: "Please select a departure and arrival station",
+    errorSearch: "Error searching for trains:",
+    errorSearchDefault: "Failed to load train data. Please try again.",
+    wagonSelector: {
+      wagon: "Wagon",
+      seatLeft: "1 seat left",
+      seatsLeft: "seats left",
+      perSeat: "per seat"
+    },
+    invalidStationsError: "Please select a departure and arrival station",
     },
     tr: {
+      invalidStationsError: "Lütfen bir kalkış ve varış istasyonu seçin",
+      //wagonSelector
+      wagonSelector: {
+        wagon: "Vagon",
+        seatLeft: "1 koltuk kaldı",
+        seatsLeft: "koltuk kaldı",
+        perSeat: "koltuk başına"
+      },
+      errorSearchDefault: "Tren verileri yüklenemedi. Lütfen tekrar deneyin.",
       //errorpage
       errorPage:{
         notFound: "Sayfa Bulunamadı",
@@ -1310,6 +1329,8 @@ const translations = {
       }
     },
     paymentSuccess: "Ödeme Başarılı! Biletiniz alındı.",
+    selectStationsErrorDefault: "Lütfen kalkış ve varış istasyonlarını seçin.",
+    errorSearch: "Arama sırasında bir hata oluştu:",
     }
 }
 

@@ -3,6 +3,7 @@ package com.group13.RailLink.model;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -22,20 +23,30 @@ public class Ticket {
     private LocalDate birthDate;
     private BigDecimal price;
     private String seat;
-    private Long wagonId;
+    @Column(name = "wagon_number")
+    private Integer wagonNumber;
     private Long seferId;
     private Long userId;
     private Date date = new Date();
-    
+    private Boolean isRefundRequested = false;
+    @Column(name = "departure_station")
+    private String departureStation;
+    @Column(name = "train_id")
+    private Long trainId;
+    @Column(name = "departure_date_time")
+    private LocalDateTime departureDateTime;
+    @Column(name = "arrival_station")
+    private String arrivalStation;
+    private Long wagonId;
     // A unique ticket id to distinguish each ticket
     @Column(unique = true)
     private String ticketId;
-
+    private String wagonType;
     public Ticket() {}
 
     public Ticket(String name, String surname, String governmentId, String phone, String email,
-                  LocalDate birthDate, BigDecimal price, String seat, Long wagonId, Long seferId,
-                  Long userId, String ticketId) {
+                  LocalDate birthDate, BigDecimal price, String seat, Integer wagonNumber, Long seferId,
+                  Long userId, String ticketId, Long wagonId, Integer wagonType) {
         this.name = name;
         this.surname = surname;
         this.governmentId = governmentId;
@@ -44,11 +55,18 @@ public class Ticket {
         this.birthDate = birthDate;
         this.price = price;
         this.seat = seat;
-        this.wagonId = wagonId;
+        this.wagonNumber = wagonNumber;
         this.seferId = seferId;
         this.userId = userId;
         this.ticketId = ticketId;
         this.date = new Date(); // Set the current date
+        this.isRefundRequested = false; // Default value for refund request
+        this.wagonId = wagonId; // Set the wagon ID
+        this.departureDateTime = LocalDateTime.now(); // Set the current date and time
+        this.departureStation = ""; // Default value for departure station
+        this.arrivalStation = ""; // Default value for arrival station
+        this.trainId = null; // Default value for train ID
+        this.wagonType = ""; // Default value for wagon type
     }
 
     // Getters and Setters
@@ -58,13 +76,24 @@ public class Ticket {
     public void setDate(Date date) {
         this.date = date;
     }
+    public String getWagonType() {
+        return wagonType;
+    }
+    public void setWagonType(String wagonType) {
+        this.wagonType = wagonType;
+    }
     public Long getId() {
         return id;
     }
     public void setId(Long id) {
         this.id = id;
     }
-
+    public Long getWagonId() {
+        return wagonId;
+    }
+    public void setWagonId(Long wagonId) {
+        this.wagonId = wagonId;
+    }
     public String getName() {
         return name;
     }
@@ -92,7 +121,10 @@ public class Ticket {
     public void setPhone(String phone) {
         this.phone = phone;
     }
-
+    public LocalDateTime getDepartureDateTime() { return departureDateTime; }
+    public void setDepartureDateTime(LocalDateTime departureDateTime) { 
+    this.departureDateTime = departureDateTime; 
+}
     public String getEmail() {
         return email;
     }
@@ -121,11 +153,11 @@ public class Ticket {
         this.seat = seat;
     }
 
-    public Long getWagonId() {
-        return wagonId;
+    public Integer getWagonNumber() {
+        return wagonNumber;
     }
-    public void setWagonId(Long wagonId) {
-        this.wagonId = wagonId;
+    public void setWagonNumber(Integer wagonNumber) {
+        this.wagonNumber = wagonNumber;
     }
 
     public Long getSeferId() {
@@ -142,10 +174,24 @@ public class Ticket {
         this.userId = userId;
     }
 
+    public Long getTrainId() { return trainId; }
+    public void setTrainId(Long trainId) { this.trainId = trainId; }
+
     public String getTicketId() {
         return ticketId;
     }
     public void setTicketId(String ticketId) {
         this.ticketId = ticketId;
     }
+    public Boolean isRefundRequested() {
+        return isRefundRequested;
+    }
+    public void setRefundRequested(Boolean refundRequested) {
+        isRefundRequested = refundRequested;
+    }
+    public String getDepartureStation() { return departureStation; }
+    public void setDepartureStation(String departureStation) { this.departureStation = departureStation; }
+
+    public String getArrivalStation() { return arrivalStation; }
+    public void setArrivalStation(String arrivalStation) { this.arrivalStation = arrivalStation; }
 }

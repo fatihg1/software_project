@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Rail Link Invoice</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" rel="stylesheet"></link>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"></link>
+  <style>
+    body {
+      font-family: 'Poppins', Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f8f9fa;
+      color: #333;
+      line-height: 1.6;
+    }
+    
+    .invoice-container {
+      max-width: 800px;
+      margin: 20px auto;
+      background-color: #fff;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      border-radius: 8px;
+      padding: 30px;
+    }
+    
+    .invoice-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 20px;
+      border-bottom: 2px solid #f0f0f0;
+      margin-bottom: 30px;
+    }
+    
+    .logo-container {
+      display: flex;
+      align-items: center;
+    }
+    
+    .logo {
+      width: 40px;
+      height: 40px;
+      margin-right: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #1a73e8;
+      border-radius: 50%;
+      color: white;
+    }
+    
+    .logo i {
+      font-size: 20px;
+    }
+    
+    .company-name {
+      font-size: 24px;
+      font-weight: 600;
+      color: #1a73e8;
+    }
+    
+    .invoice-title {
+      font-size: 24px;
+      font-weight: 500;
+      color: #333;
+    }
+    
+    .section {
+      margin-bottom: 25px;
+      padding: 20px;
+      background-color: #f9f9f9;
+      border-radius: 6px;
+    }
+    
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 15px;
+      color: #1a73e8;
+      border-bottom: 1px solid #e0e0e0;
+      padding-bottom: 8px;
+    }
+    
+    .detail-row {
+      display: flex;
+      margin-bottom: 10px;
+    }
+    
+    .detail-label {
+      width: 150px;
+      font-weight: 500;
+      color: #1a73e8;
+    }
+    
+    .detail-value {
+      flex: 1;
+      font-weight: 400;
+    }
+    
+    .ticket-id {
+      margin-top: 20px;
+      font-weight: 500;
+      color: #555;
+      text-align: right;
+    }
+    
+    .footer {
+      margin-top: 30px;
+      text-align: center;
+      font-size: 14px;
+      color: #666;
+      padding-top: 20px;
+      border-top: 1px solid #e0e0e0;
+    }
+    
+    .travel-details, .payment-details {
+      background-color: #fff;
+      padding: 15px;
+      border-radius: 4px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+  </style>
+</head>
+<body>
+  <div class="invoice-container">
+    <div class="invoice-header">
+      <div class="logo-container">
+        <div class="logo">
+          <i class="fas fa-train"></i>
+        </div>
+        <div class="company-name">Rail Link</div>
+      </div>
+      <div class="invoice-title">Travel Invoice</div>
+    </div>
+    
+    <div class="invoice-body">
+      <div class="section">
+        <div class="section-title">Travel Details</div>
+        <div class="travel-details">
+          <div class="detail-row">
+            <div class="detail-label">From:</div>
+            <div class="detail-value" th:text="${ticket.departureStation}">Departure Station</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">To:</div>
+            <div class="detail-value" th:text="${ticket.arrivalStation}">Arrival Station</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">Date:</div>
+            <div class="detail-value" th:text="${ticket.departureDateTime.toLocalDate()}">2025-04-09</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">Time:</div>
+            <div class="detail-value" th:text="${#temporals.format(ticket.departureDateTime.toLocalTime(), 'HH:mm')}">14:30</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="section">
+        <div class="section-title">Passenger Information</div>
+        <div class="travel-details">
+          <div class="detail-row">
+            <div class="detail-label">Name:</div>
+            <div class="detail-value" th:text="${ticket.name + ' ' + ticket.surname}">John Doe</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">Seat:</div>
+            <div class="detail-value" th:text="${ticket.seat}">23A</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">Wagon:</div>
+            <div class="detail-value" th:text="${ticket.wagonNumber + ' (' + ticket.wagonType + ')'}">5 (Business)</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="section">
+        <div class="section-title">Payment Details</div>
+        <div class="payment-details">
+          <div class="detail-row">
+            <div class="detail-label">Transaction Date:</div>
+            <div class="detail-value" th:text="${#temporals.format(invoice.transactionDate, 'yyyy-MM-dd HH:mm')}">2025-04-09 15:30</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">Amount Paid:</div>
+            <div class="detail-value" th:text="'$' + ${ticket.price}">$150.00</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">Card Holder:</div>
+            <div class="detail-value" th:text="${invoice.cardHolder}">John Doe</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">Card Number:</div>
+            <div class="detail-value" th:text="'**** **** **** ' + ${invoice.cardNumber.substring(invoice.cardNumber.length()-4)}">**** **** **** 1234</div>
+          </div>
+          <div class="detail-row">
+            <div class="detail-label">Expiry Date:</div>
+            <div class="detail-value" th:text="${invoice.expiryDate}">12/25</div>
+          </div>
+        </div>
+        
+        <div class="ticket-id">
+          Ticket ID: <span th:text="${ticket.ticketId}">TK12345678</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="footer">
+      Thank you for choosing Rail Link for your journey!<br/>
+      For customer support, please contact us at <a href="mailto:support@raillink.com" style="color:#1a73e8;text-decoration:none;">support@raillink.com</a>
+    </div>
+  </div>
+</body>
+</html>

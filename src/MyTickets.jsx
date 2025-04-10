@@ -1,51 +1,190 @@
-import React, { useState } from 'react';
-import { AlertCircle, ArrowRight, RefreshCcw, CheckCircle } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { AlertCircle, ArrowRight, RefreshCcw, CheckCircle, Clock } from 'lucide-react';
+import { useUser } from '@clerk/clerk-react';
+import { useLocation, useSearchParams, useNavigate, Navigate } from 'react-router-dom';
 
 const TicketDisplayPage = () => {
-  // Sample ticket data - would be fetched from your API in a real implementation
-  const [tickets, setTickets] = useState([
-    {
-      id: "TKT-1234123123",
-      lastName: "Murat Alkaptan",
-      route: {
-        from: "İstanbul",
-        to: "Ankara"
-      },
-      date: "2025-03-15",
-      time: "14:30",
-      seat: "Wagon 2, seat 12",
-      refundRequested: false
-    },
-    {
-      id: "TKT-5678123123",
-      lastName: "Yağız Karhan Kökgül",
-      route: {
-        from: "İzmir",
-        to: "İstanbul"
-      },
-      date: "2025-03-20",
-      time: "09:15",
-      seat: "Wagon 1, Seat 2",
-      refundRequested: false
-    },
-    {
-      id: "TKT-9012444888",
-      lastName: "Umut Kutlu",
-      route: {
-        from: "Ankara",
-        to: "İstanbul"
-      },
-      date: "2025-03-25",
-      time: "16:45",
-      seat: "Wagon 3, Seat 40",
-      refundRequested: false
-    }
-  ]);
-
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [tickets, setTickets] = useState([]);
+  const { isLoaded, user } = useUser();
   const [refundingTickets, setRefundingTickets] = useState({});
   const [confirmModal, setConfirmModal] = useState(null);
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
+  
+  // Use a ref to track whether we have done the location.state check already
+  const hasCheckedLocationRef = useRef(false);
+
+  // Determine if we're in lookup mode (for UI conditionals)
+  const isLookupMode = () => {
+    // Check from URL params first
+    const lookupFromURL = location.state?.isLookup === true || localStorage.getItem('isLookup') === 'true';
+
+    // If we reached this page from the "My Tickets" button in the sidebar, override to view all tickets
+    const fromMyTicketsButton = location.state?.fromMyTickets === true;
+    
+    // If specifically coming from My Tickets button, prioritize that and show all tickets
+    if (fromMyTicketsButton) {
+      return false;
+    }
+    
+    // Otherwise use the lookup parameters
+    return lookupFromURL;
+  };
+  
+  // Merged useEffect - handles both parameter extraction and data fetching
+  useEffect(() => {
+    // Run this condition only on the first iteration of the component's lifecycle
+    if (!hasCheckedLocationRef.current) {
+      if (location.state === null) {
+        // If no state on initial navigation, update localStorage accordingly
+        localStorage.setItem('isLookup', 'false');
+      }
+      hasCheckedLocationRef.current = true;
+    }
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setNotFound(false);
+        const inLookupMode = isLookupMode();
+        if(!isLoaded && !isLookupMode) return;
+        // If coming from My Tickets button or not in lookup mode, and user is logged in, show all tickets
+        if (!inLookupMode && isLoaded && user) {
+          const response = await fetch('http://localhost:8080/api/tickets/me/enhanced', {
+            headers: {
+              'X-User-Email': user.primaryEmailAddress.emailAddress,
+            }
+          });
+          
+          if (!response.ok) throw new Error('Failed to fetch tickets');
+          const data = await response.json();
+          
+          
+          // Transform backend data to match frontend structure
+          const formattedTickets = data.map(ticket => ({
+            id: ticket.id,
+            ticketId: ticket.ticketId,
+            name: ticket.name,
+            surname: ticket.surname,
+            seat: ticket.seat,
+            refundRequested: ticket.refundRequested || false,
+            route: {
+              from: ticket.departureStation || "Unknown",
+              to: ticket.arrivalStation || "Unknown"
+            },
+            date: ticket.date,
+            departureDateTime: ticket.departureDateTime,
+            wagonNumber: ticket.wagonNumber,
+            wagonType: ticket.wagonType
+          }));
+          
+          setTickets(formattedTickets);
+          return; // Exit early after fetching all tickets
+        }
+        
+        // Handle the lookup mode
+        if (inLookupMode) {
+          // First try to get parameters from the URL (searchParams)
+          let ticketId = searchParams.get('ticketId');
+          let lastName = searchParams.get('lastName');
+          
+          // If any parameters are missing from the URL, try retrieving them from localStorage
+          if (!ticketId || !lastName) {
+            const storedTicketId = localStorage.getItem('ticketId');
+            const storedLastName = localStorage.getItem('lastName');
+            
+            if (storedTicketId && storedLastName) {
+              ticketId = storedTicketId;
+              lastName = storedLastName;
+              // Update the URL so that refreshes will pick it up next time
+              setSearchParams({ ticketId, lastName, isLookup: 'true' });
+            }
+          } else {
+            // If found in the URL, persist them to local storage for the next refresh
+            localStorage.setItem('ticketId', ticketId);
+            localStorage.setItem('lastName', lastName);
+            localStorage.setItem('isLookup', 'true');
+          }
+          
+          // If still not found in the URL, look into location.state (only available on initial navigation)
+          if ((!ticketId || !lastName) && location.state) {
+            // Check all possible parameter names in location.state
+            ticketId = location.state.ticketId;
+            lastName = location.state.lastName || location.state.surname; // Check both variants
+            
+            console.log("Found params in location.state:", { ticketId, lastName });
+            
+            if (ticketId && lastName) {
+              // Update both URL and local storage so that they are available on refresh
+              setSearchParams({ ticketId, lastName, isLookup: 'true' });
+              localStorage.setItem('ticketId', ticketId);
+              localStorage.setItem('lastName', lastName);
+              localStorage.setItem('isLookup', 'true');
+            }
+          }
+          
+          console.log("Final parameters for lookup:", { ticketId, lastName });
+          
+          // Now fetch the ticket data based on the parameters
+          if (ticketId && lastName) {
+            // Handle ticket lookup flow
+            console.log("Fetching single ticket with params:", { ticketId, lastName });
+            const response = await fetch(`http://localhost:8080/api/tickets/by-ticket-and-surname?ticketId=${ticketId}&surname=${lastName}`);
+            
+            if (!response.ok) {
+              setNotFound(true);
+              throw new Error('Ticket not found');
+            }
+            
+            const data = await response.json();
+            console.log("Single ticket data:", data);
+            const formattedTicket = {
+              id: data.id,
+              ticketId: data.ticketId,
+              name: data.name,
+              surname: data.surname,
+              seat: data.seat,
+              refundRequested: data.refundRequested || false,
+              route: {
+                from: data.departureStation || "Unknown",
+                to: data.arrivalStation || "Unknown"
+              },
+              date: data.date,
+              departureDateTime: data.departureDateTime,
+              wagonNumber: data.wagonNumber,
+              wagonType: data.wagonType
+            };
+            
+            setTickets([formattedTicket]);
+            return;
+          }
+        }
+        
+        // If we reach here, we're neither in lookup mode with valid parameters nor have a logged-in user
+        console.log("No conditions met for fetching tickets");
+        setTickets([]);
+        
+      } catch (error) {
+        console.error("Error fetching tickets:", error);
+        setAlertMessage(error.message || "Failed to load tickets.");
+        setShowAlert(true);
+        setTickets([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    // Add a slight delay before starting the fetch to allow state transitions
+    const timer = setTimeout(() => {
+      fetchData();
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [location, searchParams, setSearchParams, isLoaded, user]);
 
   // Format date to be more readable
   const formatDate = (dateString) => {
@@ -53,31 +192,56 @@ const TicketDisplayPage = () => {
     return new Date(dateString).toLocaleDateString('en-us', options);
   };
 
+  const formatTime = (timeString) => {
+    if (!timeString) return "N/A"; // Handle undefined or null values
+  
+    const date = new Date(timeString); // Convert to Date object
+    if (isNaN(date)) return "Invalid Time"; // Handle invalid date strings
+  
+    // Extract only the hour and minute in "HH:mm" format
+    return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+  };
+
   // Handle refund button click - opens confirmation modal
   const handleRefund = (ticketId) => {
     setConfirmModal(ticketId);
   };
 
-  const confirmRefund = (ticketId) => {
+  const confirmRefund = async (ticketId) => {
     // Set processing state
     setRefundingTickets({ ...refundingTickets, [ticketId]: true });
     
     // Close the modal
     setConfirmModal(null);
     
-    // Simulate API call with a timeout
-    setTimeout(() => {
-      // Update the ticket status to refund requested
-      setTickets(tickets.map(ticket => 
-        ticket.id === ticketId 
-          ? { ...ticket, refundRequested: true } 
-          : ticket
+    try {
+      // Find the ticket by ID
+      const ticket = tickets.find(t => t.ticketId === ticketId);
+      if (!ticket) throw new Error('Ticket not found');
+      
+      // Make API call to request refund
+      const response = await fetch(`http://localhost:8080/api/tickets/${ticket.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Email': user?.primaryEmailAddress?.emailAddress,
+        },
+        body: JSON.stringify({
+          ...ticket,
+          refundRequested: true
+        })
+      });
+      
+      if (!response.ok) throw new Error('Failed to request refund');
+      
+      // Update the ticket status in the UI
+      setTickets(tickets.map(t => 
+        t.ticketId === ticketId 
+          ? { ...t, refundRequested: true } 
+          : t
       ));
       
-      // Remove the processing state
-      setRefundingTickets({ ...refundingTickets, [ticketId]: false });
-      
-      // Show alert message
+      // Show success message
       setAlertMessage(`Refund request for ticket ${ticketId} has been received.`);
       setShowAlert(true);
       
@@ -85,7 +249,14 @@ const TicketDisplayPage = () => {
       setTimeout(() => {
         setShowAlert(false);
       }, 5000);
-    }, 1000); // Simulate 1 second processing time
+    } catch (error) {
+      console.error(error);
+      setAlertMessage("Failed to request refund. Please try again.");
+      setShowAlert(true);
+    } finally {
+      // Remove the processing state
+      setRefundingTickets({ ...refundingTickets, [ticketId]: false });
+    }
   };
 
   const cancelRefund = () => {
@@ -94,115 +265,155 @@ const TicketDisplayPage = () => {
 
   // Determine if a ticket is in the past (non-refundable)
   const isTicketPast = (dateString, timeString) => {
-    const [hours, minutes] = timeString.split(':').map(Number);
+    if (!dateString || !timeString) return true;
+    
+    let hours = 0;
+    let minutes = 0;
+    
+    if (timeString.includes(':')) {
+      const [h, m] = timeString.split(':').map(Number);
+      hours = h;
+      minutes = m;
+    }
+    
     const ticketDate = new Date(dateString);
     ticketDate.setHours(hours, minutes);
     return ticketDate < new Date();
   };
 
+  // Navigate to search train
+  const handleBrowseRoutes = () => {
+    navigate('/select-train');
+  };
+
+  // Render page content with consistent height
   return (
-    <div className="max-w-6xl mx-auto p-6 pt-30">
-      <h1 className="text-3xl font-bold mb-6">My Tickets</h1>
-      
-      {/* Alert message */}
-      {showAlert && (
-        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-6 flex items-center">
-          <CheckCircle className="h-5 w-5 mr-2" />
-          <span>{alertMessage}</span>
-          <button 
-            className="absolute top-0 bottom-0 right-0 px-4 py-3"
-            onClick={() => setShowAlert(false)}
-          >
-            <span className="text-2xl">&times;</span>
-          </button>
-        </div>
-      )}
-      
-      {tickets.length === 0 ? (
-        <div className="bg-gray-50 rounded-lg p-8 text-center">
-          <p className="text-gray-500 mb-4">You don't have any tickets yet.</p>
-          <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
-            Browse Available Routes
-          </button>
-        </div>
-      ) : (
-        <div className="space-y-6">
-          {tickets.map(ticket => {
-            const isPast = isTicketPast(ticket.date, ticket.time);
-            const isProcessing = refundingTickets[ticket.id];
-            
-            return (
-              <div 
-                key={ticket.id} 
-                className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200"
-              >
-                <div className="p-6">
-                  <div className="flex flex-col sm:flex-row justify-between mb-4">
-                    <div>
-                      <span className="text-xs font-semibold bg-blue-100 text-blue-800 px-2 py-1 rounded-md">
-                        {ticket.id}
-                      </span>
-                      <h3 className="mt-2 text-lg font-medium">
-                        {ticket.route.from} <ArrowRight className="inline h-4 w-4" /> {ticket.route.to}
-                      </h3>
-                    </div>
-                    <div className="mt-2 sm:mt-0 text-right">
-                      <p className="text-gray-600">{formatDate(ticket.date)}</p>
-                      <p className="font-semibold">{ticket.time}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex flex-col sm:flex-row justify-between items-start border-t border-gray-100 pt-4">
-                    <div>
-                      <p className="text-sm text-gray-600">Passenger:</p>
-                      <p className="font-medium">{ticket.lastName}</p>
-                      <div className="mt-2">
-                        <p className="text-sm text-gray-600">Seat:</p>
-                        <p className="font-medium">{ticket.seat}</p>
+    <div className="flex flex-col min-h-screen">
+      <div className="max-w-6xl p-6 pt-8 flex-grow">
+        <h1 className="text-3xl font-bold mb-6 mt-20">
+          {isLookupMode() ? "Ticket Details" : "My Tickets"}
+        </h1>
+        
+        {/* Alert message */}
+        {showAlert && (
+          <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-6 flex items-center">
+            <CheckCircle className="h-5 w-5 mr-2" />
+            <span>{alertMessage}</span>
+            <button 
+              className="absolute top-0 bottom-0 right-0 px-4 py-3"
+              onClick={() => setShowAlert(false)}
+            >
+              <span className="text-2xl">&times;</span>
+            </button>
+          </div>
+        )}
+        
+        {loading ? (
+          <div className="bg-white rounded-lg shadow-md p-8 flex flex-col items-center justify-center min-h-[400px]">
+            <RefreshCcw className="h-8 w-8 mb-4 animate-spin text-blue-600" />
+            <p className="text-gray-600">Loading tickets...</p>
+          </div>
+        ) : tickets.length === 0 || notFound ? (
+          <div className="bg-white rounded-lg shadow-md p-8 text-center min-h-[400px] flex flex-col items-center justify-center">
+            <AlertCircle className="h-12 w-12 mb-4 text-amber-500" />
+            <p className="text-gray-600 mb-8 text-lg">
+              {isLookupMode() 
+                ? "No ticket found. Please check the ticket ID and last name."
+                : "You don't have any tickets yet. Try Logging in or browsing available routes."}
+            </p>
+            <button 
+              onClick={handleBrowseRoutes}
+              className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-colors font-medium"
+            >
+              Browse Available Routes
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {tickets.map(ticket => {
+              const isPast = isTicketPast(ticket.date, ticket.departureDateTime);
+              const isProcessing = refundingTickets[ticket.ticketId];
+              
+              return (
+                <div 
+                  key={ticket.ticketId} 
+                  className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 max-w-5xl mx-auto"
+                >
+                  <div className="p-6">
+                    <div className="flex flex-col sm:flex-row justify-between mb-4">
+                      <div>
+                        <span className="text-xs font-semibold bg-blue-100 text-blue-800 px-2 py-1 rounded-md">
+                          {ticket.ticketId}
+                        </span>
+                        <h3 className="mt-2 text-lg font-medium">
+                          {ticket.route.from} <ArrowRight className="inline h-4 w-4" /> {ticket.route.to}
+                        </h3>
+                      </div>
+                      <div className="mt-2 sm:mt-0 text-right">
+                        <p className="text-gray-600">{formatDate(ticket.date)}</p>
+                        <div className="flex items-center justify-end text-gray-700 mt-1">
+                          <Clock className="h-4 w-4 mr-1" />
+                          <p className="font-semibold">{formatTime(ticket.departureDateTime)} - {formatTime(ticket.date)}</p>
+                        </div>
                       </div>
                     </div>
                     
-                    <div className="mt-4 sm:mt-0">
-                      
-                      
-                      {isPast ? (
-                        <div className="mt-2 flex items-center text-amber-600 text-sm">
-                          <AlertCircle className="h-4 w-4 mr-1" />
-                          <span>Past trip - not refundable</span>
+                    <div className="flex flex-col sm:flex-row justify-between items-start border-t border-gray-100 pt-4">
+                      <div>
+                        <p className="text-sm text-gray-600">Passenger:</p>
+                        <p className="font-medium">{ticket.name} {ticket.surname}</p>
+                        <div className="mt-2 flex space-x-4">
+                          <div>
+                            <p className="text-sm text-gray-600">Seat:</p>
+                            <p className="font-medium">{ticket.seat}</p>
+                          </div>
+                          <div>
+                            <p className="text-sm text-gray-600">Wagon:</p>
+                            <p className="font-medium">{ticket.wagonNumber || "N/A"} ({ticket.wagonType || "N/A"})</p>
+                          </div>
                         </div>
-                      ) : ticket.refundRequested ? (
-                        <div className="mt-2 flex items-center text-green-600 text-sm">
-                          <CheckCircle className="h-4 w-4 mr-1" />
-                          <span>Refund request submitted</span>
-                        </div>
-                      ) : (
-                        <button
-                          className={`mt-2 px-4 py-2 rounded-md text-sm font-medium ${
-                            isProcessing 
-                              ? 'bg-gray-200 text-gray-600 cursor-not-allowed' 
-                              : 'bg-red-50 text-red-600 hover:bg-red-100 transition-colors'
-                          }`}
-                          onClick={() => handleRefund(ticket.id)}
-                          disabled={isProcessing}
-                        >
-                          {isProcessing ? (
-                            <>
-                              <RefreshCcw className="inline-block h-4 w-4 mr-1 animate-spin" />
-                              Processing...
-                            </>
-                          ) : (
-                            'Request Refund'
-                          )}
-                        </button>
-                      )}
+                      </div>
+                      
+                      <div className="mt-4 sm:mt-0">
+                        {isPast ? (
+                          <div className="mt-2 flex items-center text-amber-600 text-sm">
+                            <AlertCircle className="h-4 w-4 mr-1" />
+                            <span>Past trip - not refundable</span>
+                          </div>
+                        ) : ticket.refundRequested ? (
+                          <div className="mt-2 flex items-center text-green-600 text-sm">
+                            <CheckCircle className="h-4 w-4 mr-1" />
+                            <span>Refund request submitted</span>
+                          </div>
+                        ) : (
+                          <button
+                            className={`mt-2 px-4 py-2 rounded-md text-sm font-medium ${
+                              isProcessing 
+                                ? 'bg-gray-200 text-gray-600 cursor-not-allowed' 
+                                : 'bg-red-50 text-red-600 hover:bg-red-100 transition-colors'
+                            }`}
+                            onClick={() => handleRefund(ticket.ticketId)}
+                            disabled={isProcessing}
+                          >
+                            {isProcessing ? (
+                              <>
+                                <RefreshCcw className="inline-block h-4 w-4 mr-1 animate-spin" />
+                                Processing...
+                              </>
+                            ) : (
+                              'Request Refund'
+                            )}
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+              );
+            })}
+          </div>
+        )}
+      </div>
       
       {/* Confirmation Modal with transparent background */}
       {confirmModal && (

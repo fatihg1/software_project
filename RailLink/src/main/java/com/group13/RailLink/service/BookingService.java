@@ -67,9 +67,11 @@ public Ticket completeBooking(//Booking booking,
                               FinalSeatUpdateDTO finalSeatUpdate, 
                               Ticket ticket, 
                               Invoice invoice) {
-    User user = userService.findOrCreateUser(ticket.getName(), ticket.getSurname());
+    User user = userService.findOrCreateUser(ticket.getName(), ticket.getSurname(), ticket.getEmail(), ticket.getPhone());
     ticket.setName(user.getName());
     ticket.setSurname(user.getSurname());
+    ticket.setEmail(user.getEmail());
+    ticket.setPhone(user.getPhone());
     // 1. Update the seat bookings.
     List<Wagons> updatedWagons = trainService.updateSeatBookings(
             finalSeatUpdate.getOutboundSeats(),
@@ -97,7 +99,7 @@ public Ticket completeBooking(//Booking booking,
     booking.setStatus("Confirmed");
     booking.setDate(ticket.getDate());  
     booking.setUser(user);  // Assuming ticket has user info
-    booking.setTrain(ticket.getWagonId().toString()); // Assuming ticket has train info
+    booking.setTrain(ticket.getWagonNumber().toString()); // Assuming ticket has train info
     repo.save(booking);
 
     // Return the created ticket.

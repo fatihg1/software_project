@@ -184,7 +184,7 @@ export default function TrainTicketSearch() {
   const search = async () => {
     // Validate station selection
     if (!departure || !arrival) {
-      setValidationError(translations[language].selectStationsError || "Please select a departure and arrival station");
+      setValidationError(translations[language].selectStationsError || translations[language].selectStationsErrorDefault);
       setResults([]);
       setReturnResults([]);
       setOriginalReturnResults([]); // Clear original results too
@@ -211,8 +211,8 @@ export default function TrainTicketSearch() {
         setSelectedReturnTrain(null); // Reset selection when new search is performed
       }
     } catch (error) {
-      console.error("Error searching for trains:", error);
-      setValidationError("Failed to load train data. Please try again.");
+      console.error(translations[language].errorSearch, error);
+      setValidationError(translations[language].errorSearchDefault);
     } finally {
       setIsSearching(false);
     }

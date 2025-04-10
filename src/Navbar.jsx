@@ -18,8 +18,8 @@ function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { language } = useLanguage();
   // Scroll to top and navigate
-  const handleNavigation = (path) => {
-    navigate(path);
+  const handleNavigation = (path, options) => {
+    navigate(path, options);
     window.scrollTo(0, 0);
     setIsMenuOpen(false);
   };
@@ -47,9 +47,6 @@ function Navbar() {
   };
   
   const userRole = getUserRole();
-
-
-  
 
   return (
     <div className="bg-gradient-to-r from-blue-900 to-blue-800 text-white fixed w-full p-3 z-50 shadow-lg">
@@ -81,6 +78,20 @@ function Navbar() {
 
             {/* Middle section: Navigation Links */}
             <div className="hidden xl:flex flex-row space-x-4 text-md items-center">
+              {/* My Tickets button - Only visible to signed-in users */}
+              {isSignedIn && (
+                <button
+                  className={`px-4 py-2 rounded-md transition duration-200 ${
+                    isActive("/my-tickets")
+                      ? "bg-blue-700 ring-2 ring-blue-300"
+                      : "hover:bg-blue-700 hover:translate-y-[-2px] hover:cursor-pointer"
+                  }`}
+                  onClick={() => handleNavigation("/my-tickets", { state: { fromMyTickets: true } })}
+                >
+                  <span className="text-white textShadow">{translations[language].myTickets}</span>
+                </button>
+              )}
+
               <button
                 className={`px-4 py-2 rounded-md transition duration-200 ${
                   isInTicketFlow("/select-train")
@@ -195,7 +206,7 @@ function Navbar() {
               </div>
 
               {/* Sidebar Toggle - Always visible */}
-              <div className="flex items-center lg:hidden">
+              <div className="flex items-center xl:hidden">
                 <Sidebar />
               </div>
             </div>

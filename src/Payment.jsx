@@ -420,9 +420,6 @@ const PassengerInfoPage = () => {
   // Handle final submission
   const handleFinalSubmit = async (paymentData) => {
     try {
-  
-      const seferId = outboundTrain?.seferId || bookingData?.seferId;
-      if (!seferId) throw new Error('Sefer ID missing');
       const finalSeatUpdate = {
         outboundSeats: selectedSeats.outbound.map(seat => ({
           wagon: typeof seat.wagon === 'string' ? parseInt(seat.wagon) : seat.wagon,
@@ -435,7 +432,9 @@ const PassengerInfoPage = () => {
         outboundTrainIds: outboundTrain.trainPrimaryIds,
         returnTrainIds: tripType === 'round-trip' ? returnTrain.trainPrimaryIds : [],
       };
-  
+      const seferId = finalSeatUpdate.outboundTrainIds[0];
+      if (!seferId) throw new Error('Sefer ID missing');
+      const wagonId  = finalSeatUpdate.outboundSeats[0].wagon;//Loop through every seat for backend ticketing instead of just the first one
       // 2. Generate a temp ticket ID to use for invoice
       const tempTicketId = `TKT-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
   
@@ -447,6 +446,8 @@ const PassengerInfoPage = () => {
         cvv: paymentData.cvv,
         ticketId: tempTicketId,
       };
+      const arrivalDate = new Date(outboundTrain.arrivalDateTime);
+      const departureDate = new Date(outboundTrain.departureDateTime); 
       // 5. Now create the ticket in DB
       const ticketPayload = {
         name: passengers[0].firstName,
@@ -457,10 +458,16 @@ const PassengerInfoPage = () => {
         birthDate: formatBirthDate(passengers[0].birthDate),
         price: priceDetails.grandTotal,
         seat: selectedSeats.outbound[0].number.toString(),
-        wagonId: Number(selectedSeats.outbound[0].wagon),
-        seferId: seferId,  // ✅ pulled from actual data
+        wagonType: selectedSeats.outbound[0].wagonType,
+        wagonNumber: selectedSeats.outbound[0].wagon,
+        seferId: seferId, 
         ticketId: tempTicketId,
-        date: new Date().toISOString(),
+        date: arrivalDate.toISOString(),
+        departureStation: outboundTrain.departureStation,
+        arrivalStation: outboundTrain.arrivalStation,
+        trainId: outboundTrain.trainPrimaryIds[0],
+        departureDateTime: departureDate.toISOString(),
+        wagonId: wagonId,
       };
       await axios.post('http://localhost:8080/bookings', {
         seatUpdate: finalSeatUpdate,
