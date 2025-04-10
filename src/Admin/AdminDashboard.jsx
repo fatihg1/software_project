@@ -2,6 +2,8 @@ import { useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import { FaTrain, FaClipboardList, FaBullhorn, FaBars, FaSignOutAlt, FaChartBar, FaTicketAlt, FaMoneyBillWave, FaTimes, FaInbox } from "react-icons/fa";
 import { useState, useEffect } from "react";
+import axios from "axios";
+
 
 const AdminDashboard = () => {
   const { user, isSignedIn } = useUser();
@@ -9,6 +11,13 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const [totalTrains, setTotalTrains] = useState(0);
+  const [totalReservations, setTotalReservations] = useState(0);
+  const [recentBookings, setRecentBookings] = useState([]);
+  const [announcements, setAnnouncements] = useState([]);
+  const [monthlyRevenue, setMonthlyRevenue] = useState(0);
+
+
   
   // Detect mobile screen and handle sidebar accordingly
   useEffect(() => {
@@ -31,6 +40,40 @@ const AdminDashboard = () => {
     // Cleanup
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const trainsRes = await axios.get("http://localhost:8080/api/trains");
+        const bookingsRes = await axios.get("http://localhost:8080/bookings");
+        const announcementsRes = await axios.get("http://localhost:8080/announcements");
+        const fetchRevenue = async () => {
+          try {
+            const res = await axios.get("http://localhost:8080/finance");
+            const now = new Date();
+            const monthRevenue = res.data
+              .filter(d => d.type === "Sale" && new Date(d.date).getMonth() === now.getMonth())
+              .reduce((sum, d) => sum + d.amount, 0);
+            setMonthlyRevenue(monthRevenue);
+          } catch (error) {
+            console.error("Revenue fetch error:", error);
+          }
+        };
+        fetchRevenue();
+        
+
+        setTotalTrains(trainsRes.data.length);
+        setTotalReservations(bookingsRes.data.length);
+        setRecentBookings(bookingsRes.data.slice(-3).reverse());
+        setAnnouncements(announcementsRes.data.slice(-3).reverse());
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+      }
+    };
+    
+    fetchDashboardData();
+  }, []);
+  
 
   return (
     <div className="bg-gray-100 min-h-screen relative">
@@ -132,21 +175,21 @@ const AdminDashboard = () => {
           <div className="bg-white p-6 rounded-lg shadow-md flex items-center space-x-4">
             <FaTrain className="text-blue-500 text-3xl" />
             <div>
-              <h3 className="text-xl font-bold">120</h3>
+            <h3 className="text-xl font-bold">{totalTrains}</h3>
               <p className="text-gray-500">Total Trains</p>
             </div>
           </div>
           <div className="bg-white p-6 rounded-lg shadow-md flex items-center space-x-4">
             <FaTicketAlt className="text-green-500 text-3xl" />
             <div>
-              <h3 className="text-xl font-bold">5,420</h3>
+            <h3 className="text-xl font-bold">{totalReservations}</h3>
               <p className="text-gray-500">Total Reservations</p>
             </div>
           </div>
           <div className="bg-white p-6 rounded-lg shadow-md flex items-center space-x-4">
             <FaMoneyBillWave className="text-yellow-500 text-3xl" />
             <div>
-              <h3 className="text-xl font-bold">₺254,000</h3>
+            <h3 className="text-xl font-bold">₺{monthlyRevenue.toLocaleString("tr-TR")}</h3>
               <p className="text-gray-500">Monthly Revenue</p>
             </div>
           </div>
@@ -157,17 +200,21 @@ const AdminDashboard = () => {
           <div className="bg-white p-6 rounded-lg shadow-md">
             <h2 className="text-xl font-semibold mb-3">📅 Recent Bookings</h2>
             <ul>
-              <li className="p-2 border-b">Ali Yılmaz - Istanbul - Ankara (March 10, 2024)</li>
-              <li className="p-2 border-b">Ayşe Kaya - Izmir - Istanbul (March 12, 2024)</li>
-              <li className="p-2 border-b">Mehmet Demir - Ankara - Izmir (March 15, 2024)</li>
+              {recentBookings.map((booking, index) => (
+                <li key={index} className="p-2 border-b">
+                  {booking.user} - {booking.train} ({booking.date})
+                </li>
+              ))}
             </ul>
           </div>
           <div className="bg-white p-6 rounded-lg shadow-md">
             <h2 className="text-xl font-semibold mb-3">📢 Upcoming Announcements</h2>
             <ul>
-              <li className="p-2 border-b">System Maintenance - March 15, 2024</li>
-              <li className="p-2 border-b">New Routes Added - March 18, 2024</li>
-              <li className="p-2 border-b">Holiday Discount - March 20, 2024</li>
+              {announcements.map((a, index) => (
+                <li key={index} className="p-2 border-b">
+                  {a.title} - {a.content}
+                </li>
+              ))}
             </ul>
           </div>
         </div>

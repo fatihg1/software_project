@@ -27,4 +27,13 @@ public class SalaryService {
         updatedSalary.setId(id);
         return repo.save(updatedSalary);
     }
+
+
+    public void deleteByName(String name) {
+        Salary salary = repo.findByName(name);
+        if (salary != null) {
+            repo.delete(salary);
+        }
+    }
+    
 }

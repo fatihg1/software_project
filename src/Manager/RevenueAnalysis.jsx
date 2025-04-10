@@ -10,13 +10,15 @@ const RevenueAnalysis = () => {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
-  
-  useEffect(() => {
-    fetch("http://localhost:8080/revenue")
-      .then((res) => res.json())
-      .then((data) => setRevenueData(data))
-      .catch((err) => console.error("Error fetching revenue data:", err));
-  }, []);
+  const [monthlyRevenue, setMonthlyRevenue] = useState(null);
+  const [topRoutes, setTopRoutes] = useState(null);
+  const [salesData, setSalesData] = useState(null);
+  const [revenueComparison, setRevenueComparison] = useState(null);
+  const [debugMonthly, setDebugMonthly] = useState(null);
+const [debugTopRoutes, setDebugTopRoutes] = useState(null);
+const [debugSales, setDebugSales] = useState(null);
+const [debugScatter, setDebugScatter] = useState(null);
+
 
   
   // Handle responsive behavior
@@ -40,52 +42,77 @@ const RevenueAnalysis = () => {
     // Cleanup
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  useEffect(() => {
+    // Monthly Revenue
+    fetch("http://localhost:8080/finance/revenue/monthly")
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("✅ Monthly Revenue:", data);
+        setMonthlyRevenue({
+          labels: Object.keys(data),
+          datasets: [{
+            label: "Monthly Revenue ($)",
+            data: Object.values(data),
+            backgroundColor: "#1866bb"
+          }]
+        });
+      })
+      .catch((err) => console.error("❌ Monthly Revenue Fetch Error:", err));
   
-  // Monthly Revenue Data
-  const monthlyRevenue = {
-    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-    datasets: [{
-      label: "Monthly Revenue ($)",
-      data: [12000, 15000, 14000, 18000, 22000, 20000, 21000, 25000, 27000, 30000, 32000, 35000],
-      backgroundColor: "#1866bb",
-    }],
-  };
+    // Top 5 Routes
+    fetch("http://localhost:8080/finance/revenue/top-routes")
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("✅ Top Routes:", data);
+        setTopRoutes({
+          labels: Object.keys(data),
+          datasets: [{
+            label: "Total Revenue ($)",
+            data: Object.values(data),
+            backgroundColor: ["#ff6384", "#36a2eb", "#ffce56", "#4bc0c0", "#9966ff"]
+          }]
+        });
+      })
+      .catch((err) => console.error("❌ Top Routes Fetch Error:", err));
   
-  // Top 5 Most Paid Routes
-  const topRoutes = {
-    labels: ["Istanbul-Ankara", "Izmir-Istanbul", "Bursa-Ankara", "Antalya-Izmir", "Konya-Istanbul"],
-    datasets: [{
-      label: "Total Revenue ($)",
-      data: [50000, 42000, 39000, 36000, 34000],
-      backgroundColor: ["#ff6384", "#36a2eb", "#ffce56", "#4bc0c0", "#9966ff"],
-    }],
-  };
+    // Sales Trends
+    fetch("http://localhost:8080/finance/revenue/sales-trends")
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("✅ Sales Trends:", data);
+        setSalesData({
+          labels: Object.keys(data),
+          datasets: [{
+            label: "Total Sales ($)",
+            data: Object.values(data),
+            borderColor: "#ffcc00",
+            backgroundColor: "rgba(255, 204, 0, 0.5)",
+            tension: 0.4
+          }]
+        });
+      })
+      .catch((err) => console.error("❌ Sales Trends Fetch Error:", err));
   
-  // Sales Data
-  const salesData = {
-    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-    datasets: [{
-      label: "Total Sales ($)",
-      data: [10000, 13000, 12000, 16000, 20000, 18000, 19000, 22000, 25000, 27000, 30000, 32000],
-      borderColor: "#ffcc00",
-      backgroundColor: "rgba(255, 204, 0, 0.5)",
-      tension: 0.4,
-    }],
-  };
+    // Revenue vs Sales Scatter
+    fetch("http://localhost:8080/finance/revenue/scatter")
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("✅ Scatter Revenue Data:", data);
+        setRevenueComparison({
+          datasets: [{
+            label: "Revenue per Passenger vs. Total Sales",
+            data: data.map(d => ({ x: d.passengers, y: d.revenue })),
+            backgroundColor: "#ff5733"
+          }]
+        });
+      })
+      .catch((err) => console.error("❌ Scatter Fetch Error:", err));
+  }, []);
   
-  // Revenue per Passenger vs. Total Sales (Comparison)
-  const revenueComparison = {
-    datasets: [{
-      label: "Revenue per Passenger vs. Total Sales",
-      data: [
-        { x: 100, y: 10000 }, { x: 130, y: 13000 }, { x: 120, y: 12000 },
-        { x: 160, y: 16000 }, { x: 200, y: 20000 }, { x: 180, y: 18000 },
-        { x: 190, y: 19000 }, { x: 220, y: 22000 }, { x: 250, y: 25000 },
-        { x: 270, y: 27000 }, { x: 300, y: 30000 }, { x: 320, y: 32000 },
-      ],
-      backgroundColor: "#ff5733",
-    }],
-  };
+  
+  
+  
 
   return (
     <div className="bg-gray-100 min-h-screen relative">
@@ -182,13 +209,13 @@ const RevenueAnalysis = () => {
           <div className="bg-white p-4 md:p-6 rounded-lg shadow-md"> 
             <h2 className="text-lg md:text-xl font-semibold mb-3">📈 Monthly Revenue</h2> 
             <div className="h-64 md:h-72">
-              <Bar data={monthlyRevenue} options={{ maintainAspectRatio: false }} /> 
+              <Bar data={monthlyRevenue || { labels: [], datasets: [] }} options={{ maintainAspectRatio: false }} />
             </div>
           </div>
           <div className="bg-white p-4 md:p-6 rounded-lg shadow-md"> 
             <h2 className="text-lg md:text-xl font-semibold mb-3">🏙️ Top 5 Paid Routes</h2> 
             <div className="h-64 md:h-72">
-              <Pie data={topRoutes} options={{ maintainAspectRatio: false }} /> 
+              <Pie data={topRoutes || { labels: [], datasets: [] }} options={{ maintainAspectRatio: false }} />
             </div>
           </div>
         </div>
@@ -196,13 +223,13 @@ const RevenueAnalysis = () => {
           <div className="bg-white p-4 md:p-6 rounded-lg shadow-md"> 
             <h2 className="text-lg md:text-xl font-semibold mb-3">📊 Sales Trends</h2> 
             <div className="h-64 md:h-72">
-              <Line data={salesData} options={{ maintainAspectRatio: false }} /> 
+              <Line data={salesData || { labels: [], datasets: [] }} options={{ maintainAspectRatio: false }} />
             </div>
           </div>
           <div className="bg-white p-4 md:p-6 rounded-lg shadow-md"> 
             <h2 className="text-lg md:text-xl font-semibold mb-3">💰 Revenue vs. Sales</h2> 
             <div className="h-64 md:h-72">
-              <Scatter data={revenueComparison} options={{ maintainAspectRatio: false }} /> 
+              <Scatter data={revenueComparison || { datasets: [] }} options={{ maintainAspectRatio: false }} />
             </div>
           </div>
         </div>
@@ -210,5 +237,7 @@ const RevenueAnalysis = () => {
     </div>
   );
 };
+
+
 
 export default RevenueAnalysis;
