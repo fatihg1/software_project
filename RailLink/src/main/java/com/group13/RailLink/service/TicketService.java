@@ -36,27 +36,9 @@ public class TicketService {
         return ticketRepository.findByUserId(userId);
     }
 
-    // TicketService.java (Updated)
-public Ticket createTicket(Ticket ticket) {
-    // Find or create the user
-    Optional<User> existingUser = userRepository.findByNameAndSurname(
-        ticket.getName(), 
-        ticket.getSurname()
-    );
-
-    User user = existingUser.orElseGet(() -> {
-        User newUser = new User();
-        newUser.setName(ticket.getName());
-        newUser.setSurname(ticket.getSurname());
-        newUser.setEmail(ticket.getEmail() != null ? ticket.getEmail() : "default@example.com"); // 👈 Ensure required fields
-        newUser.setPhone(ticket.getPhone() != null ? ticket.getPhone() : "000-000-0000");
-        return userRepository.save(newUser);
-    });
-
-    System.out.println("User ID: " + user.getId()); // Logging for verification
-    ticket.setUserId(user.getId());
-    return ticketRepository.save(ticket);
-}
+    public Ticket createTicket(Ticket ticket) {
+        return ticketRepository.save(ticket);
+    }
 
     // Get all tickets
     public List<Ticket> getAllTickets(){

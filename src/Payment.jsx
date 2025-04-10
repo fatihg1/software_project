@@ -417,7 +417,6 @@ const PassengerInfoPage = () => {
     }
   };
   
-  // Handle final submission
   const handleFinalSubmit = async (paymentData) => {
     try {
       const finalSeatUpdate = {
@@ -432,70 +431,154 @@ const PassengerInfoPage = () => {
         outboundTrainIds: outboundTrain.trainPrimaryIds,
         returnTrainIds: tripType === 'round-trip' ? returnTrain.trainPrimaryIds : [],
       };
-      const seferId = finalSeatUpdate.outboundTrainIds[0];
-      if (!seferId) throw new Error('Sefer ID missing');
-      const wagonId  = finalSeatUpdate.outboundSeats[0].wagon;//Loop through every seat for backend ticketing instead of just the first one
-      // 2. Generate a temp ticket ID to use for invoice
-      const tempTicketId = `TKT-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
   
-      // 3. Create the invoice
-      const invoicePayload = {
+      // Create a base invoice payload
+      const baseInvoicePayload = {
         cardNumber: paymentData.cardNumber,
         cardHolder: paymentData.cardHolder,
         expiryDate: paymentData.expiryDate,
         cvv: paymentData.cvv,
-        ticketId: tempTicketId,
       };
-      const arrivalDate = new Date(outboundTrain.arrivalDateTime);
-      const departureDate = new Date(outboundTrain.departureDateTime); 
-      // 5. Now create the ticket in DB
-      const ticketPayload = {
-        name: passengers[0].firstName,
-        surname: passengers[0].surname,
-        governmentId: passengers[0].governmentId,
-        phone: passengers[0].phoneNumber,
-        email: passengers[0].email,
-        birthDate: formatBirthDate(passengers[0].birthDate),
-        price: priceDetails.grandTotal,
-        seat: selectedSeats.outbound[0].number.toString(),
-        wagonType: selectedSeats.outbound[0].wagonType,
-        wagonNumber: selectedSeats.outbound[0].wagon,
-        seferId: seferId, 
-        ticketId: tempTicketId,
-        date: arrivalDate.toISOString(),
-        departureStation: outboundTrain.departureStation,
-        arrivalStation: outboundTrain.arrivalStation,
-        trainId: outboundTrain.trainPrimaryIds[0],
-        departureDateTime: departureDate.toISOString(),
-        wagonId: wagonId,
-      };
-      await axios.post('http://localhost:8080/bookings', {
-        seatUpdate: finalSeatUpdate,
-        ticket: ticketPayload,
-        invoice: invoicePayload
-      });
   
-      // 4. Download the invoice
-      const pdfResponse = await axios.get(`http://localhost:8080/api/invoices/${tempTicketId}/pdf`, {
-        responseType: 'blob'
-      });
+      // Store all ticket IDs for later use
+      const ticketIds = [];
+      const bookingPromises = [];
   
-      const url = window.URL.createObjectURL(new Blob([pdfResponse.data], { type: 'application/pdf' }));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `invoice_${tempTicketId}.pdf`);
-      document.body.appendChild(link);
-      link.click();
-      link.parentNode.removeChild(link);
+      // Process outbound tickets for all passengers
+      for (let i = 0; i < passengers.length; i++) {
+        const passenger = passengers[i];
+        const outboundSeatIndex = i % selectedSeats.outbound.length;
+        const outboundSeat = selectedSeats.outbound[outboundSeatIndex];
+        const outboundSeferId = finalSeatUpdate.outboundTrainIds[0];
   
-      // 6. Show confirmation and navigate
+        if (!outboundSeferId) throw new Error('Outbound Sefer ID missing');
+  
+        // Generate ticket ID for this passenger's outbound journey
+        const outboundTicketId = `TKT-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+        ticketIds.push(outboundTicketId);
+  
+        // Create invoice for this ticket
+        const outboundInvoicePayload = {
+          ...baseInvoicePayload,
+          ticketId: outboundTicketId,
+        };
+  
+        const outboundArrivalDate = new Date(outboundTrain.arrivalDateTime);
+        const outboundDepartureDate = new Date(outboundTrain.departureDateTime);
+  
+        // Create ticket payload for outbound journey
+        const outboundTicketPayload = {
+          name: passenger.firstName,
+          surname: passenger.surname,
+          governmentId: passenger.governmentId,
+          phone: passenger.phoneNumber,
+          email: passenger.email,
+          birthDate: formatBirthDate(passenger.birthDate),
+          price: tripType === 'round-trip' ? priceDetails.outboundTotal / passengers.length : priceDetails.grandTotal / passengers.length,
+          seat: outboundSeat.number.toString(),
+          wagonType: outboundSeat.wagonType,
+          wagonNumber: outboundSeat.wagon,
+          seferId: outboundSeferId,
+          ticketId: outboundTicketId,
+          date: outboundArrivalDate.toISOString(),
+          departureStation: outboundTrain.departureStation,
+          arrivalStation: outboundTrain.arrivalStation,
+          trainId: outboundTrain.trainPrimaryIds[0],
+          departureDateTime: outboundDepartureDate.toISOString(),
+          wagonId: outboundSeat.wagon,
+        };
+  
+        // Add booking promise for outbound journey
+        bookingPromises.push(
+          axios.post('http://localhost:8080/bookings', {
+            seatUpdate: finalSeatUpdate,
+            ticket: outboundTicketPayload,
+            invoice: outboundInvoicePayload,
+            isReturn: false,
+          })
+        );
+  
+        // Process return tickets if this is a round-trip
+        if (tripType === 'round-trip' && finalSeatUpdate.returnTrainIds.length > 0) {
+          const returnSeatIndex = i % selectedSeats.return.length;
+          const returnSeat = selectedSeats.return[returnSeatIndex];
+          const returnSeferId = finalSeatUpdate.returnTrainIds[0];
+  
+          if (!returnSeferId) throw new Error('Return Sefer ID missing');
+  
+          // Generate ticket ID for this passenger's return journey
+          const returnTicketId = `TKT-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+          ticketIds.push(returnTicketId);
+  
+          // Create invoice for this ticket
+          const returnInvoicePayload = {
+            ...baseInvoicePayload,
+            ticketId: returnTicketId,
+          };
+  
+          const returnArrivalDate = new Date(returnTrain.arrivalDateTime);
+          const returnDepartureDate = new Date(returnTrain.departureDateTime);
+  
+          // Create ticket payload for return journey
+          const returnTicketPayload = {
+            name: passenger.firstName,
+            surname: passenger.surname,
+            governmentId: passenger.governmentId,
+            phone: passenger.phoneNumber,
+            email: passenger.email,
+            birthDate: formatBirthDate(passenger.birthDate),
+            price: priceDetails.returnTotal / passengers.length,
+            seat: returnSeat.number.toString(),
+            wagonType: returnSeat.wagonType,
+            wagonNumber: returnSeat.wagon,
+            seferId: returnSeferId,
+            ticketId: returnTicketId,
+            date: returnArrivalDate.toISOString(),
+            departureStation: returnTrain.departureStation,
+            arrivalStation: returnTrain.arrivalStation,
+            trainId: returnTrain.trainPrimaryIds[0],
+            departureDateTime: returnDepartureDate.toISOString(),
+            wagonId: returnSeat.wagon,
+          };
+          console.log('Return Ticket Payload:', returnTicketPayload, "true");
+          // Add booking promise for return journey
+          bookingPromises.push(
+            axios.post('http://localhost:8080/bookings', {
+              seatUpdate: finalSeatUpdate,
+              ticket: returnTicketPayload,
+              invoice: returnInvoicePayload,
+              isReturn: true, // Add isReturn flag for return tickets
+            })
+          );
+        }
+      }
+  
+      // Wait for all booking requests to complete
+      await Promise.all(bookingPromises);
+  
+      // Download invoices for all tickets
+      for (const ticketId of ticketIds) {
+        const pdfResponse = await axios.get(`http://localhost:8080/api/invoices/${ticketId}/pdf`, {
+          responseType: 'blob'
+        });
+  
+        const url = window.URL.createObjectURL(new Blob([pdfResponse.data], { type: 'application/pdf' }));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `invoice_${ticketId}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        link.parentNode.removeChild(link);
+      }
+  
+      // Show confirmation and navigate
       alert(translations[language].paymentSuccess);
       navigate('/', {
         state: {
           bookingConfirmation: {
             ...bookingData,
             ...paymentData,
-            confirmationNumber: tempTicketId
+            confirmationNumber: ticketIds.join(', ')
           }
         }
       });
@@ -509,8 +592,9 @@ const PassengerInfoPage = () => {
   
       setIsPaymentModalOpen(false);
       console.error('Booking error:', error);
-    } 
+    }
   };
+  
   
   
   return (

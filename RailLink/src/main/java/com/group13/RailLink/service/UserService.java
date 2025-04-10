@@ -72,6 +72,7 @@ public class UserService {
         newUser.setSurname(surname);
         newUser.setEmail(email);
         newUser.setPhone(phone);
+        System.out.println("User has been created");
         return repo.save(newUser);
     }
     public User updateUser(int id, User updatedUser) {

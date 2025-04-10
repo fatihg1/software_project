@@ -18,14 +18,19 @@ public class BookingController {
 
      @Autowired
     private BookingService bookingService;
-
+ 
     @PostMapping
     public ResponseEntity<Ticket> completeBooking(@RequestBody BookingRequestDTO bookingRequest) {
         try {
+            Boolean isReturn = bookingRequest.getIsReturn();
+            if (isReturn == null) {
+                throw new IllegalArgumentException("isReturn must not be null");
+            }
             Ticket createdTicket = bookingService.completeBooking(//bookingRequest.getBooking(),
                 bookingRequest.getSeatUpdate(),
                 bookingRequest.getTicket(),
-                bookingRequest.getInvoice()
+                bookingRequest.getInvoice(),
+                bookingRequest.getIsReturn()
             );
             return ResponseEntity.ok(createdTicket);
         } catch (Exception e) {

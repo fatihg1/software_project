@@ -56,19 +56,22 @@ public class BookingService {
 
     /**
      * Complete the entire booking operation atomically.
-     */
+     */ 
     @Transactional
     public Ticket completeBooking(
             FinalSeatUpdateDTO finalSeatUpdate,
             Ticket ticket,
-            Invoice invoice) {
-
-        // 1. Find or create user
-        User user = userService.findOrCreateUser(ticket.getName(), ticket.getSurname(), ticket.getEmail(), ticket.getPhone());
-        ticket.setName(user.getName());
-        ticket.setSurname(user.getSurname());
-        ticket.setEmail(user.getEmail());
-        ticket.setPhone(user.getPhone());
+            Invoice invoice,
+            Boolean isReturn) {
+        System.err.println("isReturn: " + isReturn);
+        User user = new User(ticket.getName(), ticket.getSurname(), ticket.getEmail(), ticket.getPhone());
+        if(!isReturn){// 1. Find or create user
+            user = userService.findOrCreateUser(ticket.getName(), ticket.getSurname(), ticket.getEmail(), ticket.getPhone());
+            ticket.setName(user.getName());
+            ticket.setSurname(user.getSurname());
+            ticket.setEmail(user.getEmail());
+            ticket.setPhone(user.getPhone());
+    }
 
         // 2. Update seat bookings
         List<Wagons> updatedWagons = trainService.updateSeatBookings(
@@ -88,6 +91,7 @@ public class BookingService {
             throw new RuntimeException("Invoice creation failed");
         }
 
+        ticket.setUserId(user.getId());
         // 4. Create ticket
         Ticket createdTicket = ticketService.createTicket(ticket);
         if (createdTicket == null) {

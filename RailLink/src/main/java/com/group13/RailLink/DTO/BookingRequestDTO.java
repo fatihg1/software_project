@@ -10,8 +10,12 @@ public class BookingRequestDTO {
     private FinalSeatUpdateDTO seatUpdate;
     private Ticket ticket;       // Changed from TicketDTO to Ticket entity
     private Invoice invoice;     // Changed from InvoiceDTO to Invoice entity
+    private Boolean isReturn;
 
     // Getters & Setters
+
+    public Boolean getIsReturn() { return isReturn; }
+    public void setIsReturn(Boolean isReturn) { this.isReturn = isReturn; }
     public FinalSeatUpdateDTO getSeatUpdate() { return seatUpdate; }
     public void setSeatUpdate(FinalSeatUpdateDTO seatUpdate) { this.seatUpdate = seatUpdate; }
 
