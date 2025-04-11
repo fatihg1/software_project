@@ -15,6 +15,8 @@ public class Finance {
     private double amount;
     private String type;
     private LocalDateTime date;
+    private String route;
+
 
     public Finance() {}
 
@@ -33,4 +35,14 @@ public class Finance {
 
     public LocalDateTime getDate() { return date; }
     public void setDate(LocalDateTime date) { this.date = date; }
+
+
+    public String getRoute() {
+        return route;
+    }
+
+    public void setRoute(String route) {
+        this.route = route;
+    }
+
 }

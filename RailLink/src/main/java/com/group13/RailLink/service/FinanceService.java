@@ -34,14 +34,17 @@ public class FinanceService {
     }
 
     // Ticket üzerinden Sale işlemini finance tablosuna kaydeder
-public Finance addSaleFromTicket(Ticket ticket) {
-    Finance finance = new Finance();
-    finance.setUser(ticket.getName()); // İstersen User ID üzerinden de yapabiliriz
-    finance.setAmount(ticket.getPrice().doubleValue());
-    finance.setType("Sale");
-    finance.setDate(LocalDateTime.now());
-    return repo.save(finance);
-}
+    public Finance addSaleFromTicket(Ticket ticket) {
+        Finance finance = new Finance();
+        finance.setUser(ticket.getName());
+        finance.setAmount(ticket.getPrice().doubleValue());
+        finance.setType("Sale");
+        finance.setDate(LocalDateTime.now());
+        finance.setRoute(ticket.getDepartureStation() + " - " + ticket.getArrivalStation()); // ✔️ Bu güzergahı düzgün kurar
+ //  güzergah ekleniyor
+        return repo.save(finance);
+    }
+    
 
 public Map<String, Double> getMonthlyRevenue() {
     return repo.findAll().stream()
@@ -60,12 +63,11 @@ public Map<String, Double> getMonthlyRevenue() {
         ));
 }
 
-
 public Map<String, Double> getTopRoutesRevenue() {
     return repo.findAll().stream()
-        .filter(f -> f.getType().equalsIgnoreCase("Sale"))
+        .filter(f -> f.getType() != null && f.getType().equalsIgnoreCase("Sale") && f.getRoute() != null && !f.getRoute().isEmpty())
         .collect(Collectors.groupingBy(
-            Finance::getUser, // burayı gelecekte "route" verisi ile değiştirebilirsin
+            Finance::getRoute,
             Collectors.summingDouble(Finance::getAmount)
         ))
         .entrySet().stream()
@@ -75,6 +77,8 @@ public Map<String, Double> getTopRoutesRevenue() {
             Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, LinkedHashMap::new
         ));
 }
+
+
 
 public Map<String, Double> getMonthlySalesTrend() {
     return repo.findAll().stream()
