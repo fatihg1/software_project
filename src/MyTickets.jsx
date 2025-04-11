@@ -298,15 +298,10 @@ const TicketDisplayPage = () => {
         
         {/* Alert message */}
         {showAlert && (
-          <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-6 flex items-center">
-            <CheckCircle className="h-5 w-5 mr-2" />
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6 flex items-center">
+            <div className="h-5 w-5 mr-2" />
             <span>{alertMessage}</span>
-            <button 
-              className="absolute top-0 bottom-0 right-0 px-4 py-3"
-              onClick={() => setShowAlert(false)}
-            >
-              <span className="text-2xl">&times;</span>
-            </button>
+            
           </div>
         )}
         
