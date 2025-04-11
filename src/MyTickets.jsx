@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { AlertCircle, ArrowRight, RefreshCcw, CheckCircle, Clock } from 'lucide-react';
 import { useUser } from '@clerk/clerk-react';
 import { useLocation, useSearchParams, useNavigate, Navigate } from 'react-router-dom';
-
+import { useLanguage } from './LanguageContext';
+import translations from './translations';
 const TicketDisplayPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -15,7 +16,8 @@ const TicketDisplayPage = () => {
   const [alertMessage, setAlertMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
-  
+  const { language } = useLanguage();
+  const t = translations[language].ticketPage;
   // Use a ref to track whether we have done the location.state check already
   const hasCheckedLocationRef = useRef(false);
 
@@ -186,20 +188,20 @@ const TicketDisplayPage = () => {
     return () => clearTimeout(timer);
   }, [location, searchParams, setSearchParams, isLoaded, user]);
 
-  // Format date to be more readable
   const formatDate = (dateString) => {
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString('en-us', options);
+    return new Date(dateString).toLocaleDateString(language === 'tr' ? 'tr-TR' : 'en-US', options);
   };
 
   const formatTime = (timeString) => {
-    if (!timeString) return "N/A"; // Handle undefined or null values
-  
-    const date = new Date(timeString); // Convert to Date object
-    if (isNaN(date)) return "Invalid Time"; // Handle invalid date strings
-  
-    // Extract only the hour and minute in "HH:mm" format
-    return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+    if (!timeString) return t.na;
+    const date = new Date(timeString);
+    if (isNaN(date)) return t.invalidTime;
+    return date.toLocaleTimeString(language === 'tr' ? 'tr-TR' : 'en-US', { 
+      hour: '2-digit', 
+      minute: '2-digit', 
+      hour12: false 
+    });
   };
 
   // Handle refund button click - opens confirmation modal
@@ -217,7 +219,7 @@ const TicketDisplayPage = () => {
     try {
       // Find the ticket by ID
       const ticket = tickets.find(t => t.ticketId === ticketId);
-      if (!ticket) throw new Error('Ticket not found');
+      if (!ticket) throw new Error(t.ticketNotFound);
       
       // Make API call to request refund
       const response = await fetch(`http://localhost:8080/api/tickets/${ticket.id}`, {
@@ -232,7 +234,7 @@ const TicketDisplayPage = () => {
         })
       });
       
-      if (!response.ok) throw new Error('Failed to request refund');
+      if (!response.ok) throw new Error(t.failedRequestRefund);
       
       // Update the ticket status in the UI
       setTickets(tickets.map(t => 
@@ -291,7 +293,7 @@ const TicketDisplayPage = () => {
     <div className="flex flex-col min-h-screen">
       <div className="max-w-6xl p-6 pt-8 flex-grow">
         <h1 className="text-3xl font-bold mb-6 mt-20">
-          {isLookupMode() ? "Ticket Details" : "My Tickets"}
+          {isLookupMode() ? t.ticketDetails : t.myTickets}
         </h1>
         
         {/* Alert message */}
@@ -311,21 +313,21 @@ const TicketDisplayPage = () => {
         {loading ? (
           <div className="bg-white rounded-lg shadow-md p-8 flex flex-col items-center justify-center min-h-[400px]">
             <RefreshCcw className="h-8 w-8 mb-4 animate-spin text-blue-600" />
-            <p className="text-gray-600">Loading tickets...</p>
+            <p className="text-gray-600">{t.loading}</p>
           </div>
         ) : tickets.length === 0 || notFound ? (
           <div className="bg-white rounded-lg shadow-md p-8 text-center min-h-[400px] flex flex-col items-center justify-center">
             <AlertCircle className="h-12 w-12 mb-4 text-amber-500" />
             <p className="text-gray-600 mb-8 text-lg">
               {isLookupMode() 
-                ? "No ticket found. Please check the ticket ID and last name."
-                : "You don't have any tickets yet. Try Logging in or browsing available routes."}
+                ? t.noTicketFound
+                : t.noTicketsLoggedOut}
             </p>
             <button 
               onClick={handleBrowseRoutes}
               className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-colors font-medium"
             >
-              Browse Available Routes
+              {t.browseRoutes}
             </button>
           </div>
         ) : (
@@ -360,16 +362,16 @@ const TicketDisplayPage = () => {
                     
                     <div className="flex flex-col sm:flex-row justify-between items-start border-t border-gray-100 pt-4">
                       <div>
-                        <p className="text-sm text-gray-600">Passenger:</p>
+                        <p className="text-sm text-gray-600">{t.passengerLabel}</p>
                         <p className="font-medium">{ticket.name} {ticket.surname}</p>
                         <div className="mt-2 flex space-x-4">
                           <div>
-                            <p className="text-sm text-gray-600">Seat:</p>
+                            <p className="text-sm text-gray-600">{t.seatLabel}</p>
                             <p className="font-medium">{ticket.seat}</p>
                           </div>
                           <div>
-                            <p className="text-sm text-gray-600">Wagon:</p>
-                            <p className="font-medium">{ticket.wagonNumber || "N/A"} ({ticket.wagonType || "N/A"})</p>
+                            <p className="text-sm text-gray-600">{t.wagonLabel}</p>
+                            <p className="font-medium">{ticket.wagonNumber || t.na} ({ticket.wagonType || t.na})</p>
                           </div>
                         </div>
                       </div>
@@ -378,12 +380,12 @@ const TicketDisplayPage = () => {
                         {isPast ? (
                           <div className="mt-2 flex items-center text-amber-600 text-sm">
                             <AlertCircle className="h-4 w-4 mr-1" />
-                            <span>Past trip - not refundable</span>
+                            <span>{t.pastTrip}</span>
                           </div>
                         ) : ticket.refundRequested ? (
                           <div className="mt-2 flex items-center text-green-600 text-sm">
                             <CheckCircle className="h-4 w-4 mr-1" />
-                            <span>Refund request submitted</span>
+                            <span>{t.refundSubmitted}</span>
                           </div>
                         ) : (
                           <button
@@ -398,10 +400,10 @@ const TicketDisplayPage = () => {
                             {isProcessing ? (
                               <>
                                 <RefreshCcw className="inline-block h-4 w-4 mr-1 animate-spin" />
-                                Processing...
+                                {t.processing}
                               </>
                             ) : (
-                              'Request Refund'
+                              t.requestRefund
                             )}
                           </button>
                         )}
@@ -419,22 +421,23 @@ const TicketDisplayPage = () => {
       {confirmModal && (
         <div className="fixed inset-0 backdrop-blur-md flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full shadow-xl border border-gray-200">
-            <h3 className="text-xl font-bold mb-4">Confirm Refund</h3>
+            <h3 className="text-xl font-bold mb-4">{t.confirmRefundTitle}</h3>
             <p className="mb-6">
-              Are you sure you want to refund ticket {confirmModal}? This action cannot be undone.
+            {t.confirmMessage.replace('{ticketId}', confirmModal)}
+
             </p>
             <div className="flex justify-end space-x-3">
               <button 
                 className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
                 onClick={cancelRefund}
               >
-                Cancel
+                {t.cancel}
               </button>
               <button 
                 className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
                 onClick={() => confirmRefund(confirmModal)}
               >
-                Confirm Refund
+                {t.confirmRefund}
               </button>
             </div>
           </div>

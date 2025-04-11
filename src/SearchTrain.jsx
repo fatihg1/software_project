@@ -54,7 +54,18 @@ export default function TrainTicketSearch() {
   const [initialSearchDone, setInitialSearchDone] = useState(false);
   const [cities, setCities] = useState([]);
   const [searchPerformed, setSearchPerformed] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(true);
   const today = new Date().toISOString().split('T')[0];
+  
+  // Track animation completion
+  useEffect(() => {
+    // Set timeout to match animation duration
+    const timer = setTimeout(() => {
+      setIsAnimating(false);
+    }, 800); // Adjust this time to match your animation duration
+    
+    return () => clearTimeout(timer);
+  }, []);
   
   // Load available stations from API
   useEffect(() => {
@@ -89,8 +100,7 @@ export default function TrainTicketSearch() {
   useEffect(() => {
     // Check if we have state from navigation
     if (location.state) {
-      const { departure, arrival, date, returnDate, isRoundTrip } = location.state;
-      
+      const { arrival, date, departure, isRoundTrip, returnDate } = location.state;
       // Set values from the passed state
       if (departure) setDeparture(departure);
       if (arrival) setArrival(arrival);
@@ -116,23 +126,57 @@ export default function TrainTicketSearch() {
       setReturnDate(prevReturn => prevReturn || date);
     }
   }, [tripType, date]);
-  
-  // Trigger initial search when coming from another page
-  useEffect(() => {
-    if (location.state && !initialSearchDone) {
-      const { departure, arrival } = location.state;
-      
-      // Only proceed if we have the necessary data
-      if ((departure || arrival) && !isSearching) {
-        // Wait for state updates to complete
-        setTimeout(() => {
-          search();
+
+// With this improved version:
+useEffect(() => {
+  // Only trigger once when the component is mounted with location state
+  if (location.state && !initialSearchDone) {
+    // Wait for both:
+    // 1. Animation to complete
+    // 2. State values to be fully set from location.state
+    const animationDelay = 1000; // Increase delay a bit to ensure state is ready
+    
+    const timer = setTimeout(() => {
+      // Use a direct function that uses location.state values directly
+      // rather than relying on state that might not be updated yet
+      const performInitialSearch = async () => {
+        setIsSearching(true);
+        setSearchPerformed(true);
+        
+        try {
+          // Use location.state values directly to avoid timing issues
+          const { departure, arrival, date, isRoundTrip, returnDate } = location.state;
+          
+          if (!departure || !arrival || !date) {
+            setValidationError(translations[language].selectStationsError || translations[language].selectStationsErrorDefault);
+            return;
+          }
+          
+          // Call API directly with location.state values
+          const trainsData = await trainService.searchTrains(departure, arrival, date);
+          setResults(trainsData);
+          
+          // If round trip, search for return trains
+          if (isRoundTrip && returnDate) {
+            const returnTrainsData = await trainService.searchTrains(arrival, departure, returnDate);
+            setOriginalReturnResults(returnTrainsData);
+            setReturnResults(returnTrainsData);
+          }
+        } catch (error) {
+          console.error(translations[language].errorSearch, error);
+          setValidationError(translations[language].errorSearchDefault);
+        } finally {
+          setIsSearching(false);
           setInitialSearchDone(true);
-          setSearchPerformed(true);
-        }, 300);
-      }
-    }
-  }, [departure, arrival, date, returnDate, location.state, initialSearchDone]);
+        }
+      };
+      
+      performInitialSearch();
+    }, animationDelay);
+    
+    return () => clearTimeout(timer);
+  }
+}, [location.state, initialSearchDone, language]);
 
   // Reset results when departure or arrival changes
   useEffect(() => {
@@ -182,8 +226,20 @@ export default function TrainTicketSearch() {
 
   // Search functionality - now using the API service
   const search = async () => {
+    // Skip search if animation is still running
+    if (isAnimating) {
+      return;
+    }
+    
+    // Use location.state parameters for initial search before state updates
+    const initialParams = !initialSearchDone && location.state ? location.state : null;
+    const effectiveDeparture = initialParams ? initialParams.departure : departure;
+    const effectiveArrival = initialParams ? initialParams.arrival : arrival;
+    const effectiveDate = initialParams ? initialParams.date : date;
+    const effectiveReturnDate = initialParams ? (initialParams.returnDate || returnDate) : returnDate;
+    
     // Validate station selection
-    if (!departure || !arrival) {
+    if (!effectiveDeparture || !effectiveArrival) {
       setValidationError(translations[language].selectStationsError || translations[language].selectStationsErrorDefault);
       setResults([]);
       setReturnResults([]);
@@ -205,7 +261,7 @@ export default function TrainTicketSearch() {
 
       // If round trip, search for return trains
       if (tripType === "round-trip" && departure && arrival) {
-        const returnTrainsData = await trainService.searchTrains(arrival, departure, returnDate);
+        const returnTrainsData = await trainService.searchTrains(effectiveArrival, effectiveDeparture, effectiveReturnDate);
         setOriginalReturnResults(returnTrainsData); // Store original results
         setReturnResults(returnTrainsData);
         setSelectedReturnTrain(null); // Reset selection when new search is performed
@@ -362,8 +418,7 @@ export default function TrainTicketSearch() {
   return (
     <motion.div 
       initial="hidden"
-      whileInView={"visible"}
-      viewport={{ once: true, amount:0.3 }}
+      animate="visible"
       variants={slideUp}
       className="flex flex-col md:flex-row gap-4 md:gap-8 p-3 sm:p-6 sm:pt-15 max-w-8xl mx-auto -ml-0.5"
     >
@@ -461,6 +516,7 @@ export default function TrainTicketSearch() {
                     onChange={(e) => setDate(e.target.value)}
                     value={date}
                     min={today}
+                    onKeyDown={(e) => e.preventDefault()}
                   />
                 </div>
 
@@ -476,6 +532,7 @@ export default function TrainTicketSearch() {
                       onChange={(e) => setReturnDate(e.target.value)}
                       value={returnDate}
                       min={date || today}
+                      onKeyDown={(e) => e.preventDefault()}
                     />
                   </div>
                 )}
@@ -491,7 +548,7 @@ export default function TrainTicketSearch() {
             <button
               className="w-full bg-blue-600 text-white py-2 sm:py-3 rounded-xl shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center justify-center transition text-sm sm:text-base"
               onClick={search}
-              disabled={isSearching}
+              disabled={isSearching || isAnimating}
             >
               {isSearching ? (
                 <>
@@ -580,7 +637,7 @@ export default function TrainTicketSearch() {
             className={`bg-green-500 text-white px-3 sm:px-6 py-2 sm:py-3 rounded-xl shadow-md transition flex items-center text-sm sm:text-base ${
               isContinueEnabled() ? "hover:bg-green-600" : "opacity-50 cursor-not-allowed"
             }`}
-            disabled={!isContinueEnabled()}
+            disabled={!isContinueEnabled() || isAnimating}
             onClick={proceedToNextPage}
           >
             {translations[language].continueBooking}
@@ -591,7 +648,12 @@ export default function TrainTicketSearch() {
 
       {/* Progress steps - shown below on mobile, to the side on desktop */}
       <div className="md:w-64 lg:w-72">
-        <motion.div variants={slideFromRight} className="md:sticky md:top-6 md:h-fit pt-4 md:pt-12">
+        <motion.div 
+          initial="hidden"
+          animate="visible"
+          variants={slideFromRight} 
+          className="md:sticky md:top-6 md:h-fit pt-4 md:pt-12"
+        >
           <ProgressSteps currentStep="train-selection" />
         </motion.div>
       </div>

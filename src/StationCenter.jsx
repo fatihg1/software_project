@@ -148,7 +148,7 @@ const StationCenter = () => {
     <motion.div
       key={location.pathname} 
       initial="hidden"
-      whileInView="visible"
+      animate="visible"
       viewport={{ once: true, amount: 0.1 }}
       variants={slideUp}
       className="max-w-4xl mx-auto p-4 pt-40"
@@ -205,7 +205,7 @@ const StationCenter = () => {
       {error && (
         <motion.div
           initial="hidden"
-          whileInView="visible"
+          animate="visible"
           viewport={{ once: true, amount: 0.3 }}
           variants={slideUp}
           className="text-center p-6 bg-red-50 text-red-800 rounded-lg mb-4"
@@ -218,7 +218,7 @@ const StationCenter = () => {
         {searchQuery && results.length === 0 && !isLoading ? (
           <motion.div
             initial="hidden"
-            whileInView="visible"
+            animate="visible"
             viewport={{ once: true, amount: 0.3 }}
             variants={slideUp}
             className="text-center p-6 bg-gray-50 rounded-lg"

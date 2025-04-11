@@ -87,7 +87,7 @@ const HelpCenter = () => {
     <motion.div
       key={location.pathname} 
       initial="hidden"
-      whileInView="visible"
+      animate="visible"
       variants={slideUp}
       viewport={{ once: true, amount: 0.5 }}
       className="max-w-4xl mx-auto p-4 pt-40"

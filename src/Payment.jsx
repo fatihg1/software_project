@@ -58,12 +58,28 @@ const PaymentModal = ({
       isValid = false;
     }
     
+    // Validate expiry date
     if (!paymentForm.expiryDate.trim()) {
       formErrors.expiryDate = translations[language].expiryDateRequired;
       isValid = false;
     } else if (!/^\d{2}\/\d{2}$/.test(paymentForm.expiryDate)) {
       formErrors.expiryDate = translations[language].expiryDateInvalid;
       isValid = false;
+    } else {
+      // Check if expiry date is not in the past
+      const [month, year] = paymentForm.expiryDate.split('/');
+      const expiryDate = new Date(2000 + parseInt(year), parseInt(month) - 1, 1);
+      // Set to the last day of the month
+      expiryDate.setMonth(expiryDate.getMonth() + 1);
+      expiryDate.setDate(0);
+      
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      if (expiryDate < today) {
+        formErrors.expiryDate = translations[language].expiryDatePast || "Expiry date cannot be in the past";
+        isValid = false;
+      }
     }
     
     if (!paymentForm.cvv.trim()) {
@@ -97,8 +113,6 @@ const PaymentModal = ({
   };
 
   if (!isOpen) return null;
-
-  
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50">
@@ -779,10 +793,24 @@ const PassengerInfoPage = () => {
                         placeholder="DD/MM/YYYY"
                         maxLength="10"
                         className={`w-full px-3 py-2 border rounded-md ${errors[`${index}-birthDate`] ? 'border-red-500' : 'border-gray-300'}`}
+                        onBlur={() => {
+                          if (passenger.birthDate.length === 8) {
+                            const day = parseInt(passenger.birthDate.substring(0, 2));
+                            const month = parseInt(passenger.birthDate.substring(2, 4));
+                            const year = parseInt(passenger.birthDate.substring(4, 8));
+                            
+                            // Check if year is before 1900
+                            if (year < 1900) {
+                              const currentErrors = { ...errors };
+                              currentErrors[`${index}-birthDate`] = translations[language].birthDateTooOld || "Birth year cannot be before 1900";
+                              setErrors(currentErrors);
+                            }
+                          }
+                        }}
                       />
                       {errors[`${index}-birthDate`] && (
                         <p className="text-red-500 text-sm mt-1">
-                          {translations[language].birthDateRequired}
+                          {errors[`${index}-birthDate`]}
                         </p>
                       )}
                     </div>

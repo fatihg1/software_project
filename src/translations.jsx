@@ -1,5 +1,26 @@
 const translations = {
     en: {
+      ticketPage: {
+        myTickets: "My Tickets",
+        ticketDetails: "Ticket Details",
+        loading: "Loading tickets...",
+        noTicketFound: "No ticket found. Please check the ticket ID and last name.",
+        noTicketsLoggedOut: "You don't have any tickets yet. Try logging in or browsing available routes.",
+        browseRoutes: "Browse Available Routes",
+        passengerLabel: "Passenger:",
+        seatLabel: "Seat:",
+        wagonLabel: "Wagon:",
+        na: "N/A",
+        invalidTime: "Invalid Time",
+        pastTrip: "Past trip - not refundable",
+        refundSubmitted: "Refund request submitted",
+        requestRefund: "Request Refund",
+        processing: "Processing...",
+        confirmRefundTitle: "Confirm Refund",
+        confirmMessage: "Are you sure you want to refund ticket {ticketId}? This action cannot be undone.",
+        cancel: "Cancel",
+        confirmRefund: "Confirm Refund"
+      },
       //errorpage
       errorPage:{
         notFound: "Page Not Found",
@@ -1331,6 +1352,27 @@ const translations = {
     paymentSuccess: "Ödeme Başarılı! Biletiniz alındı.",
     selectStationsErrorDefault: "Lütfen kalkış ve varış istasyonlarını seçin.",
     errorSearch: "Arama sırasında bir hata oluştu:",
+    ticketPage: {
+      myTickets: "Biletlerim",
+      ticketDetails: "Bilet Detayları",
+      loading: "Biletler yükleniyor...",
+      noTicketFound: "Bilet bulunamadı. Lütfen bilet numarası ve soyadınızı kontrol edin.",
+      noTicketsLoggedOut: "Henüz hiç biletiniz yok. Giriş yapabilir veya seferleri görüntüleyebilirsiniz.",
+      browseRoutes: "Mevcut Seferleri Görüntüle",
+      passengerLabel: "Yolcu:",
+      seatLabel: "Koltuk:",
+      wagonLabel: "Vagon:",
+      na: "Bilgi Yok",
+      invalidTime: "Geçersiz Saat",
+      pastTrip: "Geçmiş sefer - iade edilemez",
+      refundSubmitted: "İade talebi gönderildi",
+      requestRefund: "İade Talep Et",
+      processing: "İşleniyor...",
+      confirmRefundTitle: "İade Onayı",
+      confirmMessage: "{ticketId} numaralı bileti iade etmek istediğinize emin misiniz? Bu işlem geri alınamaz.",
+      cancel: "İptal",
+      confirmRefund: "İadeyi Onayla"
+    },
     }
 }
 
