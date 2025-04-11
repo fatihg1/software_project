@@ -218,8 +218,8 @@ const changeStatus = (id, newStatus) => {
                   <th className="p-3 text-left">User</th>
                   <th className="p-3 text-left">Train</th>
                   <th className="p-3 text-left">Date</th>
-                  <th className="p-3 text-left">Status</th>
-                  <th className="p-3 text-left">Actions</th>
+                  {/*<th className="p-3 text-left">Status</th>
+                  <th className="p-3 text-left">Actions</th>*/}
                 </tr>
               </thead>
               <tbody>
@@ -228,7 +228,7 @@ const changeStatus = (id, newStatus) => {
                     <td className="p-3">{booking.user}</td>
                     <td className="p-3">{booking.train}</td>
                     <td className="p-3">{booking.date}</td>
-                    <td className={`p-3 font-bold ${
+                    {/*<td className={`p-3 font-bold ${
                       booking.status === "Confirmed" ? "text-green-500" : 
                       booking.status === "Canceled" ? "text-red-500" : 
                       "text-yellow-500"
@@ -245,7 +245,7 @@ const changeStatus = (id, newStatus) => {
                       <button title="Cancel" className="bg-red-500 text-white px-3 py-1 rounded-md" onClick={() => deleteBooking(booking.id)}>
                         <FaTimesCircle />
                       </button>
-                    </td>
+                    </td>*/}
                   </tr>
                 ))}
               </tbody>
