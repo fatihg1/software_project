@@ -293,5 +293,10 @@ public class TrainService {
             // Save the updated wagon to the database
             wagonsRepository.save(wagon);
         }
+
+        public int countDistinctTrains() {
+            return trainRepository.countDistinctTrainIds();
+        }
+        
     
 }

@@ -149,4 +149,10 @@ public ResponseEntity<?> updateSeatBookings(@RequestBody Map<String, Object> boo
             .body("Error processing booking: " + e.getMessage());
     }
 }
+
+@GetMapping("/count")
+public ResponseEntity<Integer> countDistinctTrains() {
+    return ResponseEntity.ok(trainService.countDistinctTrains());
+}
+
 }

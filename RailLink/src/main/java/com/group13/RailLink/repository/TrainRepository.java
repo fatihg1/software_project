@@ -48,5 +48,9 @@ public interface TrainRepository extends JpaRepository<Train, Integer> {
 
      @Query("SELECT MAX(t.trainId) FROM Train t")
     Integer findMaxTrainId();
+
+    @Query("SELECT COUNT(DISTINCT t.trainId) FROM Train t")
+int countDistinctTrainIds();
+
 }
 

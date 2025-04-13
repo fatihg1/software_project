@@ -44,7 +44,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const trainsRes = await axios.get("http://localhost:8080/api/trains");
+        const trainsRes = await axios.get("http://localhost:8080/api/trains/count");
         const bookingsRes = await axios.get("http://localhost:8080/bookings");
         const announcementsRes = await axios.get("http://localhost:8080/announcements");
         const fetchRevenue = async () => {
@@ -62,7 +62,7 @@ const AdminDashboard = () => {
         fetchRevenue();
         
 
-        setTotalTrains(trainsRes.data.length);
+        setTotalTrains(trainsRes.data);
         setTotalReservations(bookingsRes.data.length);
         setRecentBookings(bookingsRes.data.slice(-3).reverse());
         setAnnouncements(announcementsRes.data.slice(-3).reverse());
