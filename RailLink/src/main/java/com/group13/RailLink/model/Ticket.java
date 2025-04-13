@@ -27,14 +27,14 @@ public class Ticket {
     private Integer wagonNumber;
     private Long seferId;
     private Long userId;
-    private Date date = new Date();
+    private Date date;
     private Boolean isRefundRequested = false;
     @Column(name = "departure_station")
     private String departureStation;
     @Column(name = "train_id")
     private Long trainId;
     @Column(name = "departure_date_time")
-    private LocalDateTime departureDateTime;
+    private Date departureDateTime;
     @Column(name = "arrival_station")
     private String arrivalStation;
     private Long wagonId;
@@ -62,7 +62,7 @@ public class Ticket {
         this.date = new Date(); // Set the current date
         this.isRefundRequested = false; // Default value for refund request
         this.wagonId = wagonId; // Set the wagon ID
-        this.departureDateTime = LocalDateTime.now(); // Set the current date and time
+        this.departureDateTime = new Date(); // Set the current date and time
         this.departureStation = ""; // Default value for departure station
         this.arrivalStation = ""; // Default value for arrival station
         this.trainId = null; // Default value for train ID
@@ -121,8 +121,8 @@ public class Ticket {
     public void setPhone(String phone) {
         this.phone = phone;
     }
-    public LocalDateTime getDepartureDateTime() { return departureDateTime; }
-    public void setDepartureDateTime(LocalDateTime departureDateTime) { 
+    public Date getDepartureDateTime() { return departureDateTime; }
+    public void setDepartureDateTime(Date departureDateTime) { 
     this.departureDateTime = departureDateTime; 
 }
     public String getEmail() {

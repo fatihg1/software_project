@@ -6,6 +6,7 @@ import { useLanguage } from './LanguageContext.jsx';
 import translations from './translations.jsx';
 import trainService from "./services/trainService";
 import axios from 'axios';
+import { useUser } from '@clerk/clerk-react';
 const PaymentModal = ({ 
   isOpen, 
   onClose, 
@@ -222,7 +223,9 @@ const PassengerInfoPage = () => {
   const [error, setError] = useState("");
   const [showTerms, setShowTerms] = useState(false);
   const [termsRead, setTermsRead] = useState(false);
-  
+  const { user, isSignedIn } = useUser();
+  const emailAddress = isSignedIn ? user.primaryEmailAddress?.emailAddress : null;
+
   //Block direct access to payment page
   useEffect(() => {
     if (!location.state || !location.state.bookingData) {
@@ -476,16 +479,16 @@ const PassengerInfoPage = () => {
           ...baseInvoicePayload,
           ticketId: outboundTicketId,
         };
-  
+        
         const outboundArrivalDate = new Date(outboundTrain.arrivalDateTime);
         const outboundDepartureDate = new Date(outboundTrain.departureDateTime);
-  
         // Create ticket payload for outbound journey
         const outboundTicketPayload = {
           name: passenger.firstName,
           surname: passenger.surname,
           governmentId: passenger.governmentId,
           phone: passenger.phoneNumber,
+          //clerkEmail: emailAddress,
           email: passenger.email,
           birthDate: formatBirthDate(passenger.birthDate),
           price: tripType === 'round-trip' ? priceDetails.outboundTotal / passengers.length : priceDetails.grandTotal / passengers.length,
@@ -532,13 +535,13 @@ const PassengerInfoPage = () => {
   
           const returnArrivalDate = new Date(returnTrain.arrivalDateTime);
           const returnDepartureDate = new Date(returnTrain.departureDateTime);
-  
           // Create ticket payload for return journey
           const returnTicketPayload = {
             name: passenger.firstName,
             surname: passenger.surname,
             governmentId: passenger.governmentId,
             phone: passenger.phoneNumber,
+            //clerkEmail: emailAddress,
             email: passenger.email,
             birthDate: formatBirthDate(passenger.birthDate),
             price: priceDetails.returnTotal / passengers.length,
@@ -554,7 +557,6 @@ const PassengerInfoPage = () => {
             departureDateTime: returnDepartureDate.toISOString(),
             wagonId: returnSeat.wagon,
           };
-          console.log('Return Ticket Payload:', returnTicketPayload, "true");
           // Add booking promise for return journey
           bookingPromises.push(
             axios.post('http://localhost:8080/bookings', {

@@ -149,11 +149,11 @@
           </div>
           <div class="detail-row">
             <div class="detail-label">Date:</div>
-            <div class="detail-value" th:text="${ticket.departureDateTime.toLocalDate()}">2025-04-09</div>
+            <div class="detail-value" th:text="${#dates.format(ticket.departureDateTime, 'yyyy-MM-dd')}">2025-04-09</div>
           </div>
           <div class="detail-row">
             <div class="detail-label">Time:</div>
-            <div class="detail-value" th:text="${#temporals.format(ticket.departureDateTime.toLocalTime(), 'HH:mm')}">14:30</div>
+            <div class="detail-value" th:text="${#dates.format(ticket.departureDateTime, 'HH:mm')}">14:30</div>
           </div>
         </div>
       </div>
