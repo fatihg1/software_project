@@ -3,6 +3,7 @@ package com.group13.RailLink.service;
 import com.group13.RailLink.model.Booking;
 import com.group13.RailLink.model.Invoice;
 import com.group13.RailLink.model.Ticket;
+import com.group13.RailLink.model.Train;
 import com.group13.RailLink.model.Wagons;
 import com.group13.RailLink.repository.BookingRepository;
 import com.group13.RailLink.service.TrainService;
@@ -101,8 +102,10 @@ public class BookingService {
         // 5. Save booking
         Booking booking = new Booking();
         booking.setStatus("Confirmed");
-        booking.setDate(ticket.getDate());
-        booking.setUser(user.getName()); // ✅ updated from user object to string
+Train train = trainService.getTrainById(ticket.getTrainId().intValue()).orElseThrow();
+booking.setDate(train.getDepartureDateTime().toString());
+ //  tam saatli formatta string olarak kaydeder
+        booking.setUser(user.getName()); //  updated from user object to string
         booking.setTrain(ticket.getWagonNumber().toString());
 
         repo.save(booking);
