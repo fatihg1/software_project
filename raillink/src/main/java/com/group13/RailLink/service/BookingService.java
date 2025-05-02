@@ -1,21 +1,15 @@
 package com.group13.RailLink.service;
 
+import com.group13.RailLink.DTO.FinalSeatUpdateDTO;
 import com.group13.RailLink.model.Booking;
 import com.group13.RailLink.model.Invoice;
 import com.group13.RailLink.model.Ticket;
 import com.group13.RailLink.model.Train;
 import com.group13.RailLink.model.Wagons;
 import com.group13.RailLink.repository.BookingRepository;
-import com.group13.RailLink.service.TrainService;
-import com.group13.RailLink.service.InvoiceService;
-import com.group13.RailLink.service.TicketService;
-import com.group13.RailLink.DTO.FinalSeatUpdateDTO;
-import com.group13.RailLink.model.User;
+import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-
-import java.util.List;
 
 @Service
 public class BookingService {
@@ -65,14 +59,10 @@ public class BookingService {
             Invoice invoice,
             Boolean isReturn) {
         System.err.println("isReturn: " + isReturn);
-        User user = new User(ticket.getName(), ticket.getSurname(), ticket.getEmail(), ticket.getPhone());
-        if(!isReturn){// 1. Find or create user
-            user = userService.findOrCreateUser(ticket.getName(), ticket.getSurname(), ticket.getEmail(), ticket.getPhone());
-            ticket.setName(user.getName());
-            ticket.setSurname(user.getSurname());
-            ticket.setEmail(user.getEmail());
-            ticket.setPhone(user.getPhone());
-    }
+        if (!isReturn) {
+            // No user handling — info comes directly from the ticket object
+        }
+        
 
         // 2. Update seat bookings
         List<Wagons> updatedWagons = trainService.updateSeatBookings(
@@ -92,7 +82,7 @@ public class BookingService {
             throw new RuntimeException("Invoice creation failed");
         }
 
-        ticket.setUserId(user.getId());
+        
         // 4. Create ticket
         Ticket createdTicket = ticketService.createTicket(ticket);
         if (createdTicket == null) {
@@ -102,10 +92,11 @@ public class BookingService {
         // 5. Save booking
         Booking booking = new Booking();
         booking.setStatus("Confirmed");
-Train train = trainService.getTrainById(ticket.getTrainId().intValue()).orElseThrow();
-booking.setDate(train.getDepartureDateTime().toString());
- //  tam saatli formatta string olarak kaydeder
-        booking.setUser(user.getName()); //  updated from user object to string
+        Train train = trainService.getTrainById(ticket.getTrainId().intValue()).orElseThrow();
+        booking.setDate(train.getDepartureDateTime().toString());
+        //  tam saatli formatta string olarak kaydeder
+        booking.setUser(ticket.getName()); // direkt ticket'tan al
+
         booking.setTrain(ticket.getWagonNumber().toString());
 
         repo.save(booking);

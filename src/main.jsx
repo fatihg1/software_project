@@ -17,7 +17,6 @@ import FinanceManagement from "./Manager/FinanceManagement.jsx";
 import AnnouncementManagement from "./Admin/AnnouncementManagement.jsx"; 
 import AdminDashboard from "./Admin/AdminDashboard.jsx";
 import RevenueAnalysis from "./Manager/RevenueAnalysis.jsx";
-import SalaryManagement from "./Manager/SalaryManagement.jsx";
 import TrainSeatSelection from './Seat.jsx'
 import PaymentPage from './Payment.jsx'
 import SearchTrainPage from './SearchTrainPage.jsx'
@@ -116,10 +115,6 @@ const router=createBrowserRouter([
         {
           path:"/manager/revenue",
           element:<RevenueAnalysis/>
-        },
-        {
-          path:"/manager/salary",
-          element:<SalaryManagement/>
         },
         {
           path:"/manager/finance",

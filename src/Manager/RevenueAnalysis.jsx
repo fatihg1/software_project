@@ -169,15 +169,6 @@ const [debugScatter, setDebugScatter] = useState(null);
             <FaMoneyBillWave /> <span>Financial Management</span>
           </button>
           <button 
-            className="flex items-center space-x-2 p-3 rounded-md hover:bg-purple-700 transition" 
-            onClick={() => {
-              navigate("/manager/salary");
-              if (isMobile) setSidebarOpen(false);
-            }}
-          >
-            <FaMoneyBillWave /> <span>Salary Management</span>
-          </button>
-          <button 
             className="flex items-center space-x-2 p-3 rounded-md bg-purple-700 transition"
           >
             <FaMoneyBillWave /> <span>Revenue Analysis</span>
