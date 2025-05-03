@@ -279,56 +279,86 @@ const PassengerInfoPage = () => {
   // Validation state for passenger info
   const [errors, setErrors] = useState({});
   
-  // Use the passed total price if available, otherwise calculate it
-  const calculateTotalPrice = () => {
-    // Use the totalPrice from bookingData if available
-    if (totalPrice !== undefined) {
-      return {
-        outboundTotal: tripType === 'round-trip' ? totalPrice / 2 : totalPrice,
-        returnTotal: tripType === 'round-trip' ? totalPrice / 2 : 0,
-        grandTotal: totalPrice
-      };
-    }
+  // Calculate total price with discounts properly applied
+const calculateTotalPrice = () => {
+  // Initialize totals
+  let outboundTotal = 0;
+  let returnTotal = 0;
+  
+  // Calculate for each passenger
+  passengers.forEach((passenger, index) => {
+    // Get passenger's price with applicable discounts
+    const passengerPrice = calculatePassengerPrice(index);
     
-    // Fall back to the original calculation if totalPrice is not provided
-    if (tripType === 'round-trip') {
-      const outboundPrice = outboundTrain.price || 0;
-      const returnPrice = returnTrain.price || 0;
-      
-      return {
-        outboundTotal: selectedSeats.outbound.length * outboundPrice,
-        returnTotal: selectedSeats.return.length * returnPrice,
-        grandTotal: (selectedSeats.outbound.length * outboundPrice) + 
-                    (selectedSeats.return.length * returnPrice)
-      };
-    } else {
-      // One-way trip
-      const outboundPrice = outboundTrain.price || 0;
-      return {
-        outboundTotal: selectedSeats.outbound.length * outboundPrice,
-        returnTotal: 0,
-        grandTotal: selectedSeats.outbound.length * outboundPrice
-      };
-    }
+    // Add to totals
+    outboundTotal += passengerPrice.outboundPrice;
+    returnTotal += passengerPrice.returnPrice;
+  });
+  
+  return {
+    outboundTotal,
+    returnTotal,
+    grandTotal: outboundTotal + returnTotal
   };
+};
 
-  // Function to calculate individual passenger's price
-  const calculatePassengerPrice = (passengerIndex) => {
-    const outboundSeatIndex = passengerIndex % selectedSeats.outbound.length;
-    const outboundPrice = selectedSeatPrices.outbound[outboundSeatIndex] || 0;
-    
-    let returnPrice = 0;
-    if (tripType === 'round-trip' && selectedSeatPrices.return && selectedSeatPrices.return.length > 0) {
-      const returnSeatIndex = passengerIndex % selectedSeats.return.length;
-      returnPrice = selectedSeatPrices.return[returnSeatIndex] || 0;
-    }
-    
-    return {
-      outboundPrice,
-      returnPrice,
-      totalPrice: outboundPrice + returnPrice
-    };
+// Function to calculate individual passenger's price with age discount
+const calculatePassengerPrice = (passengerIndex) => {
+  const passenger = passengers[passengerIndex];
+  
+  // Get seat index for this passenger (in case there are fewer seats than passengers)
+  const outboundSeatIndex = passengerIndex % selectedSeats.outbound.length;
+  
+  // Get base price for the seat
+  let outboundPrice = selectedSeatPrices.outbound[outboundSeatIndex] || 0;
+  
+  // Initialize return price
+  let returnPrice = 0;
+  
+  // Add return price if this is a round trip
+  if (tripType === 'round-trip' && selectedSeatPrices.return && selectedSeatPrices.return.length > 0) {
+    const returnSeatIndex = passengerIndex % selectedSeats.return.length;
+    returnPrice = selectedSeatPrices.return[returnSeatIndex] || 0;
+  }
+  
+  // Calculate age and determine if discount applies
+  const age = calculateAge(passenger.birthDate);
+  const isEligibleForDiscount = age !== null && (age <= 18 || age >= 65);
+  
+  // Apply discount if eligible (20% off)
+  if (isEligibleForDiscount) {
+    outboundPrice = outboundPrice * 0.8;
+    returnPrice = returnPrice * 0.8;
+  }
+  
+  return {
+    outboundPrice,
+    returnPrice,
+    totalPrice: outboundPrice + returnPrice,
+    discountApplied: isEligibleForDiscount
   };
+};
+
+  // Add this function inside PassengerInfoPage component before the return statement
+  const calculateAge = (birthDateStr) => {
+  if (birthDateStr.length !== 8) return null;
+  
+  const day = parseInt(birthDateStr.substring(0, 2));
+  const month = parseInt(birthDateStr.substring(2, 4)) - 1; // JS months are 0-indexed
+  const year = parseInt(birthDateStr.substring(4, 8));
+  
+  const birthDate = new Date(year, month, day);
+  const today = new Date();
+  
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  
+  return age;
+};
 
   const priceDetails = calculateTotalPrice();
   
@@ -462,112 +492,137 @@ const PassengerInfoPage = () => {
       const bookingPromises = [];
   
       // Process outbound tickets for all passengers
-      for (let i = 0; i < passengers.length; i++) {
-        const passenger = passengers[i];
-        const outboundSeatIndex = i % selectedSeats.outbound.length;
-        const outboundSeat = selectedSeats.outbound[outboundSeatIndex];
-        const outboundSeferId = finalSeatUpdate.outboundTrainIds[0];
+      // Process outbound tickets for all passengers
+for (let i = 0; i < passengers.length; i++) {
+  const passenger = passengers[i];
+  const outboundSeatIndex = i % selectedSeats.outbound.length;
+  const outboundSeat = selectedSeats.outbound[outboundSeatIndex];
+  const outboundSeferId = finalSeatUpdate.outboundTrainIds[0];
+
+  if (!outboundSeferId) throw new Error('Outbound Sefer ID missing');
+
+  // Generate ticket ID for this passenger's outbound journey
+  const outboundTicketId = `TKT-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+  ticketIds.push(outboundTicketId);
+
+  // Create invoice for this ticket
+  const outboundInvoicePayload = {
+    ...baseInvoicePayload,
+    ticketId: outboundTicketId,
+  };
   
-        if (!outboundSeferId) throw new Error('Outbound Sefer ID missing');
+  const outboundArrivalDate = new Date(outboundTrain.arrivalDateTime);
+  const outboundDepartureDate = new Date(outboundTrain.departureDateTime);
   
-        // Generate ticket ID for this passenger's outbound journey
-        const outboundTicketId = `TKT-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
-        ticketIds.push(outboundTicketId);
+  // Calculate age and determine if discount applies
+  const age = calculateAge(passenger.birthDate);
+  const discountApplied = age !== null && (age <= 18 || age >= 65);
+  const discountRate = discountApplied ? 0.8 : 1; // 20% discount
   
-        // Create invoice for this ticket
-        const outboundInvoicePayload = {
-          ...baseInvoicePayload,
-          ticketId: outboundTicketId,
-        };
-        
-        const outboundArrivalDate = new Date(outboundTrain.arrivalDateTime);
-        const outboundDepartureDate = new Date(outboundTrain.departureDateTime);
-        // Create ticket payload for outbound journey
-        const outboundTicketPayload = {
-          name: passenger.firstName,
-          surname: passenger.surname,
-          governmentId: passenger.governmentId,
-          phone: passenger.phoneNumber,
-          clerkEmail: emailAddress,
-          email: passenger.email,
-          birthDate: formatBirthDate(passenger.birthDate),
-          price: tripType === 'round-trip' ? priceDetails.outboundTotal / passengers.length : priceDetails.grandTotal / passengers.length,
-          seat: outboundSeat.number.toString(),
-          wagonType: outboundSeat.wagonType,
-          wagonNumber: outboundSeat.wagon,
-          seferId: outboundSeferId,
-          ticketId: outboundTicketId,
-          date: outboundArrivalDate.toISOString(),
-          departureStation: outboundTrain.departureStation,
-          arrivalStation: outboundTrain.arrivalStation,
-          trainId: outboundTrain.trainPrimaryIds[0],
-          departureDateTime: outboundDepartureDate.toISOString(),
-          wagonId: outboundSeat.wagon,
-        };
+  // Calculate passenger price with discount
+  const originalOutboundPrice = selectedSeatPrices.outbound[outboundSeatIndex] || 0;
+  const discountedOutboundPrice = originalOutboundPrice * discountRate;
   
-        // Add booking promise for outbound journey
-        bookingPromises.push(
-          axios.post('http://localhost:8080/bookings', {
-            seatUpdate: finalSeatUpdate,
-            ticket: outboundTicketPayload,
-            invoice: outboundInvoicePayload,
-            isReturn: false,
-          })
-        );
-  
-        // Process return tickets if this is a round-trip
-        if (tripType === 'round-trip' && finalSeatUpdate.returnTrainIds.length > 0) {
-          const returnSeatIndex = i % selectedSeats.return.length;
-          const returnSeat = selectedSeats.return[returnSeatIndex];
-          const returnSeferId = finalSeatUpdate.returnTrainIds[0];
-  
-          if (!returnSeferId) throw new Error('Return Sefer ID missing');
-  
-          // Generate ticket ID for this passenger's return journey
-          const returnTicketId = `TKT-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
-          ticketIds.push(returnTicketId);
-  
-          // Create invoice for this ticket
-          const returnInvoicePayload = {
-            ...baseInvoicePayload,
-            ticketId: returnTicketId,
-          };
-  
-          const returnArrivalDate = new Date(returnTrain.arrivalDateTime);
-          const returnDepartureDate = new Date(returnTrain.departureDateTime);
-          // Create ticket payload for return journey
-          const returnTicketPayload = {
-            name: passenger.firstName,
-            surname: passenger.surname,
-            governmentId: passenger.governmentId,
-            phone: passenger.phoneNumber,
-            clerkEmail: emailAddress,
-            email: passenger.email,
-            birthDate: formatBirthDate(passenger.birthDate),
-            price: priceDetails.returnTotal / passengers.length,
-            seat: returnSeat.number.toString(),
-            wagonType: returnSeat.wagonType,
-            wagonNumber: returnSeat.wagon,
-            seferId: returnSeferId,
-            ticketId: returnTicketId,
-            date: returnArrivalDate.toISOString(),
-            departureStation: returnTrain.departureStation,
-            arrivalStation: returnTrain.arrivalStation,
-            trainId: returnTrain.trainPrimaryIds[0],
-            departureDateTime: returnDepartureDate.toISOString(),
-            wagonId: returnSeat.wagon,
-          };
-          // Add booking promise for return journey
-          bookingPromises.push(
-            axios.post('http://localhost:8080/bookings', {
-              seatUpdate: finalSeatUpdate,
-              ticket: returnTicketPayload,
-              invoice: returnInvoicePayload,
-              isReturn: true, // Add isReturn flag for return tickets
-            })
-          );
-        }
-      }
+  // Create ticket payload for outbound journey
+  const outboundTicketPayload = {
+    name: passenger.firstName,
+    surname: passenger.surname,
+    governmentId: passenger.governmentId,
+    phone: passenger.phoneNumber,
+    clerkEmail: emailAddress,
+    email: passenger.email,
+    birthDate: formatBirthDate(passenger.birthDate),
+    age: age, // Add age field
+    originalPrice: originalOutboundPrice, // Add original price before discount
+    price: discountedOutboundPrice, // Use discounted price
+    discountApplied: discountApplied, // Flag if discount was applied
+    discountReason: discountApplied ? (age <= 18 ? 'youth' : 'senior') : null, // Reason for discount
+    seat: outboundSeat.number.toString(),
+    wagonType: outboundSeat.wagonType,
+    wagonNumber: outboundSeat.wagon,
+    seferId: outboundSeferId,
+    ticketId: outboundTicketId,
+    date: outboundArrivalDate.toISOString(),
+    departureStation: outboundTrain.departureStation,
+    arrivalStation: outboundTrain.arrivalStation,
+    trainId: outboundTrain.trainPrimaryIds[0],
+    departureDateTime: outboundDepartureDate.toISOString(),
+    wagonId: outboundSeat.wagon,
+  };
+
+  // Add booking promise for outbound journey
+  bookingPromises.push(
+    axios.post('http://localhost:8080/bookings', {
+      seatUpdate: finalSeatUpdate,
+      ticket: outboundTicketPayload,
+      invoice: outboundInvoicePayload,
+      isReturn: false,
+    })
+  );
+
+  // Process return tickets if this is a round-trip
+  if (tripType === 'round-trip' && finalSeatUpdate.returnTrainIds.length > 0) {
+    const returnSeatIndex = i % selectedSeats.return.length;
+    const returnSeat = selectedSeats.return[returnSeatIndex];
+    const returnSeferId = finalSeatUpdate.returnTrainIds[0];
+
+    if (!returnSeferId) throw new Error('Return Sefer ID missing');
+
+    // Generate ticket ID for this passenger's return journey
+    const returnTicketId = `TKT-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+    ticketIds.push(returnTicketId);
+
+    // Create invoice for this ticket
+    const returnInvoicePayload = {
+      ...baseInvoicePayload,
+      ticketId: returnTicketId,
+    };
+
+    const returnArrivalDate = new Date(returnTrain.arrivalDateTime);
+    const returnDepartureDate = new Date(returnTrain.departureDateTime);
+    
+    // Calculate return price with discount
+    const originalReturnPrice = selectedSeatPrices.return[returnSeatIndex] || 0;
+    const discountedReturnPrice = originalReturnPrice * discountRate;
+    
+    // Create ticket payload for return journey
+    const returnTicketPayload = {
+      name: passenger.firstName,
+      surname: passenger.surname,
+      governmentId: passenger.governmentId,
+      phone: passenger.phoneNumber,
+      clerkEmail: emailAddress,
+      email: passenger.email,
+      birthDate: formatBirthDate(passenger.birthDate),
+      age: age, // Add age field
+      originalPrice: originalReturnPrice, // Add original price before discount
+      price: discountedReturnPrice, // Use discounted price
+      discountApplied: discountApplied, // Flag if discount was applied
+      discountReason: discountApplied ? (age <= 18 ? 'youth' : 'senior') : null, // Reason for discount
+      seat: returnSeat.number.toString(),
+      wagonType: returnSeat.wagonType,
+      wagonNumber: returnSeat.wagon,
+      seferId: returnSeferId,
+      ticketId: returnTicketId,
+      date: returnArrivalDate.toISOString(),
+      departureStation: returnTrain.departureStation,
+      arrivalStation: returnTrain.arrivalStation,
+      trainId: returnTrain.trainPrimaryIds[0],
+      departureDateTime: returnDepartureDate.toISOString(),
+      wagonId: returnSeat.wagon,
+    };
+    
+    // Add booking promise for return journey
+    bookingPromises.push(
+      axios.post('http://localhost:8080/bookings', {
+        seatUpdate: finalSeatUpdate,
+        ticket: returnTicketPayload,
+        invoice: returnInvoicePayload,
+        isReturn: true,
+      })
+    );
+  }
+}
   
       // Wait for all booking requests to complete
       await Promise.all(bookingPromises);
@@ -657,38 +712,77 @@ const PassengerInfoPage = () => {
                     {translations[language].passenger.replace('{number}', index % selectedSeats.outbound.length + 1)}
                   </h4>
 
-                  <div className="mb-4 p-3 bg-gray-50 rounded-md">
-                    <div className="flex justify-between items-center mb-2">
-                      <h5 className="text-md font-semibold">
-                        {tripType === 'round-trip' ? translations[language].outboundTrain + ' ' : ''}
-                        {translations[language].wagon} {selectedSeats.outbound[index % selectedSeats.outbound.length].wagon}, {" "}
-                        {translations[language].seat} {selectedSeats.outbound[index % selectedSeats.outbound.length].number}
-                      </h5>
-                      <span className="font-medium text-green-700">
-                        {translations[language].currencySymbol}{passengerPrice.outboundPrice.toFixed(2)}
-                      </span>
-                    </div>
-
-                    {tripType === 'round-trip' && (
-                      <div className="flex justify-between items-center">
-                        <h6 className="text-md font-semibold">
-                          {translations[language].returnTrain}: {translations[language].wagon} {selectedSeats.return[index % selectedSeats.return.length].wagon}, {" "}
-                          {translations[language].seat} {selectedSeats.return[index % selectedSeats.return.length].number}
-                        </h6>
+                  {/* Price display section inside the passenger map function - replace existing price display */}
+                <div className="mb-4 p-3 bg-gray-50 rounded-md">
+                  <div className="flex justify-between items-center mb-2">
+                    <h5 className="text-md font-semibold">
+                      {tripType === 'round-trip' ? translations[language].outboundTrain + ' ' : ''}
+                      {translations[language].wagon} {selectedSeats.outbound[index % selectedSeats.outbound.length].wagon}, {" "}
+                      {translations[language].seat} {selectedSeats.outbound[index % selectedSeats.outbound.length].number}
+                    </h5>
+                    <div className="text-right">
+                      {passengerPrice.discountApplied && (
+                        <div className="flex flex-col">
+                          <span className="text-sm line-through text-gray-500">
+                            {translations[language].currencySymbol}
+                            {(selectedSeatPrices.outbound[index % selectedSeats.outbound.length] || 0).toFixed(2)}
+                          </span>
+                          <span className="font-medium text-green-700 flex items-center">
+                            {translations[language].currencySymbol}{passengerPrice.outboundPrice.toFixed(2)}
+                            <span className="ml-2 bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded">
+                              20% {translations[language].ageDiscount || "Age Discount"}
+                            </span>
+                          </span>
+                        </div>
+                      )}
+                      {!passengerPrice.discountApplied && (
                         <span className="font-medium text-green-700">
-                          {translations[language].currencySymbol}{passengerPrice.returnPrice.toFixed(2)}
+                          {translations[language].currencySymbol}{passengerPrice.outboundPrice.toFixed(2)}
                         </span>
-                      </div>
-                    )}
-                    
-                    {/* Total for this passenger */}
-                    <div className="flex justify-between items-center mt-2 pt-2 border-t border-gray-200">
-                      <span className="font-medium">{translations[language].totalForPassenger}:</span>
-                      <span className="font-bold text-green-700">
-                        {translations[language].currencySymbol}{passengerPrice.totalPrice.toFixed(2)}
-                      </span>
+                      )}
                     </div>
                   </div>
+
+                  {tripType === 'round-trip' && (
+                    <div className="flex justify-between items-center">
+                      <h6 className="text-md font-semibold">
+                        {translations[language].returnTrain}: {translations[language].wagon} {selectedSeats.return[index % selectedSeats.return.length].wagon}, {" "}
+                        {translations[language].seat} {selectedSeats.return[index % selectedSeats.return.length].number}
+                      </h6>
+                      <div className="text-right">
+                        {passengerPrice.discountApplied && (
+                          <div className="flex flex-col">
+                            <span className="text-sm line-through text-gray-500">
+                              {translations[language].currencySymbol}
+                              {(selectedSeatPrices.return[index % selectedSeats.return.length] || 0).toFixed(2)}
+                            </span>
+                            <span className="font-medium text-green-700">
+                              {translations[language].currencySymbol}{passengerPrice.returnPrice.toFixed(2)}
+                            </span>
+                          </div>
+                        )}
+                        {!passengerPrice.discountApplied && (
+                          <span className="font-medium text-green-700">
+                            {translations[language].currencySymbol}{passengerPrice.returnPrice.toFixed(2)}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Total for this passenger */}
+                  <div className="flex justify-between items-center mt-2 pt-2 border-t border-gray-200">
+                    <span className="font-medium">{translations[language].totalForPassenger}:</span>
+                    <span className="font-bold text-green-700">
+                      {translations[language].currencySymbol}{passengerPrice.totalPrice.toFixed(2)}
+                      {passengerPrice.discountApplied && (
+                        <span className="ml-2 bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
+                          {translations[language].withDiscount || "With Discount"}
+                        </span>
+                      )}
+                    </span>
+                  </div>
+                </div>
                   
                   <div className="grid grid-cols-2 gap-4">
                     <div>
@@ -848,34 +942,74 @@ const PassengerInfoPage = () => {
             </div>
             {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
             
-            {/* Booking Summary and Total */}
-            <div className="mt-6 border-t pt-6">
-              <div className="flex justify-between mb-4">
-                <span className="text-lg font-medium">{translations[language].totalPrice}:</span>
-                <span className="text-xl font-bold">
-                  {translations[language].currencySymbol}{priceDetails.grandTotal.toFixed(2)}
-                </span>
-              </div>
-              
-              <div className="flex justify-between space-x-4">
-                <button 
-                  type="button"
-                  onClick={handleGoBack}
-                  className="flex-1 px-6 py-3 bg-gray-500 text-white rounded-md hover:bg-gray-600"
-                >
-                  {translations[language].backButton} 
-                </button>
-                
-                <button 
-                  type="button"
-                  onClick={handleProceedToPayment}
-                  className="flex-1 px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700"
-                  disabled={selectedSeats.outbound.length === 0}
-                >
-                  {translations[language].proceedToPayment}
-                </button>
-              </div>
-            </div>
+            {/* Booking Summary and Total - replace existing summary */}
+<div className="mt-6 border-t pt-6">
+  {/* Calculate total passengers with discounts */}
+  {(() => {
+    let discountCount = 0;
+    let totalSavings = 0;
+    
+    for (let i = 0; i < passengers.length; i++) {
+      const passengerPrice = calculatePassengerPrice(i);
+      if (passengerPrice.discountApplied) {
+        discountCount++;
+        // Calculate savings (difference between original and discounted price)
+        const originalOutboundPrice = selectedSeatPrices.outbound[i % selectedSeats.outbound.length] || 0;
+        const originalReturnPrice = tripType === 'round-trip' ? 
+          (selectedSeatPrices.return[i % selectedSeats.return.length] || 0) : 0;
+        
+        const originalTotal = originalOutboundPrice + originalReturnPrice;
+        const discountedTotal = passengerPrice.totalPrice;
+        totalSavings += (originalTotal - discountedTotal);
+      }
+    }
+    
+    return (
+      <>
+        {discountCount > 0 && (
+          <div className="mb-4 bg-green-50 p-3 rounded-md border border-green-200">
+            <p className="font-semibold text-green-800">
+              {discountCount} {discountCount === 1 ? 
+                (translations[language].passengerSingular || 'passenger') : 
+                (translations[language].passengerPlural || 'passengers')} 
+              {translations[language].qualifiedForDiscount || ' qualified for age discount'}
+            </p>
+            <p className="text-green-700">
+              {translations[language].totalSavings || 'Total savings'}: 
+              <span className="font-bold"> {translations[language].currencySymbol}{totalSavings.toFixed(2)}</span>
+            </p>
+          </div>
+        )}
+      </>
+    );
+  })()}
+
+  <div className="flex justify-between mb-4">
+    <span className="text-lg font-medium">{translations[language].totalPrice}:</span>
+    <span className="text-xl font-bold">
+      {translations[language].currencySymbol}{priceDetails.grandTotal.toFixed(2)}
+    </span>
+  </div>
+  
+  <div className="flex justify-between space-x-4">
+    <button 
+      type="button"
+      onClick={handleGoBack}
+      className="flex-1 px-6 py-3 bg-gray-500 text-white rounded-md hover:bg-gray-600"
+    >
+      {translations[language].backButton} 
+    </button>
+    
+    <button 
+      type="button"
+      onClick={handleProceedToPayment}
+      className="flex-1 px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700"
+      disabled={selectedSeats.outbound.length === 0}
+    >
+      {translations[language].proceedToPayment}
+    </button>
+  </div>
+</div>
           </form>
         </div>
       </div>
