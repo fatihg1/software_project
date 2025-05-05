@@ -174,6 +174,19 @@ const trainService = {
       console.error('Error creating train:', error);
       throw error;
     }
+  },
+
+  getAllTrainsBySeferId: async (seferId) => {
+    try{
+      const response = await apiClient.get(`/trains/getBySeferId`,{
+        params: { id: seferId }
+      });
+      return response.data;
+    }
+    catch (error){
+      console.error('Error fetching trains:', error);
+      throw error;
+    }
   }
 
 
