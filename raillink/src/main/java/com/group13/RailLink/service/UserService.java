@@ -13,7 +13,7 @@ public class UserService {
     private final UserRepository repo;
 
 
-    // 👇 Constructor'a SalaryService'i ekledik
+
     public UserService(UserRepository repo) {
         this.repo = repo;
     }
@@ -22,7 +22,6 @@ public class UserService {
         return repo.findAll();
     }
 
-    // 👇 Kullanıcı eklenince çalışan ise maaş da ekleniyor
     public User addUser(User user) {
         User savedUser = repo.save(user);
     
