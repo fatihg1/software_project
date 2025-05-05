@@ -41,6 +41,13 @@ public class TrainService {
         return trainRepository.findById(id);
     }
 
+    public List<Train> getTrainsBySeferId(Integer seferId){
+        Optional<Seferler> seferlerOpt = seferlerService.getSeferlerById(seferId);
+        Seferler sefer = seferlerOpt.get();
+        String station = sefer.getStations().substring(0, sefer.getStations().indexOf("-"));
+        return trainRepository.findBySeferIdAndDepartureStation(seferId,station);
+    }
+
     public Train saveTrain(Train train) {
         return trainRepository.save(train);
     }
@@ -298,5 +305,81 @@ public class TrainService {
             return trainRepository.countDistinctTrainIds();
         }
         
+
+
+        public List<Wagons> Refund(
+            List<Map<String, Integer>> outboundSeats, 
+            List<Map<String, Integer>> returnSeats, 
+            List<Integer> outboundTrainIds, 
+            List<Integer> returnTrainIds
+            ) {
+            
+            List<Wagons> updatedWagons = new ArrayList<>();
+            
+            // Process outbound seat bookings
+            for (Map<String, Integer> seat : outboundSeats) {
+                int wagonNumber = seat.get("wagon");
+                int seatNumber = seat.get("number");
+                
+                // For each outbound train ID, mark the seat as booked
+                for (Integer trainId : outboundTrainIds) {
+                    Wagons wagon = getWagonBySeatAndTrainId(wagonNumber, trainId);
+                    if (wagon != null) {
+                        // Update the seat status to booked
+                        RefundUpdate(wagon, seatNumber);
+                        updatedWagons.add(wagon);
+                    }
+                }
+            }
+            
+            // Process return seat bookings if it's a round trip
+            if (!returnSeats.isEmpty() && !returnTrainIds.isEmpty()) {
+                for (Map<String, Integer> seat : returnSeats) {
+                    int wagonNumber = seat.get("wagon");
+                    int seatNumber = seat.get("number");
+                    
+                    // For each return train ID, mark the seat as booked
+                    for (Integer trainId : returnTrainIds) {
+                        Wagons wagon = getWagonBySeatAndTrainId(wagonNumber, trainId);
+                        if (wagon != null) {
+                            // Update the seat status to booked
+                            RefundUpdate(wagon, seatNumber);
+                            updatedWagons.add(wagon);
+                        }
+                    }
+                }
+            }
+            
+            
+            return updatedWagons;
+        }
+
+        private void RefundUpdate(Wagons wagon, int seatNumber) {
+            // Get the current seats string from the wagon
+            String currentSeatsString = wagon.getSeats();
+            
+            // Convert seatNumber to zero-based index
+            int seatIndex = seatNumber - 1;
+            
+            // Validate that the seat index is within range
+            if (seatIndex < 0 || seatIndex >= currentSeatsString.length()) {
+                throw new IllegalArgumentException("Seat number " + seatNumber + " is out of range for wagon " + wagon.getId());
+            }
+            
+            // Validate that the seat is taken (is '1')
+            if (currentSeatsString.charAt(seatIndex) == '0') {
+                throw new IllegalStateException("Seat " + seatNumber + " in wagon " + wagon.getId() + " is already available");
+            }
+            
+            // make the seats for refunded tickets empty again
+            StringBuilder updatedSeatsString = new StringBuilder(currentSeatsString);
+            updatedSeatsString.setCharAt(seatIndex, '0');
+            
+            // Update the seats string in the wagon object
+            wagon.setSeats(updatedSeatsString.toString());
+            
+            // Save the updated wagon to the database
+            wagonsRepository.save(wagon);
+        }
     
 }
