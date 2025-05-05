@@ -331,6 +331,40 @@ const TrainManagement = () => {
     return date instanceof Date && !isNaN(date);
   }
 
+  const checkTrainExists = async (seferId, departureDateTime, departureTime) => {
+    try {
+      // Convert input date and time to a comparable format
+      const [year, month, day] = departureDateTime.split('-');
+      const [hours, minutes] = departureTime.split(':');
+      const selectedDateTime = new Date(
+        parseInt(year),
+        parseInt(month) - 1,
+        parseInt(day),
+        parseInt(hours),
+        parseInt(minutes)
+      );
+      
+      // Get all trains for this route
+      const existingTrains = await trainService.getAllTrainsBySeferId(seferId);
+      
+      // Check for conflicts (within a 30-minute window)
+      const conflictingTrain = existingTrains.find(train => {
+        const trainDateTime = new Date(train.departureDateTime);
+        
+        // Calculate time difference in minutes
+        const timeDiff = Math.abs(trainDateTime - selectedDateTime) / (1000 * 60);
+        
+        // If the time difference is less than 30 minutes, consider it a conflict
+        return timeDiff < 30;
+      });
+      
+      return conflictingTrain;
+    } catch (err) {
+      console.error("Error checking for train conflicts:", err);
+      throw new Error("Failed to check for scheduling conflicts");
+    }
+  };
+
   // Add new train
   const handleAddTrain = async () => {
     try {
@@ -355,6 +389,19 @@ const TrainManagement = () => {
         alert("Please fully edit the departure time");
         return;
       }
+
+      // Check for scheduling conflicts
+    const conflictingTrain = await checkTrainExists(
+      newTrain.seferId, 
+      newTrain.departureDateTime, 
+      newTrain.departureTime
+    );
+    
+    if (conflictingTrain) {
+      const conflictTime = new Date(conflictingTrain.departureDateTime).toLocaleString();
+      alert(`Scheduling conflict detected! Another train is already scheduled on this route at ${conflictTime}. Please select a different time.`);
+      return;
+    }
       
       // Validate all prices are provided
       for (let s = 0; s < segments.length; s++) {
