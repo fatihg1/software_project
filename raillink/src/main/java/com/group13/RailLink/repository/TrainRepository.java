@@ -15,6 +15,11 @@ import org.springframework.stereotype.Repository;
 public interface TrainRepository extends JpaRepository<Train, Integer> {
     
     List<Train> findBySeferId(Integer seferId);
+
+    List<Train> findBySeferIdAndDepartureStation(Integer seferId, String departureStation);
+
+    @Query("SELECT t.id FROM Train t WHERE t.seferId = :seferId")
+    List<Integer> findTrainIdsBySeferId(@Param("seferId") Integer seferId);
     
     // Find trains between specific stations
     List<Train> findBySeferIdAndDepartureStationAndArrivalStation(

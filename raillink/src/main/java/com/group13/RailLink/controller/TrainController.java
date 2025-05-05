@@ -43,6 +43,12 @@ public class TrainController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    @GetMapping("/getBySeferId")
+    public ResponseEntity<List<Train>> getTrainsBySeferId(@RequestParam Integer id) {
+        List<Train> trains = trainService.getTrainsBySeferId(id);
+        return ResponseEntity.ok(trains);
+    }
     
     @PostMapping
     public ResponseEntity<Train> createTrain(@RequestBody Train train) {
@@ -153,6 +159,41 @@ public ResponseEntity<?> updateSeatBookings(@RequestBody Map<String, Object> boo
 @GetMapping("/count")
 public ResponseEntity<Integer> countDistinctTrains() {
     return ResponseEntity.ok(trainService.countDistinctTrains());
+}
+
+@PutMapping("/seatRefund")
+public ResponseEntity<?> Refund(@RequestBody Map<String, Object> bookingData) {
+    try {
+        // Extract booking information from the request body
+        Map<String, List<Map<String, Integer>>> selectedSeats = 
+            (Map<String, List<Map<String, Integer>>>) bookingData.get("selectedSeats");
+        List<Map<String, Integer>> outboundSeats = selectedSeats.get("outbound");
+        List<Map<String, Integer>> returnSeats = selectedSeats.get("return");
+        
+        String tripType = (String) bookingData.get("tripType");
+        List<Integer> outboundTrainIds = (List<Integer>) bookingData.get("outboundTrainIds");
+        List<Integer> returnTrainIds = new ArrayList<>();
+        
+        if (tripType.equals("round-trip")) {
+            returnTrainIds = (List<Integer>) bookingData.get("returnTrainIds");
+        }
+        
+        
+        // Process the booking
+        List<Wagons> updatedWagons = trainService.Refund(
+            outboundSeats, 
+            returnSeats, 
+            outboundTrainIds, 
+            returnTrainIds
+        );
+        
+        return ResponseEntity.ok(updatedWagons);
+    } catch (Exception e) {
+        // Log the error for server-side debugging
+        e.printStackTrace();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body("Error processing booking: " + e.getMessage());
+    }
 }
 
 }
