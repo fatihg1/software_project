@@ -1,6 +1,7 @@
 package com.group13.RailLink.controller;
 
 import com.group13.RailLink.model.Invoice;
+import com.group13.RailLink.service.EmailService;
 import com.group13.RailLink.service.InvoiceService;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.PdfWriter;
@@ -28,12 +29,14 @@ public class InvoiceController {
     private final InvoiceService invoiceService;
     @Autowired
     private SpringTemplateEngine templateEngine;
+    private EmailService emailService;
     
     @Autowired
-    public InvoiceController(InvoiceService invoiceService, TicketService ticketService, SpringTemplateEngine templateEngine) {
+    public InvoiceController(InvoiceService invoiceService, TicketService ticketService, SpringTemplateEngine templateEngine, EmailService emailService) {
         this.ticketService = ticketService;
         this.invoiceService = invoiceService;
         this.templateEngine = templateEngine;
+        this.emailService = emailService;
     }
 
     // Endpoint to create an invoice after a payment is made
@@ -74,6 +77,25 @@ public class InvoiceController {
         
         // Return the PDF
         byte[] pdfBytes = baos.toByteArray();
+        
+                
+        String email = ticket.getEmail();
+        try {
+            System.out.println("email sender working...");
+            emailService.sendInvoiceMail(
+                email,
+                "RailLink Ticket: " + ticketId,
+                "Hello, your PDF version of your invoice is below",
+                pdfBytes,
+                "invoice_" + ticketId + ".pdf"
+            );
+        } catch (Exception e) {
+            System.err.println("Error sending email: " + e.getMessage());
+            e.printStackTrace();
+        }
+        
+       
+        
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
         headers.setContentDispositionFormData("attachment", "invoice_" + ticketId + ".pdf");
