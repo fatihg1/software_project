@@ -7,6 +7,7 @@ import translations from './translations.jsx';
 import trainService from "./services/trainService";
 import axios from 'axios';
 import { useUser } from '@clerk/clerk-react';
+import InvoiceSelector from './InvoiceSelector.jsx';
 const PaymentModal = ({ 
   isOpen, 
   onClose, 
@@ -63,7 +64,7 @@ const PaymentModal = ({
     if (!paymentForm.expiryDate.trim()) {
       formErrors.expiryDate = translations[language].expiryDateRequired;
       isValid = false;
-    } else if (!/^\d{2}\/\d{2}$/.test(paymentForm.expiryDate)) {
+    } else if (!/^\d{2}\d{2}$/.test(paymentForm.expiryDate)) {
       formErrors.expiryDate = translations[language].expiryDateInvalid;
       isValid = false;
     } else {
@@ -120,19 +121,36 @@ const PaymentModal = ({
       <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-2xl">
         <h2 className="text-2xl font-bold mb-4">{translations[language].paymentDetails}</h2>
         <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label htmlFor="cardNumber" className="block text-gray-700 mb-1">{translations[language].cardNumber}</label>
-            <input
-              type="text"
-              id="cardNumber"
-              name="cardNumber"
-              value={paymentForm.cardNumber}
-              onChange={handleInputChange}
-              placeholder="1234 5678 9012 3456"
-              className={`w-full px-3 py-2 border rounded-md ${errors.cardNumber ? 'border-red-500' : 'border-gray-300'}`}
-            />
-            {errors.cardNumber && <p className="text-red-500 text-sm mt-1">{errors.cardNumber}</p>}
-          </div>
+        <div className="mb-4">
+          <label htmlFor="cardNumber" className="block text-gray-700 mb-1">{translations[language].cardNumber}</label>
+          <input
+            type="text"
+            id="cardNumber"
+            name="cardNumber"
+            value={(() => {
+              // Format as **** **** **** **** with spaces every 4 digits
+              const digits = paymentForm.cardNumber.replace(/\D/g, '');
+              const groups = [];
+              for (let i = 0; i < digits.length; i += 4) {
+                groups.push(digits.slice(i, i + 4));
+              }
+              return groups.join(' ');
+            })()}
+            onChange={(e) => {
+              // Extract only digits and store them
+              const value = e.target.value.replace(/\D/g, '').slice(0, 16);
+              handleInputChange({
+                target: {
+                  name: 'cardNumber',
+                  value
+                }
+              });
+            }}
+            placeholder="1234 5678 9012 3456"
+            className={`w-full px-3 py-2 border rounded-md ${errors.cardNumber ? 'border-red-500' : 'border-gray-300'}`}
+          />
+          {errors.cardNumber && <p className="text-red-500 text-sm mt-1">{errors.cardNumber}</p>}
+        </div>
           
           <div className="mb-4">
             <label htmlFor="cardHolder" className="block text-gray-700 mb-1">{translations[language].cardHolder}</label>
@@ -149,19 +167,34 @@ const PaymentModal = ({
           </div>
           
           <div className="grid grid-cols-2 gap-4 mb-4">
-            <div>
-              <label htmlFor="expiryDate" className="block text-gray-700 mb-1">{translations[language].expiryDate}</label>
-              <input
-                type="text"
-                id="expiryDate"
-                name="expiryDate"
-                value={paymentForm.expiryDate}
-                onChange={handleInputChange}
-                placeholder="MM/YY"
-                className={`w-full px-3 py-2 border rounded-md ${errors.expiryDate ? 'border-red-500' : 'border-gray-300'}`}
-              />
-              {errors.expiryDate && <p className="text-red-500 text-sm mt-1">{errors.expiryDate}</p>}
-            </div>
+          <div>
+            <label htmlFor="expiryDate" className="block text-gray-700 mb-1">{translations[language].expiryDate}</label>
+            <input
+              type="text"
+              id="expiryDate"
+              name="expiryDate"
+              value={(() => {
+                // Format as MM/YY with a fixed slash
+                const digits = paymentForm.expiryDate.replace(/\D/g, '');
+                if (digits.length === 0) return "";
+                if (digits.length <= 2) return digits;
+                return `${digits.substring(0, 2)}/${digits.substring(2, 4)}`;
+              })()}
+              onChange={(e) => {
+                // Extract only digits and store them
+                const value = e.target.value.replace(/\D/g, '').slice(0, 4);
+                handleInputChange({
+                  target: {
+                    name: 'expiryDate',
+                    value
+                  }
+                });
+              }}
+              placeholder="MM/YY"
+              className={`w-full px-3 py-2 border rounded-md ${errors.expiryDate ? 'border-red-500' : 'border-gray-300'}`}
+            />
+            {errors.expiryDate && <p className="text-red-500 text-sm mt-1">{errors.expiryDate}</p>}
+          </div>
             
             <div>
               <label htmlFor="cvv" className="block text-gray-700 mb-1">{translations[language].cvv}</label>
@@ -511,9 +544,13 @@ const calculatePassengerPrice = (passengerIndex) => {
       setIsPaymentModalOpen(true);
     }
   };
-  
+
+  const [isInvoiceSelectorOpen, setIsInvoiceSelectorOpen] = useState(false);
+  const [generatedTicketIds, setGeneratedTicketIds] = useState([]);
+
   const handleFinalSubmit = async (paymentData) => {
     try {
+      
       const finalSeatUpdate = {
         outboundSeats: selectedSeats.outbound.map(seat => ({
           wagon: typeof seat.wagon === 'string' ? parseInt(seat.wagon) : seat.wagon,
@@ -714,24 +751,18 @@ for (let i = 0; i < passengers.length; i++) {
       // Wait for all booking requests to complete
       await Promise.all(bookingPromises);
   
-      // Download invoices for all tickets
-      for (const ticketId of ticketIds) {
-        const pdfResponse = await axios.get(`http://localhost:8080/api/invoices/${ticketId}/pdf`, {
-          responseType: 'blob'
-        });
-  
-        const url = window.URL.createObjectURL(new Blob([pdfResponse.data], { type: 'application/pdf' }));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', `invoice_${ticketId}.pdf`);
-        document.body.appendChild(link);
-        link.click();
-        link.parentNode.removeChild(link);
-      }
+      // Store the generated ticket IDs and open the invoice selector
+    setGeneratedTicketIds(ticketIds);
+    setIsInvoiceSelectorOpen(true);
+    
+    // Keep the payment modal closed
+    setIsPaymentModalOpen(false);
   
       // Show confirmation and navigate
       alert(translations[language].paymentSuccess);
-      navigate('/', {
+      
+      /* Commented for waiting to download tickets 
+        navigate('/', {
         state: {
           bookingConfirmation: {
             ...bookingData,
@@ -739,7 +770,7 @@ for (let i = 0; i < passengers.length; i++) {
             confirmationNumber: ticketIds.join(', ')
           }
         }
-      });
+      }); */
   
     } catch (error) {
       if (!navigator.onLine) {
@@ -753,7 +784,33 @@ for (let i = 0; i < passengers.length; i++) {
     }
   };
   
+  // Add a new function to handle invoice downloads
+const handleDownloadInvoices = async (selectedTicketIds) => {
+  for (const ticketId of selectedTicketIds) {
+    const pdfResponse = await axios.get(`http://localhost:8080/api/invoices/${ticketId}/pdf`, {
+      responseType: 'blob'
+    });
+
+    const url = window.URL.createObjectURL(new Blob([pdfResponse.data], { type: 'application/pdf' }));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `invoice_${ticketId}.pdf`);
+    document.body.appendChild(link);
+    link.click();
+    link.parentNode.removeChild(link);
+  }
   
+  // Show confirmation and navigate after downloads
+  alert(translations[language].paymentSuccess);
+  navigate('/', {
+    state: {
+      bookingConfirmation: {
+        ...bookingData,
+        confirmationNumber: generatedTicketIds.join(', ')
+      }
+    }
+  });
+};
   
   return (
     <div className="flex flex-col md:flex-row gap-8 sm:p-6 sm:pt-15 max-w-6xl mx-auto">
@@ -827,7 +884,7 @@ for (let i = 0; i < passengers.length; i++) {
         <span className="font-medium text-green-700">
           {translations[language].currencySymbol}{passengerPrice.outboundPrice.toFixed(2)}
           {passengerPrice.discountApplied && !passengerPrice.outboundEligibleWagonType && (
-            <span className="ml-2 text-xs text-gray-500">{translations[language].noDiscountForWagonType || "No discount for this wagon"}</span>
+            <span className="ml-2 text-xs text-gray-500">{translations[language].noDiscountForWagonType || "No discount available for this wagon"}</span>
           )}
         </span>
       )}
@@ -860,7 +917,7 @@ for (let i = 0; i < passengers.length; i++) {
           <span className="font-medium text-green-700">
             {translations[language].currencySymbol}{passengerPrice.returnPrice.toFixed(2)}
             {passengerPrice.discountApplied && !passengerPrice.returnEligibleWagonType && (
-              <span className="ml-2 text-xs text-gray-500">{translations[language].noDiscountForWagonType || "No discount for this wagon"}</span>
+              <span className="ml-2 text-xs text-gray-500">{translations[language].noDiscountForWagonType || "No discount available for this wagon"}</span>
             )}
           </span>
         )}
@@ -977,9 +1034,16 @@ for (let i = 0; i < passengers.length; i++) {
                       <input
                         type="text"
                         name="birthDate"
-                        value={passenger.birthDate.replace(/(\d{2})(\d{2})(\d{4})/, '$1/$2/$3')}
+                        value={(() => {
+                          // Format the value as DD/MM/YYYY with fixed slashes
+                          const digits = passenger.birthDate.replace(/\D/g, '');
+                          if (digits.length === 0) return "";
+                          if (digits.length <= 2) return digits;
+                          if (digits.length <= 4) return `${digits.substring(0, 2)}/${digits.substring(2)}`;
+                          return `${digits.substring(0, 2)}/${digits.substring(2, 4)}/${digits.substring(4, 8)}`;
+                        })()}
                         onChange={(e) => {
-                          // Remove any non-digit characters
+                          // Extract only digits from input
                           const value = e.target.value.replace(/\D/g, '').slice(0, 8);
                           handlePassengerInputChange(index, { 
                             target: { 
@@ -989,7 +1053,6 @@ for (let i = 0; i < passengers.length; i++) {
                           });
                         }}
                         placeholder="DD/MM/YYYY"
-                        maxLength="10"
                         className={`w-full px-3 py-2 border rounded-md ${errors[`${index}-birthDate`] ? 'border-red-500' : 'border-gray-300'}`}
                         onBlur={() => {
                           if (passenger.birthDate.length === 8) {
@@ -1173,6 +1236,28 @@ for (let i = 0; i < passengers.length; i++) {
     <div className="md:sticky md:top-6 md:h-fit pt-12">
       <ProgressSteps currentStep="payment" />
     </div>
+    <InvoiceSelector
+  isOpen={isInvoiceSelectorOpen}
+  onClose={() => {
+    setIsInvoiceSelectorOpen(false);
+    // If the user closes without downloading anything, we still need to navigate
+    if (generatedTicketIds.length > 0) {
+      navigate('/', {
+        state: {
+          bookingConfirmation: {
+            ...bookingData,
+            confirmationNumber: generatedTicketIds.join(', ')
+          }
+        }
+      });
+    }
+  }}
+  ticketIds={generatedTicketIds}
+  tripType={tripType}
+  passengers={passengers}
+  translations={translations[language]}
+  onDownload={handleDownloadInvoices}
+/>
   </div>
   );
 };

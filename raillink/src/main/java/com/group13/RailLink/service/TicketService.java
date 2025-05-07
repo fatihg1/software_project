@@ -149,4 +149,13 @@ public List<Map<String, Object>> getEnhancedTickets(String userEmail) {
     
     return enhancedTickets;
 }
+public boolean refundTicket(String ticketId) {
+    Ticket ticket = ticketRepository.findByTicketId(ticketId);
+    if (ticket != null) {
+        ticket.setRefundRequested(true);
+        ticketRepository.save(ticket);
+        return true;
+    }
+    return false;
+}
 }

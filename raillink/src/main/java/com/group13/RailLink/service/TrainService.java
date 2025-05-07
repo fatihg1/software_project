@@ -66,7 +66,9 @@ public class TrainService {
         }
         return Collections.emptyList();
     }
-
+    public List<Train> findTrainJourneySegmentsByTrainId(Integer trainId) {
+        return trainRepository.findTrainSegmentsByTrainId(trainId);
+    }
     // Calculate total journey duration and construct journey details
     public Map<String, Object> constructJourneyDetails(List<Train> trainSegments) {
         Map<String, Object> journeyDetails = new HashMap<>();
@@ -305,7 +307,13 @@ public class TrainService {
             return trainRepository.countDistinctTrainIds();
         }
         
-
+        public List<Integer> getAllSegmentIdsForTicket(int trainId) {
+            // trainId here is the grouping ID stored on the ticket
+            return trainRepository.findAllByTrainId(trainId)
+                                .stream()
+                                .map(Train::getId)      // the PK of each segment
+                                .collect(Collectors.toList());
+        }
 
         public List<Wagons> Refund(
             List<Map<String, Integer>> outboundSeats, 

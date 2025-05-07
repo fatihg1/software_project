@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { SignIn, useClerk, UserButton } from '@clerk/clerk-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useUser } from '@clerk/clerk-react';
@@ -8,15 +8,31 @@ import Sidebar from './Sidebar';
 import MultilingualComponent from './MultiLingual.jsx';
 import {useLanguage} from './LanguageContext.jsx';
 import translations from './translations.jsx';
-import { useEffect } from 'react';
 
 function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const { openSignIn } = useClerk();
-  const { user, isSignedIn } = useUser();
+  const { user, isSignedIn, isLoaded } = useUser();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { language } = useLanguage();
+  const [isRedirected, setIsRedirected] = useState(false);
+  useEffect(() => {
+    const handleRoleBasedRedirect = () => {
+      const redirectedFromState = location.state?.isRedirected || false;
+
+      if (isLoaded && isSignedIn && user && !redirectedFromState) {
+        const userRole = getUserRole();
+
+        if (location.pathname === '/') {
+          navigate(`/${userRole}`, { state: { isRedirected: true } });
+        }
+      }
+    };
+
+    handleRoleBasedRedirect();
+  }, [isSignedIn, isLoaded, user, navigate, location.pathname]);
+
   // Scroll to top and navigate
   const handleNavigation = (path, options) => {
     navigate(path, options);

@@ -58,7 +58,7 @@ const TicketDisplayPage = () => {
         if (!inLookupMode && isLoaded && user) {
           const response = await fetch('http://localhost:8080/api/tickets/me/enhanced/fixed', {
             headers: {
-              'X-User-Email': user.primaryEmailAddress.emailAddress,
+              'X-User-Email': user ? user.primaryEmailAddress.emailAddress : '',
             }
           });
           
@@ -210,54 +210,94 @@ const TicketDisplayPage = () => {
   };
 
   const confirmRefund = async (ticketId) => {
-    // Set processing state
     setRefundingTickets({ ...refundingTickets, [ticketId]: true });
-    
-    // Close the modal
     setConfirmModal(null);
-    
+  
     try {
-      // Find the ticket by ID
+      // 1. Grab the full ticket from your state
       const ticket = tickets.find(t => t.ticketId === ticketId);
       if (!ticket) throw new Error(t.ticketNotFound);
       
-      // Make API call to request refund
-      const response = await fetch(`http://localhost:8080/api/tickets/${ticket.id}`, {
+      // 2. (Optional) Re-fetch the ticket if you need server-filled fields
+      const detailsResp = await fetch(`http://localhost:8080/api/tickets/${ticket.id}`, {
+        headers: { 'X-User-Email': user ? user.primaryEmailAddress.emailAddress : '' } 
+      });
+      if (!detailsResp.ok) throw new Error("Couldn't fetch ticket details");
+      const details = await detailsResp.json();
+      const refundTicket = await fetch(`http://localhost:8080/api/tickets/refund/${ticket.ticketId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'X-User-Email': user?.primaryEmailAddress?.emailAddress,
-        },
-        body: JSON.stringify({
-          ...ticket,
-          refundRequested: true
-        })
+          'X-User-Email': user ? user.primaryEmailAddress.emailAddress : ''
+        }
       });
+      // 3. Compute all segment IDs for the outbound journey
+      const outboundTrainIds = await getTrainIdsForRoute(
+        details.departureStation,
+        details.arrivalStation,
+        details.seferId
+      );
+      console.log("Outbound train IDs:", outboundTrainIds);
+      // 4. Build minimal refund payload
+      const refundData = {
+        outboundSeats: [{
+          wagon: details.wagonNumber,
+          number: parseInt(details.seat, 10)
+        }],
+        returnSeats: [],
+        outboundTrainIds,
+        returnTrainIds: []
+      };
+      console.log("Refund data:", refundData);
+      // 5. Call refund endpoint
+      const refundResp = await fetch('http://localhost:8080/api/trains/seatRefund', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Email': user ? user.primaryEmailAddress.emailAddress : '',
+        },
+        body: JSON.stringify(refundData)
+      });
+  
+      if (!refundResp.ok) throw new Error("Failed to process seat refund");
       
-      if (!response.ok) throw new Error(t.failedRequestRefund);
-      
-      // Update the ticket status in the UI
-      setTickets(tickets.map(t => 
-        t.ticketId === ticketId 
-          ? { ...t, refundRequested: true } 
-          : t
+      // 6. Update UI
+      setTickets(tickets.map(t =>
+        t.ticketId === ticketId ? { ...t, refundRequested: true } : t
       ));
-      
-      // Show success message
       setAlertMessage(`Refund request for ticket ${ticketId} has been received.`);
       setShowAlert(true);
-      
-      // Hide alert after 5 seconds
-      setTimeout(() => {
-        setShowAlert(false);
-      }, 5000);
-    } catch (error) {
-      console.error(error);
-      setAlertMessage("Failed to request refund. Please try again.");
+      setTimeout(() => setShowAlert(false), 5000);
+    }
+    catch (err) {
+      console.error(err);
+      setAlertMessage(err.message || "Failed to request refund.");
       setShowAlert(true);
-    } finally {
-      // Remove the processing state
+    }
+    finally {
       setRefundingTickets({ ...refundingTickets, [ticketId]: false });
+    }
+  };
+  
+  
+  // Helper function to get all train IDs for a route
+  const getTrainIdsForRoute = async (departureStation, arrivalStation, seferId) => {
+    try {
+      // Fetch all train segments between departure and arrival stations
+      const response = await fetch(
+        `http://localhost:8080/api/trains/route?seferId=${seferId}&departure=${departureStation}&arrival=${arrivalStation}`
+      );
+      
+      if (!response.ok) throw new Error("Failed to get train segments for route");
+      
+      // Extract unique train IDs from the segments
+      // In this case, we need all segments with the same train_id
+      const trainIds = await response.json();
+      
+      return trainIds;
+    } catch (error) {
+      console.error("Error fetching train IDs for route:", error);
+      return [];
     }
   };
 

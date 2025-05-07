@@ -14,6 +14,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TrainRepository extends JpaRepository<Train, Integer> {
     
+    List<Train> findAllByTrainId(Integer trainId);
+
     List<Train> findBySeferId(Integer seferId);
 
     List<Train> findBySeferIdAndDepartureStation(Integer seferId, String departureStation);
@@ -37,6 +39,9 @@ public interface TrainRepository extends JpaRepository<Train, Integer> {
         @Param("seferId") Integer seferId, 
         @Param("stationsList") List<String> stationsList);
 
+    List<Train> findTrainSegmentsByTrainId(
+        @Param("trainId") Integer trainId
+    );
     List<Train> findBySeferIdAndDepartureStationAndArrivalStationAndDepartureDateTimeBetween(
             Integer seferId, String departureStation, String arrivalStation, LocalDateTime startDateTime, LocalDateTime endDateTime);
         

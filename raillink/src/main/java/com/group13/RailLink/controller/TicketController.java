@@ -134,4 +134,9 @@ public class TicketController {
         // Here you could use UUID or any other logic to generate a unique string.
         return "TKT-" + java.util.UUID.randomUUID().toString().replace("-", "").substring(0, 12).toUpperCase();
     }
+    @PutMapping("/refund/{id}")
+public ResponseEntity<Void> refundTicket(@PathVariable("id") String id) {
+    boolean success = ticketService.refundTicket(id);
+    return success ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+}
 }

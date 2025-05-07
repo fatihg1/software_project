@@ -200,7 +200,7 @@ const translations = {
     cvvInvalid: "CVV should be 3 or 4 digits",
     emailConfirmation: "Email for Confirmation",
     emailInvalid: "Email is invalid",
-    payNow: "Pay Now ${amount}",
+    payNow: "Pay Now ₺{amount}",
     cancel: "Cancel",
     
     // Passenger Info
@@ -694,8 +694,69 @@ const translations = {
       perSeat: "per seat"
     },
     invalidStationsError: "Please select a departure and arrival station",
+    selectInvoices: "Select Invoices to Download",
+    downloadSelected: "Download Selected",
+    downloadAll: "Download All",
+    cancel: "Cancel",
+    noInvoicesSelected: "Please select at least one invoice to download",
+    outboundJourney: "Outbound Journey",
+    returnJourney: "Return Journey",
+    passengerWithNumber: "Passenger {number}",
+    downloadingInvoices: "Downloading invoices...",
+    downloadComplete: "Download complete",
+    ageDiscount: "Age Discount",
+    noDiscountForWagonType: "No discount available for this Wagon Type",
+    childDiscount: "Child Discount",
+    youthDiscount: "Youth Discount",
+    seniorDiscount: "Senior Discount",
+    discountSummary: "Discount Summary",
+    childSingular: "Child",
+    childPlural: "Children",
+    withChildDiscount:" with 50% child discount",
+    youthSingular: "Youth",
+    youthPlural: "Youths",
+    withYouthDiscount:" with 20% youth discount",
+    seniorSingular: "Senior",
+    seniorPlural: "Seniors",
+    withSeniorDiscount:" with 20% senior discount",
+    totalSavings: "Total Savings",
+    currencySymbol: "₺",
+    onlyEligibleWagons:"only on economy, sleeper, and lodge class",
     },
+
+
+
+
+
     tr: {
+    
+    ageDiscount: "Yaş İndirimi",
+    childDiscount: "Çocuk İndirimi",
+    youthDiscount: "Genç İndirimi",
+    seniorDiscount: "Yaşlı İndirimi",
+    discountSummary: "İndirim Özeti",
+    childSingular: "Çocuk",
+    childPlural: "Çocuklar",
+    withChildDiscount:" %50 çocuk indirimi ile",
+    youthSingular: "Genç",
+    youthPlural: "Gençler",
+    withYouthDiscount:" %20 genç indirimi ile",
+    seniorSingular: "Yaşlı",
+    seniorPlural: "Yaşlılar",
+    withSeniorDiscount:" %20 yaşlı indirimi ile",
+    totalSavings: "Toplam Tasarruf",
+    onlyEligibleWagons:"sadece ekonomi, yataklı ve lojman sınıfında geçerlidir",
+    noDiscountForWagonType: "Bu Vagon Tipi için İndirim Yok",
+    selectInvoices: "İndirilecek Faturaları Seçin",
+    downloadSelected: "Seçilenleri İndir",
+    downloadAll: "Tümünü İndir",
+    cancel: "İptal",
+    noInvoicesSelected: "Lütfen indirilecek en az bir faturayı seçin",
+    outboundJourney: "Gidiş Yolculuğu",
+    returnJourney: "Dönüş Yolculuğu",
+    passengerWithNumber: "Yolcu {number}",
+    downloadingInvoices: "Faturalar indiriliyor...",
+    downloadComplete: "İndirme tamamlandı",
       invalidStationsError: "Lütfen bir kalkış ve varış istasyonu seçin",
       //wagonSelector
       wagonSelector: {
@@ -863,7 +924,7 @@ const translations = {
     cvvInvalid: "CVV 3 veya 4 haneli olmalıdır",
     emailConfirmation: "Onay İçin E-posta",
     emailInvalid: "Geçersiz e-posta adresi",
-    payNow: "Şimdi Öde ${amount}",
+    payNow: "Şimdi Öde ₺{amount}",
     cancel: "İptal",
     
     // Passenger Info
