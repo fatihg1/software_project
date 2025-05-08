@@ -6,12 +6,7 @@ import com.group13.RailLink.model.Train;
 import com.group13.RailLink.model.Wagons;
 import com.group13.RailLink.repository.TrainRepository;
 import com.group13.RailLink.repository.WagonsRepository;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,13 +14,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service
 public class TrainService {
     private final TrainRepository trainRepository;
     private final SeferlerService seferlerService;
     private final WagonsRepository wagonsRepository;
-
+    private static final Logger log = LoggerFactory.getLogger(TrainService.class);
+    
     @Autowired
     public TrainService(TrainRepository trainRepository, SeferlerService seferlerService, WagonsRepository wagonsRepository) {
         this.trainRepository = trainRepository;
@@ -288,8 +288,9 @@ public class TrainService {
             }
             
             // Validate that the seat is available (is '0')
-            if (currentSeatsString.charAt(seatIndex) == '1') {
-                throw new IllegalStateException("Seat " + seatNumber + " in wagon " + wagon.getId() + " is already booked");
+            if (currentSeatsString.charAt(seatIndex) == '0') {
+                log.warn("Seat {} in wagon {} already free – skipping.", seatNumber, wagon.getId());
+                return;                     // idempotent – 200 dönecek
             }
             
             // Create a new seats string with the specified seat marked as booked ('1')
