@@ -1,5 +1,11 @@
 package com.group13.RailLink.service;
 
+import java.util.List;
+
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.group13.RailLink.DTO.FinalSeatUpdateDTO;
 import com.group13.RailLink.model.Booking;
 import com.group13.RailLink.model.Invoice;
@@ -7,9 +13,6 @@ import com.group13.RailLink.model.Ticket;
 import com.group13.RailLink.model.Train;
 import com.group13.RailLink.model.Wagons;
 import com.group13.RailLink.repository.BookingRepository;
-import java.util.List;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class BookingService {
@@ -22,12 +25,12 @@ public class BookingService {
     private final FinanceService financeService;
 
     public BookingService(BookingRepository repo, TrainService trainService,
-                          InvoiceService invoiceService, TicketService ticketService,
-                          UserService userService,FinanceService financeService) {
+                        InvoiceService invoiceService, @Lazy TicketService ticketService,
+                        UserService userService, FinanceService financeService) {
         this.repo = repo;
         this.trainService = trainService;
         this.invoiceService = invoiceService;
-        this.ticketService = ticketService;
+        this.ticketService = ticketService; //  Lazy olarak çözülüyor
         this.userService = userService;
         this.financeService = financeService;
     }
@@ -97,7 +100,7 @@ public class BookingService {
         booking.setUser(ticket.getName()); // direkt ticket'tan al
 
         booking.setTrain(ticket.getWagonNumber().toString());
-
+        booking.setTicketId(createdTicket.getTicketId());
         repo.save(booking);
 
     //  Finance kaydı oluşturuluyor
@@ -106,4 +109,9 @@ public class BookingService {
     // Return the created ticket.
     return createdTicket;
 }
+
+public void deleteBookingsByTicketId(String ticketId) {
+    repo.deleteByTicketId(ticketId);
+}
+
 }

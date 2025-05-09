@@ -1,6 +1,11 @@
 package com.group13.RailLink.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "bookings")
@@ -14,6 +19,8 @@ public class Booking {
     private String train;
     private String date;
     private String status; // Confirmed / Pending / Canceled
+    @Column(name = "ticket_id")
+    private String ticketId;
 
     public Booking() {}
 
@@ -32,4 +39,13 @@ public class Booking {
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+
+    
+    public String getTicketId() {
+        return ticketId;
+    }
+
+    public void setTicketId(String ticketId) {
+        this.ticketId = ticketId;
+    }
 }
