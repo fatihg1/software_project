@@ -21,7 +21,7 @@ const PaymentModal = ({
     cardHolder: '',
     expiryDate: '',
     cvv: '',
-    email: ''
+    email: 'a@a.com'
   });
   
   const [errors, setErrors] = useState({});
@@ -211,19 +211,6 @@ const PaymentModal = ({
             </div>
           </div>
           
-          <div className="mb-4">
-            <label htmlFor="email" className="block text-gray-700 mb-1">{translations[language].emailConfirmation}</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={paymentForm.email}
-              onChange={handleInputChange}
-              placeholder="your@email.com"
-              className={`w-full px-3 py-2 border rounded-md ${errors.email ? 'border-red-500' : 'border-gray-300'}`}
-            />
-            {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
-          </div>
           
           <div className="flex justify-between">
             <button 
