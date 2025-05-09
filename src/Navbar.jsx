@@ -20,17 +20,23 @@ function Navbar() {
   const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
-    // We'll handle role-based redirects through the popup component
-    // This keeps the initial check to see if we should show the popup
+    // Check if user should see the popup (only for admin or manager roles)
     const checkUserRole = () => {
-      const redirectedFromState = location.state?.isRedirected || false;
-      const popupShownState = sessionStorage.getItem('rolePopupShown');
-
-      if (isLoaded && isSignedIn && user && location.pathname === '/') {
+      // Only proceed if the user is signed in and loaded
+      if (isLoaded && isSignedIn && user) {
         const role = getUserRole();
         
-        if (role === 'admin' || role === 'manager') {
-          setShowPopup(true);
+        // Check if we're on the home page and user has admin or manager role
+        if ((role === 'admin' || role === 'manager') && location.pathname === '/') {
+          // Check if popup has been shown before using sessionStorage
+          const popupShown = sessionStorage.getItem('rolePopupShown');
+          
+          // Only show popup if it hasn't been shown before
+          if (!popupShown) {
+            setShowPopup(true);
+            // Mark the popup as shown to prevent it from appearing again
+            sessionStorage.setItem('rolePopupShown', 'true');
+          }
         }
       }
     };
