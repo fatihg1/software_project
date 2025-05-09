@@ -808,7 +808,6 @@ const handleDownloadInvoices = async (selectedTicketIds) => {
   }
   
   // Show confirmation and navigate after downloads
-  alert(translations[language].paymentSuccess);
   navigate('/', {
     state: {
       bookingConfirmation: {
