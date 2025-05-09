@@ -153,15 +153,6 @@ const [debugScatter, setDebugScatter] = useState(null);
           <button 
             className="flex items-center space-x-2 p-3 rounded-md hover:bg-purple-700 transition" 
             onClick={() => {
-              navigate("/manager/users");
-              if (isMobile) setSidebarOpen(false);
-            }}
-          >
-            <FaUsers /> <span>User Management</span>
-          </button>
-          <button 
-            className="flex items-center space-x-2 p-3 rounded-md hover:bg-purple-700 transition" 
-            onClick={() => {
               navigate("/manager/finance");
               if (isMobile) setSidebarOpen(false);
             }}

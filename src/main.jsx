@@ -11,8 +11,8 @@ import StationCenterPage from './StationCenterPage.jsx'
 import Navbar from './Navbar.jsx'
 import ManagerDashboard from "./Manager/ManagerDashboard.jsx"; 
 import TrainManagement from "./Admin/TrainManagement.jsx"; 
-import UserManagement from "./Manager/UserManagement.jsx";
-import BookingManagement from "./Admin/BookingManagement.jsx";
+
+
 import FinanceManagement from "./Manager/FinanceManagement.jsx";
 import AnnouncementManagement from "./Admin/AnnouncementManagement.jsx"; 
 import AdminDashboard from "./Admin/AdminDashboard.jsx";
@@ -73,10 +73,7 @@ const router=createBrowserRouter([
           path: "/admin/trains",
           element: <TrainManagement /> 
         },
-        {
-          path:"/admin/bookings",
-          element:<BookingManagement/>
-        },
+
         { 
           path:'/admin/announcements',
           element:<AnnouncementManagement/> 
@@ -120,10 +117,7 @@ const router=createBrowserRouter([
           path:"/manager/finance",
           element:<FinanceManagement/>
         },
-        { 
-          path:'/manager/users', 
-          element:<UserManagement/> 
-        },
+
       ]
     },
     {
