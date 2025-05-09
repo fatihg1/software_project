@@ -158,17 +158,22 @@ public List<Map<String, Object>> getEnhancedTickets(String userEmail) {
     
     return enhancedTickets;
 }
-public boolean refundTicket(String ticketId) {
-    Ticket ticket = ticketRepository.findByTicketId(ticketId);
-    if (ticket != null) {
-        ticket.setRefundRequested(true);
-        financeService.deleteByTicketId(ticketId);
-        bookingService.deleteBookingsByTicketId(ticketId);
 
-        ticketRepository.save(ticket);
-
-        return true;
+    public void deleteByTicketId(String ticketId) {
+        ticketRepository.deleteByTicketId(ticketId);
     }
-    return false;
-}
+
+    public boolean refundTicket(String ticketId) {
+        Ticket ticket = ticketRepository.findByTicketId(ticketId);
+        if (ticket != null) {
+            financeService.deleteByTicketId(ticketId);
+            bookingService.deleteBookingsByTicketId(ticketId);
+            ticketRepository.deleteByTicketId(ticketId); 
+
+            return true;
+        }
+        return false;
+    }
+
+
 }
