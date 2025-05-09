@@ -1,35 +1,34 @@
 package com.group13.RailLink.service;
 
 import com.group13.RailLink.model.Ticket;
+import com.group13.RailLink.model.Wagons;
 import com.group13.RailLink.repository.TicketRepository;
+import com.group13.RailLink.repository.TrainRepository;
 import com.group13.RailLink.repository.UserRepository;
+import com.group13.RailLink.repository.WagonsRepository;
+import java.util.ArrayList; // Import Train class
+import java.util.HashMap; // Import TrainRepository
+import java.util.List; // Import Wagons class
+import java.util.Map; // Import WagonRepository
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.group13.RailLink.model.User;
-import com.group13.RailLink.model.Train; // Import Train class
-import com.group13.RailLink.repository.TrainRepository; // Import TrainRepository
-import com.group13.RailLink.model.Wagons; // Import Wagons class
-import com.group13.RailLink.repository.WagonsRepository; // Import WagonRepository
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 @Service
 public class TicketService {
-
+    private final FinanceService financeService;
     private final UserRepository userRepository;
     private final TrainRepository trainRepository; // Add TrainRepository dependency
     private final WagonsRepository wagonRepository; // Add WagonRepository dependency
     private final TicketRepository ticketRepository;
+    
     @Autowired
-    public TicketService(TicketRepository ticketRepository, UserRepository userRepository, TrainRepository trainRepository, WagonsRepository wagonRepository) {
+    public TicketService(TicketRepository ticketRepository, UserRepository userRepository, TrainRepository trainRepository, WagonsRepository wagonRepository,FinanceService financeService) {
         this.userRepository = userRepository; // Initialize UserRepository
         this.wagonRepository = wagonRepository; // Initialize WagonRepository
         this.ticketRepository = ticketRepository;
         this.trainRepository = trainRepository; // Initialize TrainRepository
+        this.financeService = financeService;
     }
 
     public List<Ticket> getTicketsByUserId(Long userId) {
@@ -153,6 +152,7 @@ public boolean refundTicket(String ticketId) {
     Ticket ticket = ticketRepository.findByTicketId(ticketId);
     if (ticket != null) {
         ticket.setRefundRequested(true);
+        financeService.deleteByTicketId(ticketId);
         ticketRepository.save(ticket);
         return true;
     }

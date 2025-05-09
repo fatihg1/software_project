@@ -16,6 +16,7 @@ public class Finance {
     private String type;
     private LocalDateTime date;
     private String route;
+    private String ticketId;
 
 
     public Finance() {}
@@ -44,5 +45,10 @@ public class Finance {
     public void setRoute(String route) {
         this.route = route;
     }
+
+    public String getTicketId() { return ticketId; }
+    
+    public void setTicketId(String ticketId) { this.ticketId = ticketId; }
+
 
 }

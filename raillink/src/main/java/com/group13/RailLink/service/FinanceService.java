@@ -3,18 +3,17 @@ package com.group13.RailLink.service;
 import com.group13.RailLink.model.Finance;
 import com.group13.RailLink.model.Ticket;
 import com.group13.RailLink.repository.FinanceRepository;
-import org.springframework.stereotype.Service;
+import java.time.LocalDateTime;
 import java.time.format.TextStyle;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.LinkedHashMap;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.stream.Collectors;
-
-import java.time.LocalDateTime;
-import java.util.List;
+import org.springframework.stereotype.Service;
 
 @Service
 public class FinanceService {
@@ -40,8 +39,8 @@ public class FinanceService {
         finance.setAmount(ticket.getPrice().doubleValue());
         finance.setType("Sale");
         finance.setDate(LocalDateTime.now());
-        finance.setRoute(ticket.getDepartureStation() + " - " + ticket.getArrivalStation()); // ✔️ Bu güzergahı düzgün kurar
- //  güzergah ekleniyor
+        finance.setRoute(ticket.getDepartureStation() + " - " + ticket.getArrivalStation()); // Bu güzergahı düzgün kurar
+        finance.setTicketId(ticket.getTicketId());   
         return repo.save(finance);
     }
     
@@ -105,5 +104,10 @@ public List<Map<String, Object>> getRevenueVsSalesData() {
 
     return result;
 }
+
+public void deleteByTicketId(String ticketId) {
+    repo.deleteByTicketId(ticketId);
+}
+
 
 }
