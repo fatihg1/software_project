@@ -670,7 +670,9 @@ for (let i = 0; i < passengers.length; i++) {
     departureDateTime: outboundDepartureDate.toISOString(),
     wagonId: outboundSeat.wagon,
   };
-
+  console.log('Outbound Ticket Payload:', outboundTicketPayload);
+  console.log('Outbound Invoice Payload:', outboundInvoicePayload);
+  console.log('Final Seat Update:', finalSeatUpdate);
   // Add booking promise for outbound journey
   bookingPromises.push(
     axios.post('http://localhost:8080/bookings', {

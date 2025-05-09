@@ -386,7 +386,9 @@ const TicketDisplayPage = () => {
             {tickets.map(ticket => {
               const isPast = isTicketPast(ticket.date, ticket.departureDateTime);
               const isProcessing = refundingTickets[ticket.ticketId];
-              
+              const processing = refundingTickets[ticket.ticketId];
+              const tooLate   = isRefundInvalidDate(ticket.date, ticket.departureDateTime);
+
               return (
                 <div 
                   key={ticket.ticketId} 

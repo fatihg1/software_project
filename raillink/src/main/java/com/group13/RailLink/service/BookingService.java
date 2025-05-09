@@ -58,7 +58,6 @@ public class BookingService {
             Ticket ticket,
             Invoice invoice,
             Boolean isReturn) {
-        System.err.println("isReturn: " + isReturn);
         if (!isReturn) {
             // No user handling — info comes directly from the ticket object
         }

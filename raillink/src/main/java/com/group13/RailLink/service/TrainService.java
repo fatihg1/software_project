@@ -288,10 +288,10 @@ public class TrainService {
             }
             
             // Validate that the seat is available (is '0')
-            if (currentSeatsString.charAt(seatIndex) == '0') {
-                log.warn("Seat {} in wagon {} already free – skipping.", seatNumber, wagon.getId());
-                return;                     // idempotent – 200 dönecek
+            if (currentSeatsString.charAt(seatIndex) == '1') {
+                throw new IllegalStateException("Seat " + seatNumber + " in wagon " + wagon.getId() + " is already booked");
             }
+
             
             // Create a new seats string with the specified seat marked as booked ('1')
             StringBuilder updatedSeatsString = new StringBuilder(currentSeatsString);
