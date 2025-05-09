@@ -331,9 +331,18 @@ const TicketDisplayPage = () => {
   // Check if ticket departure is within next 24 hours (invalid for refund)
   const isRefundInvalidDate = (dateString, timeString) => {
     if (!dateString || !timeString) return true;
-    const [h, m] = timeString.split(':').map(Number);
-    const ticketDateTime = new Date(dateString);
-    ticketDateTime.setHours(h, m);
+    
+    // Instead of splitting the time, use the full datetime string
+    const ticketDateTime = new Date(timeString);
+    
+    // If timeString isn't a valid date, fallback to using dateString
+    if (isNaN(ticketDateTime.getTime())) {
+      const [h, m] = timeString.split(':').map(Number);
+      const fallbackDateTime = new Date(dateString);
+      fallbackDateTime.setHours(h, m);
+      return (fallbackDateTime - new Date()) < 24 * 60 * 60 * 1000;
+    }
+    
     const now = new Date();
     const msDiff = ticketDateTime - now;
     return msDiff < 24 * 60 * 60 * 1000;
