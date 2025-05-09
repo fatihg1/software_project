@@ -1,5 +1,6 @@
 package com.group13.RailLink.controller;
 
+import com.itextpdf.text.pdf.BaseFont;
 import com.group13.RailLink.model.Invoice;
 import com.group13.RailLink.service.EmailService;
 import com.group13.RailLink.service.InvoiceService;
@@ -16,7 +17,12 @@ import org.thymeleaf.context.Context;
 
 import com.group13.RailLink.service.TicketService;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.format.DateTimeFormatter;
+import java.util.Base64;
 import java.util.Optional;
 import com.group13.RailLink.model.Ticket;
 
@@ -65,11 +71,25 @@ public class InvoiceController {
         Context context = new Context();
         context.setVariable("invoice", invoice);
         context.setVariable("ticket", ticket);
+
+        try {
+        // Read the logo file - adjust path as needed
+        Path path = Paths.get("src/main/resources/static/images/logo.png");
+        byte[] logoBytes = Files.readAllBytes(path);
+        String base64Logo = Base64.getEncoder().encodeToString(logoBytes);
+        context.setVariable("logoBase64", "data:image/png;base64," + base64Logo);
+    } catch (IOException e) {
+        e.printStackTrace();
+        // Continue without logo if there's an error
+    }
         String processedHtml = templateEngine.process("invoice", context);
         
         // Convert to PDF
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ITextRenderer renderer = new ITextRenderer();
+        renderer.getFontResolver().addFont(
+            "src/main/resources/fonts/DejaVuSans.ttf",
+            BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
         renderer.setDocumentFromString(processedHtml);
         renderer.layout();
         renderer.createPDF(baos);

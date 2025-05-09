@@ -37,7 +37,12 @@ const TicketDisplayPage = () => {
     // Otherwise use the lookup parameters
     return lookupFromURL;
   };
-  
+  const returnText = () => {
+    if(isLoaded && user) {
+      return t.returnTextLoggedIn;
+    }
+    return t.noTicketsLoggedOut;
+  }
   // Merged useEffect - handles both parameter extraction and data fetching
   useEffect(() => {
     // Run this condition only on the first iteration of the component's lifecycle
@@ -323,6 +328,17 @@ const TicketDisplayPage = () => {
     return ticketDate < new Date();
   };
 
+  // Check if ticket departure is within next 24 hours (invalid for refund)
+  const isRefundInvalidDate = (dateString, timeString) => {
+    if (!dateString || !timeString) return true;
+    const [h, m] = timeString.split(':').map(Number);
+    const ticketDateTime = new Date(dateString);
+    ticketDateTime.setHours(h, m);
+    const now = new Date();
+    const msDiff = ticketDateTime - now;
+    return msDiff < 24 * 60 * 60 * 1000;
+  };
+
   // Navigate to search train
   const handleBrowseRoutes = () => {
     navigate('/select-train');
@@ -356,7 +372,7 @@ const TicketDisplayPage = () => {
             <p className="text-gray-600 mb-8 text-lg">
               {isLookupMode() 
                 ? t.noTicketFound
-                : t.noTicketsLoggedOut}
+                : returnText()}
             </p>
             <button 
               onClick={handleBrowseRoutes}
@@ -424,23 +440,20 @@ const TicketDisplayPage = () => {
                           </div>
                         ) : (
                           <button
-                            className={`mt-2 px-4 py-2 rounded-md text-sm font-medium ${
-                              isProcessing 
-                                ? 'bg-gray-200 text-gray-600 cursor-not-allowed' 
-                                : 'bg-red-50 text-red-600 hover:bg-red-100 transition-colors'
-                            }`}
-                            onClick={() => handleRefund(ticket.ticketId)}
-                            disabled={isProcessing}
-                          >
-                            {isProcessing ? (
-                              <>
-                                <RefreshCcw className="inline-block h-4 w-4 mr-1 animate-spin" />
-                                {t.processing}
-                              </>
-                            ) : (
-                              t.requestRefund
-                            )}
-                          </button>
+                        className={`mt-2 px-4 py-2 rounded-md text-sm font-medium ${processing || tooLate
+                          ? 'bg-gray-200 text-gray-600 cursor-not-allowed'
+                          : 'bg-red-50 text-red-600 hover:bg-red-100 transition-colors'
+                        }`}
+                        onClick={() => !processing && !tooLate && handleRefund(ticket.ticketId)}
+                        disabled={processing || tooLate}
+                      >
+                        {processing
+                          ? <><RefreshCcw className="inline-block h-4 w-4 mr-1 animate-spin" />{t.processing}</>
+                          : tooLate
+                            ? t.invalidTime
+                            : t.requestRefund
+                        }
+                      </button>
                         )}
                       </div>
                     </div>

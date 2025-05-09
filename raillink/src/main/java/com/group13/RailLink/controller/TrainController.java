@@ -208,9 +208,8 @@ public ResponseEntity<List<Integer>> getRouteSegmentIds(
       recording = true;
     }
     //if the arrival of segment is same as arrival stop saving to the filtered list
-    else if(segments.get(0).getArrivalStation().equals(arrival)){
-      filteredSegments.add(segments.get(0));
-      break;
+    if(segments.get(0).getArrivalStation().equals(arrival)){
+      recording = false;
     }
     segments.remove(0);
   }

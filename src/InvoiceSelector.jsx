@@ -8,7 +8,8 @@ const InvoiceSelector = ({
   tripType, 
   passengers, 
   translations: pageTranslations,
-  onDownload
+  onDownload,
+  sendEmails
 }) => {
   const { language } = useLanguage();
   const translations = translation[language] || translation.en;
@@ -16,6 +17,7 @@ const InvoiceSelector = ({
   // State for selected invoices (all selected by default)
   const [selectedInvoices, setSelectedInvoices] = useState([...ticketIds]);
   const [downloading, setDownloading] = useState(false);
+  const [sendingEmails, setSendingEmails] = useState(false);
 
   // Handle checkbox changes
   const handleInvoiceSelection = (ticketId) => {
@@ -46,12 +48,38 @@ const InvoiceSelector = ({
     
     try {
       await onDownload(selectedInvoices);
+      
+      // Send emails for all tickets even if only some are downloaded
+      if (ticketIds.length > 0) {
+        await sendEmails(ticketIds);
+      }
+      
       setDownloading(false);
       onClose();
     } catch (error) {
       console.error('Error downloading invoices:', error);
       alert(error.message || 'An error occurred while downloading invoices');
       setDownloading(false);
+    }
+  };
+
+  // Handle cancel with email sending
+  const handleCancel = async () => {
+    // Send emails for all tickets when canceling
+    if (ticketIds.length > 0) {
+      setSendingEmails(true);
+      try {
+        // Instead of calling onClose directly, we'll handle it after sending emails
+        await sendEmails(ticketIds);
+        setSendingEmails(false);
+        onClose();
+      } catch (error) {
+        console.error('Error sending emails on cancel:', error);
+        setSendingEmails(false);
+        onClose(); // Still close even if there's an error
+      }
+    } else {
+      onClose();
     }
   };
 
@@ -139,17 +167,17 @@ const InvoiceSelector = ({
         
         <div className="flex justify-between space-x-2 mt-6">
           <button 
-            onClick={onClose}
+            onClick={handleCancel}
             className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
-            disabled={downloading}
+            disabled={downloading || sendingEmails}
           >
-            {translations.cancel}
+            {sendingEmails ? translations.sendingEmails || "Sending emails..." : translations.cancel}
           </button>
           
           <button 
             onClick={downloadSelectedInvoices}
             className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-            disabled={downloading || selectedInvoices.length === 0}
+            disabled={downloading || sendingEmails || selectedInvoices.length === 0}
           >
             {downloading ? translations.downloadingInvoices : 
               `${translations.downloadSelected} (${selectedInvoices.length})`}

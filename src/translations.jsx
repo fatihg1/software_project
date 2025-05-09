@@ -1,3 +1,5 @@
+import RoleRedirectPopup from "./RoleRedirectPopup";
+
 const translations = {
     en: {
       ticketPage: {
@@ -19,7 +21,8 @@ const translations = {
         confirmRefundTitle: "Confirm Refund",
         confirmMessage: "Are you sure you want to refund ticket {ticketId}? This action cannot be undone.",
         cancel: "Cancel",
-        confirmRefund: "Confirm Refund"
+        confirmRefund: "Confirm Refund",
+        refundRequestRecieved:"Refund request for ticket {ticketId} has been received.",
       },
       //errorpage
       errorPage:{
@@ -697,7 +700,6 @@ const translations = {
     selectInvoices: "Select Invoices to Download",
     downloadSelected: "Download Selected",
     downloadAll: "Download All",
-    cancel: "Cancel",
     noInvoicesSelected: "Please select at least one invoice to download",
     outboundJourney: "Outbound Journey",
     returnJourney: "Return Journey",
@@ -720,8 +722,13 @@ const translations = {
     seniorPlural: "Seniors",
     withSeniorDiscount:" with 20% senior discount",
     totalSavings: "Total Savings",
-    currencySymbol: "₺",
     onlyEligibleWagons:"only on economy, sleeper, and lodge class",
+    RoleRedirectPopup:{
+      title: "Role Access",
+      message: "We detected you have manager privileges. Would you like to go to the manager panel?",
+      buttonText: "Yes, take me there",
+      stayText: "No, stay here",
+    },
     },
 
 
@@ -729,7 +736,12 @@ const translations = {
 
 
     tr: {
-    
+    RoleRedirectPopup:{
+      title: "Rol Yönlendirmesi",
+      message: "Yönetici yetkileriniz tespit edildi. Yönetici paneline gitmek ister misiniz?",
+      buttonText: "Evet, oraya git",
+      stayText: "Hayır, burada kal",
+    },
     ageDiscount: "Yaş İndirimi",
     childDiscount: "Çocuk İndirimi",
     youthDiscount: "Genç İndirimi",
@@ -750,7 +762,6 @@ const translations = {
     selectInvoices: "İndirilecek Faturaları Seçin",
     downloadSelected: "Seçilenleri İndir",
     downloadAll: "Tümünü İndir",
-    cancel: "İptal",
     noInvoicesSelected: "Lütfen indirilecek en az bir faturayı seçin",
     outboundJourney: "Gidiş Yolculuğu",
     returnJourney: "Dönüş Yolculuğu",
@@ -1432,7 +1443,9 @@ const translations = {
       confirmRefundTitle: "İade Onayı",
       confirmMessage: "{ticketId} numaralı bileti iade etmek istediğinize emin misiniz? Bu işlem geri alınamaz.",
       cancel: "İptal",
-      confirmRefund: "İadeyi Onayla"
+      confirmRefund: "İadeyi Onayla",
+      returnTextLoggedIn: "Hiç biletiniz yok. Lütfen biletlerimizi görüntüleyin.",
+      refundRequestRecieved: "{ticketId} numaralı bilet için iade talebiniz alınmıştır.",
     },
     }
 }

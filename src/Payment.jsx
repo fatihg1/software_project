@@ -247,6 +247,24 @@ const PaymentModal = ({
   );
 };
 
+// 1. Add a new function to handle sending emails for all tickets
+const sendTicketEmails = async (ticketIds) => {
+  try {
+    // Create promises for all ticket email requests
+    const emailPromises = ticketIds.map(ticketId => 
+      axios.get(`http://localhost:8080/api/invoices/${ticketId}/pdf`, {
+        responseType: 'blob'
+      })
+    );
+    
+    // Execute all email requests (same endpoint as download, but we'll discard the response data)
+    await Promise.all(emailPromises);
+    
+    console.log('Emails sent for all tickets');
+  } catch (error) {
+    console.error('Error sending ticket emails:', error);
+  }
+};
 const PassengerInfoPage = () => {
   const { language } = useLanguage();
   const location = useLocation();
@@ -1236,12 +1254,13 @@ const handleDownloadInvoices = async (selectedTicketIds) => {
     <div className="md:sticky md:top-6 md:h-fit pt-12">
       <ProgressSteps currentStep="payment" />
     </div>
-    <InvoiceSelector
+<InvoiceSelector
   isOpen={isInvoiceSelectorOpen}
   onClose={() => {
     setIsInvoiceSelectorOpen(false);
-    // If the user closes without downloading anything, we still need to navigate
+    // Send emails for all tickets even if user cancels without downloading
     if (generatedTicketIds.length > 0) {
+      sendTicketEmails(generatedTicketIds);
       navigate('/', {
         state: {
           bookingConfirmation: {
@@ -1257,6 +1276,7 @@ const handleDownloadInvoices = async (selectedTicketIds) => {
   passengers={passengers}
   translations={translations[language]}
   onDownload={handleDownloadInvoices}
+  sendEmails={sendTicketEmails}
 />
   </div>
   );

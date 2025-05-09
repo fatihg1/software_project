@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8"></meta>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
   <title>Rail Link Invoice</title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" rel="stylesheet"></link>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"></link>
   <style>
+    @font-face {
+      font-family: 'DejaVuSans';
+      src: url('file:src/main/resources/fonts/DejaVuSans.ttf') format('truetype');
+    }
     body {
-      font-family: 'Poppins', Helvetica, Arial, sans-serif;
+      font-family: 'DejaVuSans', sans-serif;
       margin: 0;
       padding: 0;
       background-color: #f8f9fa;
@@ -32,6 +34,10 @@
       padding-bottom: 20px;
       border-bottom: 2px solid #f0f0f0;
       margin-bottom: 30px;
+      background-color: #1a73e8;
+      color: white;
+      padding: 20px;
+      border-radius: 8px 8px 0 0;
     }
     
     .logo-container {
@@ -46,32 +52,143 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background-color: #1a73e8;
+      background-color: #ffffff;
       border-radius: 50%;
-      color: white;
-    }
-    
-    .logo i {
-      font-size: 20px;
+      color: #1a73e8;
+      font-weight: bold;
     }
     
     .company-name {
       font-size: 24px;
       font-weight: 600;
-      color: #1a73e8;
     }
     
     .invoice-title {
       font-size: 24px;
       font-weight: 500;
-      color: #333;
     }
     
-    .section {
-      margin-bottom: 25px;
-      padding: 20px;
+    .ticket-body {
+      padding: 0;
+      position: relative;
+    }
+    
+    .ticket-stub {
+      display: flex;
+      background-color: #fff;
+      padding: 25px;
+      margin-bottom: 3px;
+      position: relative;
+      border-left: 8px solid #1a73e8;
+    }
+    
+    .ticket-route {
+      flex: 2;
+      padding-right: 20px;
+    }
+    
+    .ticket-stations {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+      font-size: 22px;
+      font-weight: 600;
+    }
+    
+    .station {
+      flex: 1;
+    }
+    
+    .route-arrow {
+      font-size: 24px;
+      color: #1a73e8;
+      margin: 0 15px;
+    }
+    
+    .ticket-datetime {
+      display: flex;
+      margin-bottom: 15px;
+    }
+    
+    .date-block, .time-block {
+      margin-right: 30px;
+    }
+    
+    .block-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      color: #666;
+      margin-bottom: 3px;
+    }
+    
+    .block-value {
+      font-size: 16px;
+      font-weight: 500;
+    }
+    
+    .ticket-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      border-left: 1px dashed #ccc;
+      padding-left: 25px;
+    }
+    
+    .passenger-name {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 15px;
+    }
+    
+    .seat-details {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    
+    .seat-label {
+      width: 80px;
+      font-size: 14px;
+      color: #666;
+    }
+    
+    .seat-value {
+      font-size: 18px;
+      font-weight: 500;
+    }
+    
+    .ticket-divider {
+      height: 3px;
+      background: repeating-linear-gradient(90deg, #1a73e8, #1a73e8 10px, transparent 10px, transparent 15px);
+      position: relative;
+    }
+    
+    .ticket-divider:before {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background-color: #f0f2f5;
+      border-radius: 50%;
+      top: -8.5px;
+      left: -10px;
+    }
+    
+    .ticket-divider:after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background-color: #f0f2f5;
+      border-radius: 50%;
+      top: -8.5px;
+      right: -10px;
+    }
+    
+    .payment-section {
+      padding: 25px;
       background-color: #f9f9f9;
-      border-radius: 6px;
     }
     
     .section-title {
@@ -107,15 +224,16 @@
     }
     
     .footer {
-      margin-top: 30px;
+      margin-top: 0;
       text-align: center;
       font-size: 14px;
       color: #666;
-      padding-top: 20px;
+      padding: 20px;
       border-top: 1px solid #e0e0e0;
+      background-color: #f9f9f9;
     }
     
-    .travel-details, .payment-details {
+    .payment-details {
       background-color: #fff;
       padding: 15px;
       border-radius: 4px;
@@ -127,56 +245,56 @@
   <div class="invoice-container">
     <div class="invoice-header">
       <div class="logo-container">
-        <div class="logo">
-          <i class="fas fa-train"></i>
-        </div>
+        <div class="logo">RL</div>
         <div class="company-name">Rail Link</div>
       </div>
-      <div class="invoice-title">Travel Invoice</div>
+      <div class="invoice-title">E-Ticket</div>
     </div>
     
-    <div class="invoice-body">
-      <div class="section">
-        <div class="section-title">Travel Details</div>
-        <div class="travel-details">
-          <div class="detail-row">
-            <div class="detail-label">From:</div>
-            <div class="detail-value" th:text="${ticket.departureStation}">Departure Station</div>
+    <div class="ticket-body">
+      <div class="ticket-stub">
+        <div class="ticket-route">
+          <div class="ticket-stations">
+            <div class="station" th:text="${ticket.departureStation}">Departure Station</div>
+            <div class="route-arrow">→</div>
+            <div class="station" th:text="${ticket.arrivalStation}">Arrival Station</div>
           </div>
-          <div class="detail-row">
-            <div class="detail-label">To:</div>
-            <div class="detail-value" th:text="${ticket.arrivalStation}">Arrival Station</div>
+          
+          <div class="ticket-datetime">
+            <div class="date-block">
+              <div class="block-label">Date</div>
+              <div class="block-value" th:text="${#dates.format(ticket.departureDateTime, 'yyyy-MM-dd')}">2025-04-09</div>
+            </div>
+            <div class="time-block">
+              <div class="block-label">Departure</div>
+              <div class="block-value" th:text="${#dates.format(ticket.departureDateTime, 'HH:mm')}">14:30</div>
+            </div>
           </div>
-          <div class="detail-row">
-            <div class="detail-label">Date:</div>
-            <div class="detail-value" th:text="${#dates.format(ticket.departureDateTime, 'yyyy-MM-dd')}">2025-04-09</div>
+        </div>
+        
+        <div class="ticket-info">
+          <div class="passenger-name" th:text="${ticket.name + ' ' + ticket.surname}">John Doe</div>
+          
+          <div class="seat-details">
+            <div class="seat-label">Seat</div>
+            <div class="seat-value" th:text="${ticket.seat}">23A</div>
           </div>
-          <div class="detail-row">
-            <div class="detail-label">Time:</div>
-            <div class="detail-value" th:text="${#dates.format(ticket.departureDateTime, 'HH:mm')}">14:30</div>
+          
+          <div class="seat-details">
+            <div class="seat-label">Wagon</div>
+            <div class="seat-value" th:text="${ticket.wagonNumber + ' (' + ticket.wagonType + ')'}">5 (Business)</div>
+          </div>
+          
+          <div class="seat-details">
+            <div class="seat-label">Amount</div>
+            <div class="seat-value" th:text="'TL' + ${ticket.price}">TL150.00</div>
           </div>
         </div>
       </div>
       
-      <div class="section">
-        <div class="section-title">Passenger Information</div>
-        <div class="travel-details">
-          <div class="detail-row">
-            <div class="detail-label">Name:</div>
-            <div class="detail-value" th:text="${ticket.name + ' ' + ticket.surname}">John Doe</div>
-          </div>
-          <div class="detail-row">
-            <div class="detail-label">Seat:</div>
-            <div class="detail-value" th:text="${ticket.seat}">23A</div>
-          </div>
-          <div class="detail-row">
-            <div class="detail-label">Wagon:</div>
-            <div class="detail-value" th:text="${ticket.wagonNumber + ' (' + ticket.wagonType + ')'}">5 (Business)</div>
-          </div>
-        </div>
-      </div>
+      <div class="ticket-divider"></div>
       
-      <div class="section">
+      <div class="payment-section">
         <div class="section-title">Payment Details</div>
         <div class="payment-details">
           <div class="detail-row">
@@ -185,7 +303,7 @@
           </div>
           <div class="detail-row">
             <div class="detail-label">Amount Paid:</div>
-            <div class="detail-value" th:text="'TL' + ${ticket.price}">$150.00</div>
+            <div class="detail-value" th:text="'TL' + ${ticket.price}">TL150.00</div>
           </div>
           <div class="detail-row">
             <div class="detail-label">Card Holder:</div>
@@ -197,7 +315,7 @@
           </div>
           <div class="detail-row">
             <div class="detail-label">Expiry Date:</div>
-            <div class="detail-value" th:text="${invoice.expiryDate}">12/25</div>
+            <div class="detail-value" th:text="${invoice.expiryDate.substring(0,2) + '/' + invoice.expiryDate.substring(2)}">12/25</div>
           </div>
         </div>
         
@@ -209,7 +327,7 @@
     
     <div class="footer">
       Thank you for choosing Rail Link for your journey!<br/>
-      For customer support, please contact us at <a href="mailto:support@raillink.com" style="color:#1a73e8;text-decoration:none;">support@raillink.com</a>
+      For customer support, please contact us at support@raillink.com
     </div>
   </div>
 </body>
