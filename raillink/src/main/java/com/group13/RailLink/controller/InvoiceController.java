@@ -375,7 +375,7 @@ public class InvoiceController {
             detailsTable.setWidths(detailsWidths);
             
             // Transaction date - using invoice.getDate() which returns a String
-            addDetailRow(detailsTable, "Transaction Date:", invoice.getTransactionDate().toString());
+            addDetailRow(detailsTable, "Transaction Date:", invoice.getTransactionDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")).toString());
             
             // Amount paid
             addDetailRow(detailsTable, "Amount Paid:", price);
@@ -385,11 +385,11 @@ public class InvoiceController {
             addDetailRow(detailsTable, "Card Holder:", cardHolder);
             
             // Card number (masked)
-            String cardNumber = "**** **** **** ****";
+            String cardNumber = "************" + invoice.getCardNumber().substring(invoice.getCardNumber().length() - 4);
             addDetailRow(detailsTable, "Card Number:", cardNumber);
             
             // Expiry date
-            String expiryDate = "MM/YY";
+            String expiryDate = invoice.getExpiryDate().substring(0,2) + "/" + invoice.getExpiryDate().substring(2);
             addDetailRow(detailsTable, "Expiry Date:", expiryDate);
             
             detailsContainer.addElement(detailsTable);
